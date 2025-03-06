@@ -1,19 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  useState,
-  // startTransition,
-} from "react";
-import {
-  AutocompleteInput,
-  DynamicItemManager,
   GenericInput,
   SubmitButton,
+  AutocompleteInput,
+  DynamicItemManager,
 } from "@/app/shared/components";
 import type {
-  IPropiedad,
   IProyecto,
+  IPropiedad,
   IUbicacion,
 } from "@/app/shared/interfaces";
 

@@ -3,52 +3,65 @@ import { NextRequest, NextResponse } from "next/server";
 export default async function middleware(request: NextRequest) {
   const token = request.cookies.get("access_token")?.value;
   const pathname = request.nextUrl.pathname;
-
-  if (pathname === "/") {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
   const protectedRoutes = ["/admin"];
 
-  // if (token) {
-  //   try {
-  //     const response = await fetch("http://localhost:8000/api/auth/me", {
-  //       credentials: "include",
-  //       // headers: {
-  //       //   Authorization: `Bearer ${token}`,
-  //       // },
-  //       // credentials: "include",
-  //     });
+  if (pathname === "/") {
+    if (token) {
+      try {
+        const response = await fetch("http://localhost:8000/api/auth/me", {
+          headers: {
+            Authorization: `${token}`,
+          },
+        });
 
-  //     console.log("response", response.ok);
-
-  //     if (response.ok) {
-  //       if (pathname === "/login") {
-  //         return NextResponse.redirect(new URL("/admin/home", request.url));
-  //       }
-
-  //       if (pathname === "admin") {
-  //         return NextResponse.redirect(new URL("/admin/home", request.url));
-  //       }
-
-  //       return NextResponse.next();
-  //     }
-  //   } catch (error) {
-  //     console.error("Error validando el token:", error);
-  //   }
-  // }
-
-  if (!token && protectedRoutes.some((route) => pathname.startsWith(route))) {
+        if (response.ok) {
+          return NextResponse.redirect(new URL("/admin/home", request.url));
+        }
+      } catch (error) {
+        console.error("Error validando el token:", error);
+      }
+    }
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (token) {
-    if (pathname === "/login") {
-      return NextResponse.redirect(new URL("/admin/home", request.url));
+  if (pathname === "/login") {
+    if (token) {
+      try {
+        const response = await fetch("http://localhost:8000/api/auth/me", {
+          headers: {
+            Authorization: `${token}`,
+          },
+        });
+
+        if (response.ok) {
+          return NextResponse.redirect(new URL("/admin/home", request.url));
+        }
+      } catch (error) {
+        console.error("Error validando el token:", error);
+      }
+    }
+    return NextResponse.next();
+  }
+
+  if (protectedRoutes.some((route) => pathname.startsWith(route))) {
+    if (!token) {
+      return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    if (pathname === "admin") {
-      return NextResponse.redirect(new URL("/admin/home", request.url));
+    try {
+      const response = await fetch("http://localhost:8000/api/auth/me", {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.warn("Token inválido, redirigiendo a /login");
+        return NextResponse.redirect(new URL("/login", request.url));
+      }
+    } catch (error) {
+      console.error("Error validando el token:", error);
+      return NextResponse.redirect(new URL("/login", request.url));
     }
   }
 

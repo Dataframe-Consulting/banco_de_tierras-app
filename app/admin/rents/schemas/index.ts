@@ -19,30 +19,40 @@ const baseSchema = z.object({
       message: "La razón social no puede tener más de 255 caracteres",
     }),
   renta_sin_iva: z.number().min(0, {
-    message: "La renta sin IVA es requerida",
+    message: "La renta sin IVA debe ser igual o mayor a 0",
   }),
-  deposito_garantia_concepto: z.string().max(255, {
-    message:
-      "El concepto del depósito de garantía no puede tener más de 255 caracteres",
-  }),
-  deposito_garantia_monto: z.number().min(0, {
-    message: "El monto del depósito de garantía es requerido",
-  }),
+  deposito_garantia_concepto: z
+    .string()
+    .max(255, {
+      message:
+        "El concepto del depósito de garantía no puede tener más de 255 caracteres",
+    })
+    .optional(),
+  deposito_garantia_monto: z
+    .number()
+    .min(0, {
+      message: "El monto del depósito de garantía es requerido",
+    })
+    .optional(),
   meses_gracia_concepto: z.string().max(255, {
     message:
       "El concepto de los meses de gracia no puede tener más de 255 caracteres",
   }),
-  meses_gracia_fecha_inicio: z.date().nullable(),
-  meses_gracia_fecha_fin: z.date().nullable(),
+  meses_gracia_fecha_inicio: z.date().nullable().optional(),
+  meses_gracia_fecha_fin: z.date().nullable().optional(),
   renta_anticipada_concepto: z.string().max(255, {
     message:
       "El concepto de la renta anticipada no puede tener más de 255 caracteres",
   }),
-  renta_anticipada_fecha_inicio: z.date().nullable(),
-  renta_anticipada_fecha_fin: z.date().nullable(),
-  renta_anticipada_renta_sin_iva: z.number().min(0, {
-    message: "La renta anticipada sin IVA es requerida",
-  }),
+  renta_anticipada_fecha_inicio: z.date().nullable().optional(),
+  renta_anticipada_fecha_fin: z.date().nullable().optional(),
+  renta_anticipada_renta_sin_iva: z
+    .number()
+    .min(0, {
+      message: "La renta anticipada sin IVA es requerida",
+    })
+    .nullable()
+    .optional(),
   incremento_mes: z
     .string()
     .min(1, {
@@ -51,12 +61,19 @@ const baseSchema = z.object({
     .max(255, {
       message: "El incremento por mes no puede tener más de 255 caracteres",
     }),
-  incremento_nota: z.string().max(255, {
-    message: "La nota del incremento no puede tener más de 255 caracteres",
+  incremento_nota: z
+    .string()
+    .max(255, {
+      message: "La nota del incremento no puede tener más de 255 caracteres",
+    })
+    .optional(),
+  inicio_vigencia: z.date({
+    message: "La fecha de inicio de vigencia es requerida",
   }),
-  inicio_vigencia: z.date().nullable(),
-  fin_vigencia_forzosa: z.date().nullable(),
-  fin_vigencia_no_forzosa: z.date().nullable(),
+  fin_vigencia_forzosa: z.date({
+    message: "La fecha de fin de vigencia forzosa es requerida",
+  }),
+  fin_vigencia_no_forzosa: z.date().nullable().optional(),
   vigencia_nota: z.string().max(255, {
     message: "La nota de la vigencia no puede tener más de 255 caracteres",
   }),
