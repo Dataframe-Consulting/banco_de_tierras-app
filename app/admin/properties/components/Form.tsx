@@ -1,19 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  useState,
-  // startTransition,
-} from "react";
-import {
-  AutocompleteInput,
-  DynamicItemManager,
   GenericInput,
   SubmitButton,
+  AutocompleteInput,
+  DynamicItemManager,
 } from "@/app/shared/components";
 import type {
-  IPropiedad,
   IProyecto,
+  IPropiedad,
   IUbicacion,
 } from "@/app/shared/interfaces";
 
@@ -30,13 +27,13 @@ const Form = ({
   data,
   action,
   onClose,
-  setOptimisticData,
+  // setOptimisticData,
   proyectos,
   ubicaciones,
 }: IForm) => {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
-  const [badResponse, setBadResponse] = useState();
+  // const [badResponse, setBadResponse] = useState();
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (
     event

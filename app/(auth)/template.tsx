@@ -8,7 +8,7 @@ const AuthTemplate = ({ children }: { children: React.ReactNode }) => {
           priority
           width={300}
           height={300}
-          alt="Peques logo"
+          alt="Main logo"
           src="/assets/images/logo.webp"
           className="w-full max-w-[300px] h-auto"
         />
