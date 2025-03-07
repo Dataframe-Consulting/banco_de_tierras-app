@@ -3,7 +3,9 @@ import validateSchema from "@/app/shared/utils/validate-schema";
 
 const baseSchema = z.object({
   nombre_comercial: z
-    .string()
+    .string({
+      message: "El nombre comercial es requerido",
+    })
     .min(1, {
       message: "El nombre comercial es requerido",
     })
@@ -11,18 +13,26 @@ const baseSchema = z.object({
       message: "El nombre comercial no puede tener más de 255 caracteres",
     }),
   razon_social: z
-    .string()
+    .string({
+      message: "La razón social es requerida",
+    })
     .min(1, {
       message: "La razón social es requerida",
     })
     .max(255, {
       message: "La razón social no puede tener más de 255 caracteres",
     }),
-  renta_sin_iva: z.number().min(0, {
-    message: "La renta sin IVA debe ser igual o mayor a 0",
-  }),
+  renta_sin_iva: z
+    .number({
+      message: "La renta sin IVA es requerida",
+    })
+    .min(0, {
+      message: "La renta sin IVA debe ser igual o mayor a 0",
+    }),
   deposito_garantia_concepto: z
-    .string()
+    .string({
+      message: "El concepto del depósito de garantía es requerido",
+    })
     .max(255, {
       message:
         "El concepto del depósito de garantía no puede tener más de 255 caracteres",
@@ -34,16 +44,22 @@ const baseSchema = z.object({
       message: "El monto del depósito de garantía es requerido",
     })
     .optional(),
-  meses_gracia_concepto: z.string().max(255, {
-    message:
-      "El concepto de los meses de gracia no puede tener más de 255 caracteres",
-  }),
+  meses_gracia_concepto: z
+    .string()
+    .max(255, {
+      message:
+        "El concepto de los meses de gracia no puede tener más de 255 caracteres",
+    })
+    .optional(),
   meses_gracia_fecha_inicio: z.date().nullable().optional(),
   meses_gracia_fecha_fin: z.date().nullable().optional(),
-  renta_anticipada_concepto: z.string().max(255, {
-    message:
-      "El concepto de la renta anticipada no puede tener más de 255 caracteres",
-  }),
+  renta_anticipada_concepto: z
+    .string()
+    .max(255, {
+      message:
+        "El concepto de la renta anticipada no puede tener más de 255 caracteres",
+    })
+    .optional(),
   renta_anticipada_fecha_inicio: z.date().nullable().optional(),
   renta_anticipada_fecha_fin: z.date().nullable().optional(),
   renta_anticipada_renta_sin_iva: z
@@ -54,7 +70,9 @@ const baseSchema = z.object({
     .nullable()
     .optional(),
   incremento_mes: z
-    .string()
+    .string({
+      message: "El incremento por mes es requerido",
+    })
     .min(1, {
       message: "El incremento por mes es requerido",
     })
@@ -74,9 +92,12 @@ const baseSchema = z.object({
     message: "La fecha de fin de vigencia forzosa es requerida",
   }),
   fin_vigencia_no_forzosa: z.date().nullable().optional(),
-  vigencia_nota: z.string().max(255, {
-    message: "La nota de la vigencia no puede tener más de 255 caracteres",
-  }),
+  vigencia_nota: z
+    .string()
+    .max(255, {
+      message: "La nota de la vigencia no puede tener más de 255 caracteres",
+    })
+    .optional(),
 });
 
 const createSchema = baseSchema.extend({});

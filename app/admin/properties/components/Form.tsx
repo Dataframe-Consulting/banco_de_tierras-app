@@ -27,13 +27,13 @@ const Form = ({
   data,
   action,
   onClose,
-  setOptimisticData,
+  // setOptimisticData,
   proyectos,
   ubicaciones,
 }: IForm) => {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
-  const [badResponse, setBadResponse] = useState();
+  // const [badResponse, setBadResponse] = useState();
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (
     event
