@@ -1,8 +1,8 @@
 import { Suspense } from "react";
+import { cookies } from "next/headers";
 import { SearchBar, RentsDataTable } from "./components";
 import { DatatableSkeleton } from "@/app/shared/components";
 import type { IPropiedad, IRenta } from "@/app/shared/interfaces";
-import { cookies } from "next/headers";
 
 interface IRentsPage {
   searchParams?: Promise<{ [key: string]: string }>;
@@ -10,8 +10,8 @@ interface IRentsPage {
 
 const RentsPage = async ({ searchParams }: IRentsPage) => {
   const cookieStore = await cookies();
-
   const token = cookieStore.get("access_token");
+
   const { q = "", propiedad_id = "" } = (await searchParams) || {};
 
   const searchParamsForDataTable = { q, propiedad_id };

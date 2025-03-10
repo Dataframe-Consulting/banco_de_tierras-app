@@ -6,12 +6,16 @@ import type {
   IProyecto,
   IUbicacion,
 } from "@/app/shared/interfaces";
+import { cookies } from "next/headers";
 
 interface IPropertiesPage {
   searchParams?: Promise<{ [key: string]: string }>;
 }
 
 const PropertiesPage = async ({ searchParams }: IPropertiesPage) => {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("access_token");
+
   const {
     q = "",
     proyecto_id = "",
@@ -20,13 +24,21 @@ const PropertiesPage = async ({ searchParams }: IPropertiesPage) => {
 
   const searchParamsForDatatable = { q, proyecto_id, ubicacion_id };
 
-  const [proyectos, ubicacinoes] = await Promise.all([
-    fetch("http://localhost:8000/api/proyecto"),
-    fetch("http://localhost:8000/api/ubicacion"),
+  const [proyectos, ubicaciones] = await Promise.all([
+    fetch("http://localhost:8000/api/proyecto", {
+      headers: {
+        Authorization: `${token?.value}`,
+      },
+    }),
+    fetch("http://localhost:8000/api/ubicacion", {
+      headers: {
+        Authorization: `${token?.value}`,
+      },
+    }),
   ]);
 
   const proyectosData = (await proyectos.json()) as IProyecto[];
-  const ubicacionesData = (await ubicacinoes.json()) as IUbicacion[];
+  const ubicacionesData = (await ubicaciones.json()) as IUbicacion[];
 
   return (
     <>
@@ -36,6 +48,7 @@ const PropertiesPage = async ({ searchParams }: IPropertiesPage) => {
         fallback={<DatatableSkeleton />}
       >
         <DataFetch
+          token={token?.value}
           proyectos={proyectosData}
           ubicaciones={ubicacionesData}
           searchParams={searchParamsForDatatable}
@@ -48,12 +61,14 @@ const PropertiesPage = async ({ searchParams }: IPropertiesPage) => {
 export default PropertiesPage;
 
 interface IDataFetch {
+  token?: string;
   proyectos: IProyecto[];
   ubicaciones: IUbicacion[];
   searchParams: { q?: string; proyecto_id?: string; ubicacion_id?: string };
 }
 
 const DataFetch = async ({
+  token,
   proyectos,
   ubicaciones,
   searchParams,
@@ -67,7 +82,11 @@ const DataFetch = async ({
   if (searchParams.ubicacion_id)
     params.append("ubicacion_id", searchParams.ubicacion_id);
 
-  const response = await fetch(`${url}?${params.toString()}`);
+  const response = await fetch(`${url}?${params.toString()}`, {
+    headers: {
+      Authorization: `${token}`,
+    },
+  });
   const propertiesData = (await response.json()) as IPropiedad[];
 
   return (

@@ -1,7 +1,9 @@
 "use client";
 
 import Form from "./Form";
+import { PropiedadesDataTable } from "./Propiedades";
 import formatCurrency from "@/app/shared/utils/format-currency";
+import { ExpanderComponentProps } from "react-data-table-component";
 import { PencilIcon, PlusCircle, TrashIcon } from "@/app/shared/icons";
 import { useEffect, useOptimistic, useReducer, useState } from "react";
 import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
@@ -12,8 +14,6 @@ import {
   DatatableSkeleton,
 } from "@/app/shared/components";
 import type { IPropiedad, IRenta } from "@/app/shared/interfaces";
-import { ExpanderComponentProps } from "react-data-table-component";
-import { PropiedadesDataTable } from "./Propiedades";
 
 interface State {
   open: boolean;
@@ -52,10 +52,7 @@ const ExpandedComponent: React.FC<ExpanderComponentProps<IRenta>> = ({
       <h1 className="text-2xl">
         Propiedades de la Renta: {`"${data.nombre_comercial}"`}
       </h1>
-      <PropiedadesDataTable
-        // rentaId={data.id.toString()}
-        propiedades={data.propiedades}
-      />
+      <PropiedadesDataTable propiedades={data.propiedades} />
     </div>
   );
 };

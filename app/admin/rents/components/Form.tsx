@@ -253,13 +253,13 @@ const Form = ({
   return (
     <form action={handleSubmit} className="flex flex-col gap-4">
       <fieldset disabled={isPending} className="disabled:opacity-50 space-y-4">
+        {message && (
+          <div className="text-center text-white bg-red-500 p-2 rounded">
+            {message}
+          </div>
+        )}
         {action !== "delete" ? (
           <>
-            {message && (
-              <div className="text-center text-white bg-red-500 p-2 rounded">
-                {message}
-              </div>
-            )}
             <GenericPairDiv>
               <GenericDiv>
                 <GenericInput

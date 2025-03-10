@@ -1,8 +1,9 @@
 "use client";
 
 import Form from "./Form";
-import UbicacionesDataTable from "./Ubicaciones/DataTable";
-import formatCurrency from "@/app/shared/utils/format-currency";
+import cn from "@/app/shared/utils/cn";
+import SociedadesDataTable from "./Sociedades/DataTable";
+import PropietariosDataTable from "./Propietarios/DataTable";
 import { ExpanderComponentProps } from "react-data-table-component";
 import { PencilIcon, PlusCircle, TrashIcon } from "@/app/shared/icons";
 import { useEffect, useOptimistic, useReducer, useState } from "react";
@@ -15,20 +16,26 @@ import {
 } from "@/app/shared/components";
 import type {
   IProyecto,
-  IUbicacion,
-  IPropiedad,
+  ISociedad,
+  IVocacion,
+  IPropietario,
+  IVocacionEspecifica,
+  ISituacionFisica,
 } from "@/app/shared/interfaces";
 
 interface State {
   open: boolean;
   action: "add" | "edit" | "delete";
-  selectedData: IPropiedad | null;
+  selectedData: IProyecto | null;
 }
 
 type Action =
   | {
       type: "OPEN_MODAL";
-      payload: { action: "add" | "edit" | "delete"; data: IPropiedad | null };
+      payload: {
+        action: "add" | "edit" | "delete";
+        data: IProyecto | null;
+      };
     }
   | { type: "CLOSE_MODAL" };
 
@@ -48,30 +55,68 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-const ExpandedComponent: React.FC<ExpanderComponentProps<IPropiedad>> = ({
+const ExpandedComponent: React.FC<ExpanderComponentProps<IProyecto>> = ({
   data,
 }) => {
+  const [tab, setTab] = useState<"propietarios" | "sociedades">("propietarios");
+
   return (
     <div className="pl-12 py-4">
-      <h1 className="text-2xl">
-        Ubicaciones de la propiedad: {`"${data.nombre}"`}
-      </h1>
-      <UbicacionesDataTable ubicaciones={data.ubicaciones} />
+      <ul className="flex flex-row gap-4">
+        <li>
+          <button
+            onClick={() => setTab("propietarios")}
+            className={cn(
+              "px-4 py-2 rounded-md",
+              tab === "propietarios"
+                ? "bg-[#C23B2E] text-white"
+                : "bg-gray-200 text-gray-700"
+            )}
+          >
+            Propietarios
+          </button>
+        </li>
+        <li>
+          <button
+            onClick={() => setTab("sociedades")}
+            className={cn(
+              "px-4 py-2 rounded-md",
+              tab === "sociedades"
+                ? "bg-[#C23B2E] text-white"
+                : "bg-gray-200 text-gray-700"
+            )}
+          >
+            Sociedades
+          </button>
+        </li>
+      </ul>
+      {tab === "propietarios" && (
+        <PropietariosDataTable propietarios={data.propietarios} />
+      )}
+      {tab === "sociedades" && (
+        <SociedadesDataTable sociedades={data.sociedades} />
+      )}
     </div>
   );
 };
 
-interface IPropertiesDataTable {
-  proyectos: IProyecto[];
-  ubicaciones: IUbicacion[];
-  propiedades: IPropiedad[];
+interface IProjectsDataTable {
+  projects: IProyecto[];
+  vocaciones: IVocacion[];
+  sociedades: ISociedad[];
+  propietarios: IPropietario[];
+  situacionesFisicas: ISituacionFisica[];
+  vocacionesEspecificas: IVocacionEspecifica[];
 }
 
-const PropertiesDataTable = ({
-  proyectos,
-  ubicaciones,
-  propiedades,
-}: IPropertiesDataTable) => {
+const ProjectsDataTable = ({
+  projects,
+  vocaciones,
+  sociedades,
+  propietarios,
+  situacionesFisicas,
+  vocacionesEspecificas,
+}: IProjectsDataTable) => {
   const [isClient, setIsClient] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
     open: false,
@@ -80,22 +125,22 @@ const PropertiesDataTable = ({
   });
 
   const handleAction = (
-    data: IPropiedad | null,
+    data: IProyecto | null,
     action: "add" | "edit" | "delete"
   ) => {
     dispatch({ type: "OPEN_MODAL", payload: { action, data } });
   };
 
   const [optimisticData, setOptimisticData] = useOptimistic(
-    propiedades,
-    (currentData, data: IPropiedad | null) => {
-      if (state.action === "add") return [...currentData, data] as IPropiedad[];
+    projects,
+    (currentData, data: IProyecto | null) => {
+      if (state.action === "add") return [...currentData, data] as IProyecto[];
       if (state.action === "edit")
         return currentData.map((i) =>
           i.id === data?.id ? data : i
-        ) as IPropiedad[];
+        ) as IProyecto[];
       if (state.action === "delete")
-        return currentData.filter((i) => i.id !== data?.id) as IPropiedad[];
+        return currentData.filter((i) => i.id !== data?.id) as IProyecto[];
       return currentData;
     }
   );
@@ -104,7 +149,7 @@ const PropertiesDataTable = ({
     {
       name: "Acciones",
       width: "150px",
-      cell: (row: IPropiedad) => (
+      cell: (row: IProyecto) => (
         <div className="flex justify-center gap-2">
           <button
             onClick={() => handleAction(row, "edit")}
@@ -123,64 +168,44 @@ const PropertiesDataTable = ({
     },
     {
       name: "Nombre",
-      maxwidth: "200px",
       selector: (row: { nombre: string }) => row.nombre,
       sortable: true,
     },
     {
-      name: "Superficie (m²)",
-      selector: (row: { superficie: number }) => row.superficie,
+      name: "Superficie Total (m²)",
+      selector: (row: { superficie_total: number }) => row.superficie_total,
       sortable: true,
     },
     {
-      name: "Valor Comercial",
-      selector: (row: { valor_comercial: number }) => row.valor_comercial,
+      name: "Activo",
+      selector: (row: { esta_activo: boolean }) => row.esta_activo,
       sortable: true,
-      format: (row: { valor_comercial: number }) =>
-        formatCurrency(row.valor_comercial, "MXN"),
-    },
-    {
-      name: "Año Valor Comercial",
-      selector: (row: { anio_valor_comercial?: number }) =>
-        row.anio_valor_comercial ?? "N/A",
-      sortable: true,
-    },
-    {
-      name: "Clave Catastral",
-      selector: (row: { clave_catastral: string }) => row.clave_catastral,
-      sortable: true,
-    },
-    {
-      name: "Proyecto",
-      selector: (row: { proyecto: { nombre: string } }) => row.proyecto.nombre,
-      sortable: true,
-    },
-    {
-      name: "Base Predial",
-      selector: (row: { base_predial: number }) => row.base_predial,
-      sortable: true,
-      format: (row: { base_predial: number }) =>
-        formatCurrency(row.base_predial, "MXN"),
-    },
-    {
-      name: "Adeudo Predial",
-      selector: (row: { adeudo_predial?: number }) =>
-        row.adeudo_predial ?? "N/A",
-      sortable: true,
-      format: (row: { adeudo_predial?: number }) =>
-        row.adeudo_predial ? formatCurrency(row.adeudo_predial, "MXN") : "N/A",
-    },
-    {
-      name: "Años Pend. Predial",
-      selector: (row: { anios_pend_predial?: number }) =>
-        row.anios_pend_predial ?? "N/A",
-      sortable: true,
+      format: (row: { esta_activo: boolean }) =>
+        row.esta_activo ? "Sí" : "No",
     },
     {
       name: "Comentarios",
       selector: (row: { comentarios?: string }) =>
         row.comentarios ?? "Sin comentarios",
+      sortable: true,
       wrap: true,
+    },
+    {
+      name: "Situación Física",
+      selector: (row: { situacion_fisica: { nombre: string } }) =>
+        row.situacion_fisica.nombre,
+      sortable: true,
+    },
+    {
+      name: "Vocación",
+      selector: (row: { vocacion: { valor: string } }) => row.vocacion.valor,
+      sortable: true,
+    },
+    {
+      name: "Vocación Específica",
+      selector: (row: { vocacion_especifica: { valor: string } }) =>
+        row.vocacion_especifica.valor,
+      sortable: true,
     },
     {
       name: "Creado en",
@@ -211,11 +236,14 @@ const PropertiesDataTable = ({
         >
           <Form
             action={state.action}
-            propiedad={state.selectedData}
+            proyecto={state.selectedData}
+            vocaciones={vocaciones}
+            sociedades={sociedades}
+            propietarios={propietarios}
+            situacionesFisicas={situacionesFisicas}
+            vocacionesEspecificas={vocacionesEspecificas}
             setOptimisticData={setOptimisticData}
             onClose={() => dispatch({ type: "CLOSE_MODAL" })}
-            proyectos={proyectos}
-            ubicaciones={ubicaciones}
           />
         </Modal>
       )}
@@ -227,7 +255,7 @@ const PropertiesDataTable = ({
           <PlusCircle />
         </button>
       </div>
-      {propiedades.length > 0 ? (
+      {projects.length > 0 ? (
         <>
           {isClient ? (
             <Datatable
@@ -244,12 +272,12 @@ const PropertiesDataTable = ({
         </>
       ) : (
         <Card404
-          title="No se encontraron propiedades"
-          description="No se encontraron propiedades en la base de datos."
+          title="No se encontraron proyectos"
+          description="No se encontraron proyectos en la base de datos."
         />
       )}
     </>
   );
 };
 
-export default PropertiesDataTable;
+export default ProjectsDataTable;
