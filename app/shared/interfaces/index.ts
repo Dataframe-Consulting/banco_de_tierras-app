@@ -138,6 +138,7 @@ export interface IGarantia {
   monto: number;
   fecha_inicio: Date;
   fecha_fin: Date;
+  propiedad: IPropiedad;
   propiedad_id: number;
   created_at: Date;
   updated_at: Date;
@@ -148,6 +149,7 @@ export interface IProcesoLegal {
   abogado: string;
   tipo_proceso: string;
   estatus: string;
+  propiedad: IPropiedad;
   propiedad_id: number;
   created_at: Date;
   updated_at: Date;

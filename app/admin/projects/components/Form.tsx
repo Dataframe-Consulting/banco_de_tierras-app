@@ -49,11 +49,11 @@ interface IForm {
 const Form = ({
   action,
   proyecto,
-  // vocaciones,
+  vocaciones,
   sociedades,
   propietarios,
-  // situacionesFisicas,
-  // vocacionesEspecificas,
+  situacionesFisicas,
+  vocacionesEspecificas,
   setOptimisticData,
   onClose,
 }: IForm) => {
@@ -74,9 +74,7 @@ const Form = ({
         superficie_total: formData.get("superficie_total")
           ? parseFloat(formData.get("superficie_total") as string)
           : undefined,
-        esta_activo: formData.get("esta_activo")
-          ? formData.get("esta_activo") === "on"
-          : undefined,
+        esta_activo: formData.get("esta_activo") === "on",
         comentarios: formData.get("comentarios")
           ? (formData.get("comentarios") as string)
           : undefined,
@@ -91,8 +89,6 @@ const Form = ({
           : undefined,
       };
 
-      console.log(dataToValidate);
-
       if (action !== "delete") {
         const errors = validateProjectsSchema(action, dataToValidate);
         if (Object.keys(errors).length > 0) {
@@ -103,7 +99,6 @@ const Form = ({
         }
         if (action === "add") {
           const propietariosIds = formData.getAll("propietario") as string[];
-          console.log(propietariosIds);
           if (
             propietariosIds.length === 0 ||
             propietariosIds.some((id) => id === null || id === "")
@@ -116,7 +111,6 @@ const Form = ({
             };
           }
           const sociedadesIds = formData.getAll("sociedad_id") as string[];
-          console.log(sociedadesIds);
           if (
             sociedadesIds.length === 0 ||
             sociedadesIds.some((id) => id === null || id === "")
@@ -131,7 +125,6 @@ const Form = ({
           const sociedadesValues = formData.getAll(
             "sociedad_value"
           ) as string[];
-          console.log(sociedadesValues);
           if (
             sociedadesValues.length === 0 ||
             sociedadesValues.some((value) => value === null || value === "")
@@ -151,8 +144,6 @@ const Form = ({
           }
         }
       }
-
-      return null;
 
       const id = proyecto?.id ?? 0;
       const created_at = proyecto?.created_at ?? new Date();
@@ -279,10 +270,10 @@ const Form = ({
 
   const { errors, data, message } = state ?? {};
 
-  // const transformedVocaciones = vocaciones.map(({ id, valor }) => ({
-  //   key: id.toString(),
-  //   name: valor,
-  // }));
+  const transformedPropietarios = propietarios.map(({ id, nombre }) => ({
+    key: id.toString(),
+    name: nombre,
+  }));
 
   const transformedSociedades = sociedades.map(
     ({ id, porcentaje_participacion }) => ({
@@ -291,24 +282,24 @@ const Form = ({
     })
   );
 
-  const transformedPropietarios = propietarios.map(({ id, nombre }) => ({
+  const transformedSituacionesFisicas = situacionesFisicas.map(
+    ({ id, nombre }) => ({
+      key: id.toString(),
+      name: nombre,
+    })
+  );
+
+  const transformedVocaciones = vocaciones.map(({ id, valor }) => ({
     key: id.toString(),
-    name: nombre,
+    name: valor,
   }));
 
-  // const transformedSituacionesFisicas = situacionesFisicas.map(
-  //   ({ id, nombre }) => ({
-  //     key: id.toString(),
-  //     name: nombre,
-  //   })
-  // );
-
-  // const transformedVocacionesEspecificas = vocacionesEspecificas.map(
-  //   ({ id, valor }) => ({
-  //     key: id.toString(),
-  //     name: valor,
-  //   })
-  // );
+  const transformedVocacionesEspecificas = vocacionesEspecificas.map(
+    ({ id, valor }) => ({
+      key: id.toString(),
+      name: valor,
+    })
+  );
 
   return (
     <form action={handleSubmit} className="flex flex-col gap-4">
@@ -339,6 +330,50 @@ const Form = ({
                   placeholder="5302.98"
                   defaultValue={data?.superficie_total?.toString()}
                   error={errors?.superficie_total}
+                />
+              </GenericDiv>
+            </GenericPairDiv>
+            <GenericPairDiv>
+              <GenericDiv>
+                <GenericInput
+                  type="select"
+                  id="situacion_fisica_id"
+                  ariaLabel="Situación Física"
+                  placeholder="Selecciona una situación física..."
+                  error={errors?.situacion_fisica_id}
+                  defaultValue={data?.situacion_fisica_id?.toString()}
+                  options={transformedSituacionesFisicas.map((i) => ({
+                    value: i.key,
+                    label: i.name,
+                  }))}
+                />
+              </GenericDiv>
+              <GenericDiv>
+                <GenericInput
+                  type="select"
+                  id="vocacion_id"
+                  ariaLabel="Vocación"
+                  placeholder="Selecciona una vocación..."
+                  error={errors?.vocacion_id}
+                  defaultValue={data?.vocacion_id?.toString()}
+                  options={transformedVocaciones.map((i) => ({
+                    value: i.key,
+                    label: i.name,
+                  }))}
+                />
+              </GenericDiv>
+              <GenericDiv>
+                <GenericInput
+                  type="select"
+                  id="vocacion_especifica_id"
+                  ariaLabel="Vocación Específica"
+                  placeholder="Selecciona una vocación específica..."
+                  error={errors?.vocacion_especifica_id}
+                  defaultValue={data?.vocacion_especifica_id?.toString()}
+                  options={transformedVocacionesEspecificas.map((i) => ({
+                    value: i.key,
+                    label: i.name,
+                  }))}
                 />
               </GenericDiv>
             </GenericPairDiv>
@@ -374,9 +409,9 @@ const Form = ({
                           <AutocompleteInput
                             id="sociedad_id"
                             customClassName="mt-2"
-                            ariaLabel="Sociedad"
+                            ariaLabel="Sociedad (%)"
                             error={errors?.sociedad_id}
-                            placeholder="Busca una sociedad..."
+                            placeholder="Busca un porcentaje..."
                             additionOnChange={(e) =>
                               onSelect(index, e.target.value)
                             }
@@ -401,6 +436,14 @@ const Form = ({
                 </GenericPairDiv>
               </>
             )}
+            <div className="flex gap-2 items-center justify-end">
+              <GenericInput
+                type="checkbox"
+                id="esta_activo"
+                ariaLabel="¿Es un proyecto activo?"
+                defaultChecked={data?.esta_activo}
+              />
+            </div>
           </>
         ) : (
           <div className="text-center">

@@ -39,13 +39,6 @@ const SearchBar = ({
   return (
     <search className="max-w-lg mx-auto mt-6 mb-4">
       <div className="flex flex-col md:flex-row gap-2 items-end">
-        <GenericSearchInput
-          type="text"
-          inputClassName="h-full"
-          value={filters.q}
-          onChange={(value: string) => handleSearch("q", value)}
-          placeholder="Busca por nombre comercial o razon social..."
-        />
         <div>
           <GenericSearchInput
             type="select"
@@ -63,6 +56,20 @@ const SearchBar = ({
         <div>
           <GenericSearchInput
             type="select"
+            id="sociedad_id"
+            placeholder="Todas"
+            ariaLabel="Sociedad"
+            value={filters.sociedad_id}
+            options={sociedades.map((sociedad) => ({
+              value: sociedad.id.toString(),
+              label: sociedad.porcentaje_participacion.toString(),
+            }))}
+            onChange={(value: string) => handleSearch("sociedad_id", value)}
+          />
+        </div>
+        <div>
+          <GenericSearchInput
+            type="select"
             id="situacion_fisica_id"
             placeholder="Todas"
             ariaLabel="Situación Física"
@@ -74,20 +81,6 @@ const SearchBar = ({
             onChange={(value: string) =>
               handleSearch("situacion_fisica_id", value)
             }
-          />
-        </div>
-        <div>
-          <GenericSearchInput
-            type="select"
-            id="sociedad_id"
-            placeholder="Todas"
-            ariaLabel="Sociedad"
-            value={filters.sociedad_id}
-            options={sociedades.map((sociedad) => ({
-              value: sociedad.id.toString(),
-              label: sociedad.porcentaje_participacion.toString(),
-            }))}
-            onChange={(value: string) => handleSearch("sociedad_id", value)}
           />
         </div>
         <div>
@@ -120,6 +113,15 @@ const SearchBar = ({
             }
           />
         </div>
+      </div>
+      <div className="mt-2">
+        <GenericSearchInput
+          type="text"
+          inputClassName="h-full"
+          value={filters.q}
+          onChange={(value: string) => handleSearch("q", value)}
+          placeholder="Busca por nombre comercial o razon social..."
+        />
       </div>
     </search>
   );
