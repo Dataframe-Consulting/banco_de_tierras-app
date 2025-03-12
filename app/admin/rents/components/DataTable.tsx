@@ -1,12 +1,12 @@
 "use client";
 
 import Form from "./Form";
-import { PropiedadesDataTable } from "./Propiedades";
 import formatCurrency from "@/app/shared/utils/format-currency";
 import { ExpanderComponentProps } from "react-data-table-component";
 import { PencilIcon, PlusCircle, TrashIcon } from "@/app/shared/icons";
 import { useEffect, useOptimistic, useReducer, useState } from "react";
 import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
+import { PropiedadesDataTable, RentsPropertiesForm } from "./Propiedades";
 import {
   Modal,
   Card404,
@@ -52,7 +52,7 @@ const ExpandedComponent: React.FC<ExpanderComponentProps<IRenta>> = ({
       <h1 className="text-2xl">
         Propiedades de la Renta: {`"${data.nombre_comercial}"`}
       </h1>
-      <PropiedadesDataTable propiedades={data.propiedades} />
+      <PropiedadesDataTable rentaId={data.id} propiedades={data.propiedades} />
     </div>
   );
 };
@@ -94,9 +94,17 @@ const RentsDataTable = ({ rents, propiedades }: IRentsDataTable) => {
   const columns = [
     {
       name: "Acciones",
-      width: "150px",
+      width: "220px",
       cell: (row: IRenta) => (
         <div className="flex justify-center gap-2">
+          <RentsPropertiesForm
+            action="add"
+            rentaId={row.id}
+            propiedad={propiedades.filter(
+              (propiedad) =>
+                !row.propiedades.map((p) => p.id).includes(propiedad.id)
+            )}
+          />
           <button
             onClick={() => handleAction(row, "edit")}
             className="px-4 py-2 text-white bg-blue-400 rounded-md"
@@ -105,7 +113,7 @@ const RentsDataTable = ({ rents, propiedades }: IRentsDataTable) => {
           </button>
           <button
             onClick={() => handleAction(row, "delete")}
-            className="px-4 py- text-white bg-red-400 rounded-md"
+            className="px-4 py-2 text-white bg-red-400 rounded-md"
           >
             <TrashIcon />
           </button>

@@ -18,15 +18,13 @@ interface IRentaState {
     nombre_comercial?: string;
     razon_social?: string;
     renta_sin_iva?: number;
-    deposito_garantia_concepto?: string;
-    deposito_garantia_monto?: number;
-    meses_gracia_concepto?: string;
+    meses_deposito_garantia?: number;
+    meses_gracia?: number;
     meses_gracia_fecha_inicio?: Date;
     meses_gracia_fecha_fin?: Date;
-    renta_anticipada_concepto?: string;
+    meses_renta_anticipada?: number;
     renta_anticipada_fecha_inicio?: Date;
     renta_anticipada_fecha_fin?: Date;
-    renta_anticipada_renta_sin_iva?: number;
     incremento_mes?: string;
     incremento_nota?: string;
     inicio_vigencia?: Date;
@@ -74,14 +72,11 @@ const Form = ({
         renta_sin_iva: formData.get("renta_sin_iva")
           ? Number(formData.get("renta_sin_iva"))
           : undefined,
-        deposito_garantia_concepto: formData.get("deposito_garantia_concepto")
-          ? (formData.get("deposito_garantia_concepto") as string)
+        meses_deposito_garantia: formData.get("meses_deposito_garantia")
+          ? Number(formData.get("meses_deposito_garantia") as string)
           : undefined,
-        deposito_garantia_monto: formData.get("deposito_garantia_monto")
-          ? Number(formData.get("deposito_garantia_monto"))
-          : undefined,
-        meses_gracia_concepto: formData.get("meses_gracia_concepto")
-          ? (formData.get("meses_gracia_concepto") as string)
+        meses_gracia: formData.get("meses_gracia")
+          ? Number(formData.get("meses_gracia"))
           : undefined,
         meses_gracia_fecha_inicio: formData.get("meses_gracia_fecha_inicio")
           ? new Date(formData.get("meses_gracia_fecha_inicio") as string)
@@ -99,11 +94,6 @@ const Form = ({
           : undefined,
         renta_anticipada_fecha_fin: formData.get("renta_anticipada_fecha_fin")
           ? new Date(formData.get("renta_anticipada_fecha_fin") as string)
-          : undefined,
-        renta_anticipada_renta_sin_iva: formData.get(
-          "renta_anticipada_renta_sin_iva"
-        )
-          ? Number(formData.get("renta_anticipada_renta_sin_iva"))
           : undefined,
         incremento_mes: formData.get("incremento_mes")
           ? (formData.get("incremento_mes") as string)
@@ -295,32 +285,30 @@ const Form = ({
             <GenericPairDiv>
               <GenericDiv>
                 <GenericInput
-                  type="text"
-                  id="deposito_garantia_concepto"
-                  ariaLabel="Depósito Garantía Concepto"
-                  placeholder="Depósito"
-                  defaultValue={data?.deposito_garantia_concepto}
-                  error={errors?.deposito_garantia_concepto}
+                  type="select"
+                  id="meses_deposito_garantia"
+                  ariaLabel="Meses depósito de Garantía"
+                  placeholder="Selecciona un número de meses"
+                  defaultValue={data?.meses_deposito_garantia?.toString()}
+                  options={Array.from({ length: 10 }, (_, i) => ({
+                    value: (i + 1).toString(),
+                    label: (i + 1).toString(),
+                  }))}
+                  error={errors?.meses_deposito_garantia}
                 />
               </GenericDiv>
               <GenericDiv>
                 <GenericInput
-                  type="number"
-                  id="deposito_garantia_monto"
-                  ariaLabel="Depósito Garantía Monto"
-                  placeholder="1000"
-                  defaultValue={data?.deposito_garantia_monto?.toString()}
-                  error={errors?.deposito_garantia_monto}
-                />
-              </GenericDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="text"
-                  id="meses_gracia_concepto"
-                  ariaLabel="Meses Gracia Concepto"
-                  placeholder="Meses de gracia"
-                  defaultValue={data?.meses_gracia_concepto}
-                  error={errors?.meses_gracia_concepto}
+                  type="select"
+                  id="meses_gracia"
+                  ariaLabel="Meses de Gracia"
+                  placeholder="Selecciona un número de meses"
+                  defaultValue={data?.meses_gracia?.toString()}
+                  options={Array.from({ length: 10 }, (_, i) => ({
+                    value: (i + 1).toString(),
+                    label: (i + 1).toString(),
+                  }))}
+                  error={errors?.meses_gracia}
                 />
               </GenericDiv>
             </GenericPairDiv>
@@ -356,10 +344,11 @@ const Form = ({
                 />
               </GenericDiv>
               <GenericDiv>
+                {/* CAMBIAR A SELECT DE NÚMERO DE MESES DEL 1 AL 10 */}
                 <GenericInput
                   type="text"
                   id="renta_anticipada_concepto"
-                  ariaLabel="Renta Anticipada Concepto"
+                  ariaLabel="Meses Renta Anticipada"
                   placeholder="Renta anticipada"
                   defaultValue={data?.renta_anticipada_concepto}
                   error={errors?.renta_anticipada_concepto}
@@ -399,7 +388,7 @@ const Form = ({
                   error={errors?.renta_anticipada_fecha_fin}
                 />
               </GenericDiv>
-              <GenericDiv>
+              {/* <GenericDiv>
                 <GenericInput
                   type="number"
                   id="renta_anticipada_renta_sin_iva"
@@ -408,10 +397,11 @@ const Form = ({
                   defaultValue={data?.renta_anticipada_renta_sin_iva?.toString()}
                   error={errors?.renta_anticipada_renta_sin_iva}
                 />
-              </GenericDiv>
+              </GenericDiv> */}
             </GenericPairDiv>
             <GenericPairDiv>
               <GenericDiv>
+                {/* SELECT DE MESES */}
                 <GenericInput
                   type="text"
                   id="incremento_mes"

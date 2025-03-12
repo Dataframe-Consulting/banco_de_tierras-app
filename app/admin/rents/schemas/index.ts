@@ -29,26 +29,14 @@ const baseSchema = z.object({
     .min(0, {
       message: "La renta sin IVA debe ser igual o mayor a 0",
     }),
-  deposito_garantia_concepto: z
-    .string({
-      message: "El concepto del depósito de garantía es requerido",
-    })
-    .max(255, {
-      message:
-        "El concepto del depósito de garantía no puede tener más de 255 caracteres",
+  meses_deposito_garantia: z
+    .enum(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"], {
+      message: "El número de meses de depósito de garantía es requerido",
     })
     .optional(),
-  deposito_garantia_monto: z
-    .number()
-    .min(0, {
-      message: "El monto del depósito de garantía es requerido",
-    })
-    .optional(),
-  meses_gracia_concepto: z
-    .string()
-    .max(255, {
-      message:
-        "El concepto de los meses de gracia no puede tener más de 255 caracteres",
+  meses_gracia: z
+    .enum(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"], {
+      message: "El número de meses de gracia es requerido",
     })
     .optional(),
   meses_gracia_fecha_inicio: z.date().nullable().optional(),
@@ -62,13 +50,6 @@ const baseSchema = z.object({
     .optional(),
   renta_anticipada_fecha_inicio: z.date().nullable().optional(),
   renta_anticipada_fecha_fin: z.date().nullable().optional(),
-  renta_anticipada_renta_sin_iva: z
-    .number()
-    .min(0, {
-      message: "La renta anticipada sin IVA es requerida",
-    })
-    .nullable()
-    .optional(),
   incremento_mes: z
     .string({
       message: "El incremento por mes es requerido",

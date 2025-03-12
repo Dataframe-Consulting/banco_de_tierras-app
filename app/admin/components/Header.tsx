@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useAuth } from "@/app/shared/hooks";
+import { DoorArrowRight } from "@/app/shared/icons";
 
 const Header = () => {
   const { logout } = useAuth();
@@ -29,10 +30,11 @@ const Header = () => {
           </li>
           <li>
             <button
+              title="Cerrar sesión"
               onClick={() => handleLogOut()}
               className="px-2 py-1 rounded-lg bg-white"
             >
-              Cerrar sesión
+              <DoorArrowRight />
             </button>
           </li>
         </ul>

@@ -1,12 +1,12 @@
 "use client";
 
 import Form from "./Form";
-import UbicacionesDataTable from "./Ubicaciones/DataTable";
 import formatCurrency from "@/app/shared/utils/format-currency";
 import { ExpanderComponentProps } from "react-data-table-component";
 import { PencilIcon, PlusCircle, TrashIcon } from "@/app/shared/icons";
 import { useEffect, useOptimistic, useReducer, useState } from "react";
 import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
+import { UbicacionesDataTable, PropertiesLocationsForm } from "./Ubicaciones";
 import {
   Modal,
   Card404,
@@ -56,7 +56,10 @@ const ExpandedComponent: React.FC<ExpanderComponentProps<IPropiedad>> = ({
       <h1 className="text-2xl">
         Ubicaciones de la propiedad: {`"${data.nombre}"`}
       </h1>
-      <UbicacionesDataTable ubicaciones={data.ubicaciones} />
+      <UbicacionesDataTable
+        propiedadId={data.id}
+        ubicaciones={data.ubicaciones}
+      />
     </div>
   );
 };
@@ -103,9 +106,17 @@ const PropertiesDataTable = ({
   const columns = [
     {
       name: "Acciones",
-      width: "150px",
+      width: "220px",
       cell: (row: IPropiedad) => (
         <div className="flex justify-center gap-2">
+          <PropertiesLocationsForm
+            action="add"
+            propiedadId={row.id}
+            ubicacion={ubicaciones.filter(
+              (ubicacion) =>
+                !row.ubicaciones.map((u) => u.id).includes(ubicacion.id)
+            )}
+          />
           <button
             onClick={() => handleAction(row, "edit")}
             className="px-4 py-2 text-white bg-blue-400 rounded-md"

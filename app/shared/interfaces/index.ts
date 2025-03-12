@@ -160,15 +160,13 @@ export interface IRenta {
   nombre_comercial: string;
   razon_social: string;
   renta_sin_iva: number;
-  deposito_garantia_concepto?: string;
-  deposito_garantia_monto?: number;
-  meses_gracia_concepto?: string;
+  meses_deposito_garantia?: number;
+  meses_gracia?: number;
   meses_gracia_fecha_inicio?: Date;
   meses_gracia_fecha_fin?: Date;
-  renta_anticipada_concepto?: string;
+  meses_renta_anticipada?: number;
   renta_anticipada_fecha_inicio?: Date;
   renta_anticipada_fecha_fin?: Date;
-  renta_anticipada_renta_sin_iva?: number;
   incremento_mes: string;
   incremento_nota?: string;
   inicio_vigencia: Date;

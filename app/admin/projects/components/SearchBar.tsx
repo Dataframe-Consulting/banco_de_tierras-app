@@ -120,7 +120,7 @@ const SearchBar = ({
           inputClassName="h-full"
           value={filters.q}
           onChange={(value: string) => handleSearch("q", value)}
-          placeholder="Busca por nombre comercial o razon social..."
+          placeholder="Busca por nombre..."
         />
       </div>
     </search>
