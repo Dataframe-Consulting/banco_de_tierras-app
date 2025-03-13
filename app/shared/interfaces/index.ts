@@ -23,9 +23,10 @@ export interface IPropietario {
   id: number;
   nombre: string;
   rfc: string;
-  socios: ISocio[];
   created_at: Date;
   updated_at: Date;
+
+  socios: ISocio[];
 }
 
 export interface ISocio {
@@ -39,13 +40,6 @@ export interface IPropietarioSocio {
   propietario_id: number;
   socio_id: number;
   created_at: Date;
-}
-
-export interface ISociedad {
-  id: number;
-  porcentaje_participacion: number;
-  created_at: Date;
-  updated_at: Date;
 }
 
 export interface ISituacionFisica {
@@ -76,15 +70,16 @@ export interface IProyecto {
   esta_activo: boolean;
   comentarios?: string;
   situacion_fisica_id: number;
-  situacion_fisica: ISituacionFisica;
   vocacion_id: number;
-  vocacion: IVocacion;
   vocacion_especifica_id: number;
-  vocacion_especifica: IVocacionEspecifica;
-  propietarios: IPropietario[];
-  sociedades: ISociedadProyecto[];
   created_at: Date;
   updated_at: Date;
+
+  situacion_fisica: ISituacionFisica;
+  vocacion: IVocacion;
+  vocacion_especifica: IVocacionEspecifica;
+
+  propietarios: IPropietario[];
 }
 
 export interface IPropietarioProyecto {
@@ -93,17 +88,36 @@ export interface IPropietarioProyecto {
   created_at: Date;
 }
 
-export interface ISociedadProyecto {
-  valor: number;
-  sociedad_id: number;
-  sociedad: ISociedad;
-  proyecto_id: number;
+export interface ISociedad {
+  id: number;
+  porcentaje_participacion: number;
   created_at: Date;
+  updated_at: Date;
 }
 
 export interface IUbicacion {
   id: number;
   nombre: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface IGarantia {
+  id: number;
+  beneficiario: string;
+  monto: number;
+  fecha_inicio: Date;
+  fecha_fin: Date;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface IProcesoLegal {
+  id: number;
+  abogado: string;
+  tipo_proceso: string;
+  estatus: string;
+  comentarios?: string;
   created_at: Date;
   updated_at: Date;
 }
@@ -120,10 +134,21 @@ export interface IPropiedad {
   anios_pend_predial?: number;
   comentarios?: string;
   proyecto_id: number;
-  proyecto: IProyecto;
-  ubicaciones: IUbicacion[];
   created_at: Date;
   updated_at: Date;
+
+  proyecto: IProyecto;
+
+  sociedades: ISociedad[];
+  ubicaciones: IUbicacion[];
+  garantias: IGarantia[];
+  procesos_legales: IProcesoLegal[];
+}
+
+export interface ISociedadPropiedad {
+  sociedad_id: number;
+  propiedad_id: number;
+  created_at: Date;
 }
 
 export interface IUbicacionPropiedad {
@@ -132,27 +157,16 @@ export interface IUbicacionPropiedad {
   created_at: Date;
 }
 
-export interface IGarantia {
-  id: number;
-  beneficiario: string;
-  monto: number;
-  fecha_inicio: Date;
-  fecha_fin: Date;
-  propiedad: IPropiedad;
+export interface IGarantiaPropiedad {
+  garantia_id: number;
   propiedad_id: number;
   created_at: Date;
-  updated_at: Date;
 }
 
-export interface IProcesoLegal {
-  id: number;
-  abogado: string;
-  tipo_proceso: string;
-  estatus: string;
-  propiedad: IPropiedad;
+export interface IProcesoLegalPropiedad {
+  proceso_legal_id: number;
   propiedad_id: number;
   created_at: Date;
-  updated_at: Date;
 }
 
 export interface IRenta {
@@ -173,9 +187,10 @@ export interface IRenta {
   fin_vigencia_forzosa: Date;
   fin_vigencia_no_forzosa?: Date;
   vigencia_nota?: string;
-  propiedades: IPropiedad[];
   created_at: Date;
   updated_at: Date;
+
+  propiedades: IPropiedad[];
 }
 
 export interface IPropiedadRenta {

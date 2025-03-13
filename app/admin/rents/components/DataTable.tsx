@@ -139,25 +139,36 @@ const RentsDataTable = ({ rents, propiedades }: IRentsDataTable) => {
         formatCurrency(row.renta_sin_iva, "MXN"),
     },
     {
-      name: "Depósito Garantía Concepto",
-      selector: (row: { deposito_garantia_concepto?: string }) =>
-        row.deposito_garantia_concepto || "Sin depósito",
+      name: "Meses de Depósito Garantía",
+      selector: (row: { meses_deposito_garantia?: number }) =>
+        row.meses_deposito_garantia || "Sin meses",
       sortable: true,
     },
     {
-      name: "Depósito Garantía Monto",
-      selector: (row: { deposito_garantia_monto?: number }) =>
-        row.deposito_garantia_monto || 0,
+      name: "Monto de Depósito Garantía",
+      selector: (row: {
+        renta_sin_iva: number;
+        meses_deposito_garantia?: number;
+      }) =>
+        row.meses_deposito_garantia
+          ? row.renta_sin_iva * row.meses_deposito_garantia
+          : 0,
       sortable: true,
-      format: (row: { deposito_garantia_monto?: number }) =>
-        row.deposito_garantia_monto
-          ? formatCurrency(row.deposito_garantia_monto, "MXN")
-          : "Sin depósito",
+      format: (row: {
+        renta_sin_iva: number;
+        meses_deposito_garantia?: number;
+      }) =>
+        row.meses_deposito_garantia
+          ? formatCurrency(
+              row.renta_sin_iva * row.meses_deposito_garantia,
+              "MXN"
+            )
+          : "Sin meses de depósito de garantía",
     },
     {
-      name: "Meses Gracia Concepto",
-      selector: (row: { meses_gracia_concepto?: string }) =>
-        row.meses_gracia_concepto || "Sin meses de gracia",
+      name: "Meses Gracia",
+      selector: (row: { meses_gracia?: number }) =>
+        row.meses_gracia || "Sin meses",
       sortable: true,
     },
     {
@@ -181,9 +192,9 @@ const RentsDataTable = ({ rents, propiedades }: IRentsDataTable) => {
           : "Sin meses de gracia",
     },
     {
-      name: "Renta Anticipada Concepto",
-      selector: (row: { renta_anticipada_concepto?: string }) =>
-        row.renta_anticipada_concepto || "Sin renta anticipada",
+      name: "Meses Renta Anticipada",
+      selector: (row: { meses_renta_anticipada?: number }) =>
+        row.meses_renta_anticipada || "Sin meses",
       sortable: true,
     },
     {
@@ -207,13 +218,24 @@ const RentsDataTable = ({ rents, propiedades }: IRentsDataTable) => {
           : "Sin renta anticipada",
     },
     {
-      name: "Renta Anticipada sin IVA",
-      selector: (row: { renta_anticipada_renta_sin_iva?: number }) =>
-        row.renta_anticipada_renta_sin_iva || 0,
+      name: "Monto Renta Anticipada",
+      selector: (row: {
+        renta_sin_iva: number;
+        meses_renta_anticipada?: number;
+      }) =>
+        row.meses_renta_anticipada
+          ? row.renta_sin_iva * row.meses_renta_anticipada
+          : 0,
       sortable: true,
-      format: (row: { renta_anticipada_renta_sin_iva?: number }) =>
-        row.renta_anticipada_renta_sin_iva
-          ? formatCurrency(row.renta_anticipada_renta_sin_iva, "MXN")
+      format: (row: {
+        renta_sin_iva: number;
+        meses_renta_anticipada?: number;
+      }) =>
+        row.meses_renta_anticipada
+          ? formatCurrency(
+              row.renta_sin_iva * row.meses_renta_anticipada,
+              "MXN"
+            )
           : "Sin renta anticipada",
     },
     {

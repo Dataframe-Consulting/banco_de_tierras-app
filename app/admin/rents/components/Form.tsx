@@ -84,8 +84,8 @@ const Form = ({
         meses_gracia_fecha_fin: formData.get("meses_gracia_fecha_fin")
           ? new Date(formData.get("meses_gracia_fecha_fin") as string)
           : undefined,
-        renta_anticipada_concepto: formData.get("renta_anticipada_concepto")
-          ? (formData.get("renta_anticipada_concepto") as string)
+        meses_renta_anticipada: formData.get("meses_renta_anticipada")
+          ? Number(formData.get("meses_renta_anticipada") as string)
           : undefined,
         renta_anticipada_fecha_inicio: formData.get(
           "renta_anticipada_fecha_inicio"
@@ -271,6 +271,8 @@ const Form = ({
                   error={errors?.razon_social}
                 />
               </GenericDiv>
+            </GenericPairDiv>
+            <GenericPairDiv>
               <GenericDiv>
                 <GenericInput
                   type="number"
@@ -281,8 +283,6 @@ const Form = ({
                   error={errors?.renta_sin_iva}
                 />
               </GenericDiv>
-            </GenericPairDiv>
-            <GenericPairDiv>
               <GenericDiv>
                 <GenericInput
                   type="select"
@@ -297,6 +297,8 @@ const Form = ({
                   error={errors?.meses_deposito_garantia}
                 />
               </GenericDiv>
+            </GenericPairDiv>
+            <GenericPairDiv>
               <GenericDiv>
                 <GenericInput
                   type="select"
@@ -311,8 +313,6 @@ const Form = ({
                   error={errors?.meses_gracia}
                 />
               </GenericDiv>
-            </GenericPairDiv>
-            <GenericPairDiv>
               <GenericDiv>
                 <GenericInput
                   type="date"
@@ -343,19 +343,22 @@ const Form = ({
                   error={errors?.meses_gracia_fecha_fin}
                 />
               </GenericDiv>
-              <GenericDiv>
-                {/* CAMBIAR A SELECT DE NÚMERO DE MESES DEL 1 AL 10 */}
-                <GenericInput
-                  type="text"
-                  id="renta_anticipada_concepto"
-                  ariaLabel="Meses Renta Anticipada"
-                  placeholder="Renta anticipada"
-                  defaultValue={data?.renta_anticipada_concepto}
-                  error={errors?.renta_anticipada_concepto}
-                />
-              </GenericDiv>
             </GenericPairDiv>
             <GenericPairDiv>
+              <GenericDiv>
+                <GenericInput
+                  type="select"
+                  id="meses_renta_anticipada"
+                  ariaLabel="Meses Renta Anticipada"
+                  placeholder="Selecciona un número de meses"
+                  defaultValue={data?.meses_renta_anticipada?.toString()}
+                  options={Array.from({ length: 10 }, (_, i) => ({
+                    value: (i + 1).toString(),
+                    label: (i + 1).toString(),
+                  }))}
+                  error={errors?.meses_renta_anticipada}
+                />
+              </GenericDiv>
               <GenericDiv>
                 <GenericInput
                   type="date"
@@ -388,32 +391,35 @@ const Form = ({
                   error={errors?.renta_anticipada_fecha_fin}
                 />
               </GenericDiv>
-              {/* <GenericDiv>
-                <GenericInput
-                  type="number"
-                  id="renta_anticipada_renta_sin_iva"
-                  ariaLabel="Renta Anticipada sin IVA"
-                  placeholder="1000"
-                  defaultValue={data?.renta_anticipada_renta_sin_iva?.toString()}
-                  error={errors?.renta_anticipada_renta_sin_iva}
-                />
-              </GenericDiv> */}
             </GenericPairDiv>
             <GenericPairDiv>
               <GenericDiv>
-                {/* SELECT DE MESES */}
                 <GenericInput
-                  type="text"
+                  type="select"
                   id="incremento_mes"
                   ariaLabel="Incremento Mes"
-                  placeholder="Incremento"
+                  placeholder="Selecciona un mes"
                   defaultValue={data?.incremento_mes}
+                  options={[
+                    { value: "Enero", label: "Enero" },
+                    { value: "Febrero", label: "Febrero" },
+                    { value: "Marzo", label: "Marzo" },
+                    { value: "Abril", label: "Abril" },
+                    { value: "Mayo", label: "Mayo" },
+                    { value: "Junio", label: "Junio" },
+                    { value: "Julio", label: "Julio" },
+                    { value: "Agosto", label: "Agosto" },
+                    { value: "Septiembre", label: "Septiembre" },
+                    { value: "Octubre", label: "Octubre" },
+                    { value: "Noviembre", label: "Noviembre" },
+                    { value: "Diciembre", label: "Diciembre" },
+                  ]}
                   error={errors?.incremento_mes}
                 />
               </GenericDiv>
               <GenericDiv>
                 <GenericInput
-                  type="text"
+                  type="textarea"
                   id="incremento_nota"
                   ariaLabel="Incremento Nota"
                   placeholder="Incremento"
@@ -421,6 +427,8 @@ const Form = ({
                   error={errors?.incremento_nota}
                 />
               </GenericDiv>
+            </GenericPairDiv>
+            <GenericPairDiv>
               <GenericDiv>
                 <GenericInput
                   type="date"
@@ -435,8 +443,6 @@ const Form = ({
                   error={errors?.inicio_vigencia}
                 />
               </GenericDiv>
-            </GenericPairDiv>
-            <GenericPairDiv>
               <GenericDiv>
                 <GenericInput
                   type="date"
@@ -451,6 +457,8 @@ const Form = ({
                   error={errors?.fin_vigencia_forzosa}
                 />
               </GenericDiv>
+            </GenericPairDiv>
+            <GenericPairDiv>
               <GenericDiv>
                 <GenericInput
                   type="date"
@@ -467,7 +475,7 @@ const Form = ({
               </GenericDiv>
               <GenericDiv>
                 <GenericInput
-                  type="text"
+                  type="textarea"
                   id="vigencia_nota"
                   ariaLabel="Vigencia Nota"
                   placeholder="Vigencia"

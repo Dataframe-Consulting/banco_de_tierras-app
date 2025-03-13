@@ -179,16 +179,12 @@ const Form = ({
               </GenericDiv>
               <GenericDiv>
                 <GenericInput
-                  type="select"
-                  id="propiedad_id"
-                  ariaLabel="Propiedad"
-                  placeholder="Selecciona una propiedad"
-                  error={errors?.propiedad_id}
-                  defaultValue={data?.propiedad_id?.toString()}
-                  options={propiedades.map((p) => ({
-                    label: p.nombre,
-                    value: p.id.toString(),
-                  }))}
+                  type="textarea"
+                  id="comentarios"
+                  ariaLabel="Comentarios"
+                  placeholder="Proceso legal en curso"
+                  defaultValue={data?.comentarios}
+                  error={errors?.comentarios}
                 />
               </GenericDiv>
             </GenericPairDiv>

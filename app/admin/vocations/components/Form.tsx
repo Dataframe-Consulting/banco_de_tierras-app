@@ -1,19 +1,22 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import validateGuaranteesSchema from "../schemas";
 import { useCallback, useActionState } from "react";
-import formatdateInput from "@/app/shared/utils/formatdate-input";
-import { GenericInput, SubmitButton } from "@/app/shared/components";
-import type { IPropiedad, IGarantia } from "@/app/shared/interfaces";
+import validateLegalProcessesSchema from "../schemas";
+import {
+  AutocompleteInput,
+  DynamicItemManager,
+  GenericInput,
+  SubmitButton,
+} from "@/app/shared/components";
+import type { IPropiedad, IProcesoLegal } from "@/app/shared/interfaces";
 
 interface IRentaState {
   message?: string;
   data?: {
-    beneficiario?: string;
-    monto?: number;
-    fecha_inicio?: Date;
-    fecha_fin?: Date;
+    abogado?: string;
+    tipo_proceso?: string;
+    estatus?: string;
     propiedad_id?: number;
   } | null;
   errors?: {
@@ -23,14 +26,14 @@ interface IRentaState {
 
 interface IForm {
   onClose: () => void;
-  garantia: IGarantia | null;
+  procesoLegal: IProcesoLegal | null;
   propiedades: IPropiedad[];
   action: "add" | "edit" | "delete";
-  setOptimisticData: (data: IGarantia | null) => void;
+  setOptimisticData: (data: IProcesoLegal | null) => void;
 }
 
 const Form = ({
-  garantia,
+  procesoLegal,
   action,
   onClose,
   propiedades,
@@ -41,23 +44,20 @@ const Form = ({
   const initialState: IRentaState = {
     errors: {},
     message: "",
-    data: garantia,
+    data: procesoLegal,
   };
 
   const formAction = useCallback(
     async (_prev: unknown, formData: FormData) => {
       const dataToValidate = {
-        beneficiario: formData.get("beneficiario")
-          ? (formData.get("beneficiario") as string)
+        abogado: formData.get("abogado")
+          ? (formData.get("abogado") as string)
           : undefined,
-        monto: formData.get("monto")
-          ? parseFloat(formData.get("monto") as string)
+        tipo_proceso: formData.get("tipo_proceso")
+          ? (formData.get("tipo_proceso") as string)
           : undefined,
-        fecha_inicio: formData.get("fecha_inicio")
-          ? new Date(formData.get("fecha_inicio") as string)
-          : undefined,
-        fecha_fin: formData.get("fecha_fin")
-          ? new Date(formData.get("fecha_fin") as string)
+        estatus: formData.get("estatus")
+          ? (formData.get("estatus") as string)
           : undefined,
         propiedad_id: formData.get("propiedad_id")
           ? parseInt(formData.get("propiedad_id") as string)
@@ -65,7 +65,7 @@ const Form = ({
       };
 
       if (action !== "delete") {
-        const errors = validateGuaranteesSchema(action, dataToValidate);
+        const errors = validateLegalProcessesSchema(action, dataToValidate);
         if (Object.keys(errors).length > 0) {
           return {
             errors,
@@ -74,19 +74,19 @@ const Form = ({
         }
       }
 
-      const id = garantia?.id ?? 0;
-      const created_at = garantia?.created_at ?? new Date();
+      const id = procesoLegal?.id ?? 0;
+      const created_at = procesoLegal?.created_at ?? new Date();
       const updated_at = new Date();
       setOptimisticData({
         id,
         created_at,
         updated_at,
         ...dataToValidate,
-      } as IGarantia | null);
+      } as IProcesoLegal | null);
 
       try {
         const res = await fetch(
-          `http://localhost:8000/api/garantia${
+          `http://localhost:8000/api/proceso_legal${
             action === "edit" || action === "delete" ? `/${id}` : ""
           }`,
           {
@@ -129,7 +129,7 @@ const Form = ({
         onClose();
       }
     },
-    [garantia, router, action, onClose, setOptimisticData]
+    [procesoLegal, router, action, onClose, setOptimisticData]
   );
 
   const [state, handleSubmit, isPending] = useActionState(
@@ -148,65 +148,22 @@ const Form = ({
           </div>
         )}
         {action !== "delete" ? (
-          <>
-            <GenericPairDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="text"
-                  id="beneficiario"
-                  ariaLabel="Nombre del beneficiario"
-                  placeholder="Juan Pérez"
-                  defaultValue={data?.beneficiario}
-                  error={errors?.beneficiario}
-                />
-              </GenericDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="number"
-                  id="monto"
-                  ariaLabel="Monto"
-                  placeholder="1000"
-                  defaultValue={data?.monto?.toString()}
-                  error={errors?.monto}
-                />
-              </GenericDiv>
-            </GenericPairDiv>
-            <GenericPairDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="date"
-                  id="fecha_inicio"
-                  ariaLabel="Fecha de inicio"
-                  placeholder="2022-01-01"
-                  defaultValue={
-                    data?.fecha_inicio
-                      ? formatdateInput(data.fecha_inicio.toString())
-                      : ""
-                  }
-                  error={errors?.fecha_inicio}
-                />
-              </GenericDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="date"
-                  id="fecha_fin"
-                  ariaLabel="Fecha de fin"
-                  placeholder="2022-01-01"
-                  defaultValue={
-                    data?.fecha_fin
-                      ? formatdateInput(data.fecha_fin.toString())
-                      : ""
-                  }
-                  error={errors?.fecha_fin}
-                />
-              </GenericDiv>
-            </GenericPairDiv>
-          </>
+          <div className="flex flex-col gap-2 w-full">
+            <GenericInput
+              id="nombre"
+              type="text"
+              ariaLabel="Nombre"
+              placeholder="Comercialización"
+              defaultValue={data?.nombre}
+              error={errors?.nombre}
+            />
+          </div>
         ) : (
           <div className="text-center">
             <p>
-              ¿Estás seguro de que deseas eliminar la garantía{" "}
-              <span className="font-bold">{garantia?.beneficiario}?</span>
+              ¿Estás seguro de que deseas eliminar el proceso legal con el
+              abogado{" "}
+              <span className="font-bold">{procesoLegal?.abogado}?</span>
             </p>
           </div>
         )}

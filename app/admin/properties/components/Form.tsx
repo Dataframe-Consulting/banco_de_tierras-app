@@ -322,36 +322,95 @@ const Form = ({
                   error={errors?.anios_pend_predial}
                 />
               </GenericDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="text"
-                  id="comentarios"
-                  ariaLabel="Comentarios"
-                  placeholder="Sin comentarios"
-                  defaultValue={data?.comentarios ?? ""}
-                  error={errors?.comentarios}
-                />
-              </GenericDiv>
             </GenericPairDiv>
-            {action === "add" && (
-              <DynamicItemManager
-                items={transformedUbicaciones ?? []}
-                renderForm={(index, items, onSelect) => (
-                  <AutocompleteInput
-                    key={index}
-                    id="ubicacion"
-                    ariaLabel="Ubicación"
-                    customClassName="mt-2"
-                    error={errors?.ubicacion}
-                    placeholder="Busca un ubicación..."
-                    additionOnChange={(e) => onSelect(index, e.target.value)}
-                    suggestions={items.map((i) => ({
-                      value: i.key,
-                      label: i.name,
-                    }))}
-                  />
-                )}
+            <div className="flex flex-col gap-2 w-full">
+              <GenericInput
+                type="textarea"
+                id="comentarios"
+                ariaLabel="Comentarios"
+                placeholder="Sin comentarios"
+                defaultValue={data?.comentarios ?? ""}
+                error={errors?.comentarios}
               />
+            </div>
+            {action === "add" && (
+              <>
+                <DynamicItemManager
+                  // CHANGE TO SOCIEDADES
+                  items={transformedUbicaciones ?? []}
+                  renderForm={(index, items, onSelect) => (
+                    <AutocompleteInput
+                      key={index}
+                      id="sociedad"
+                      ariaLabel="Sociedad"
+                      customClassName="mt-2"
+                      error={errors?.ubicacion}
+                      placeholder="Busca una sociedad..."
+                      additionOnChange={(e) => onSelect(index, e.target.value)}
+                      suggestions={items.map((i) => ({
+                        value: i.key,
+                        label: i.name,
+                      }))}
+                    />
+                  )}
+                />
+                <DynamicItemManager
+                  items={transformedUbicaciones ?? []}
+                  renderForm={(index, items, onSelect) => (
+                    <AutocompleteInput
+                      key={index}
+                      id="ubicacion"
+                      ariaLabel="Ubicación"
+                      customClassName="mt-2"
+                      error={errors?.ubicacion}
+                      placeholder="Busca un ubicación..."
+                      additionOnChange={(e) => onSelect(index, e.target.value)}
+                      suggestions={items.map((i) => ({
+                        value: i.key,
+                        label: i.name,
+                      }))}
+                    />
+                  )}
+                />
+                <DynamicItemManager
+                  // CHANGE TO GARANTIAS
+                  items={transformedUbicaciones ?? []}
+                  renderForm={(index, items, onSelect) => (
+                    <AutocompleteInput
+                      key={index}
+                      id="garantia"
+                      ariaLabel="Garantía"
+                      customClassName="mt-2"
+                      error={errors?.ubicacion}
+                      placeholder="Busca una garantía..."
+                      additionOnChange={(e) => onSelect(index, e.target.value)}
+                      suggestions={items.map((i) => ({
+                        value: i.key,
+                        label: i.name,
+                      }))}
+                    />
+                  )}
+                />
+                <DynamicItemManager
+                  // CHANGE TO PROCESOS LEGALES
+                  items={transformedUbicaciones ?? []}
+                  renderForm={(index, items, onSelect) => (
+                    <AutocompleteInput
+                      key={index}
+                      id="proceso_legal"
+                      ariaLabel="Proceso Legal"
+                      customClassName="mt-2"
+                      error={errors?.ubicacion}
+                      placeholder="Busca un proceso legal..."
+                      additionOnChange={(e) => onSelect(index, e.target.value)}
+                      suggestions={items.map((i) => ({
+                        value: i.key,
+                        label: i.name,
+                      }))}
+                    />
+                  )}
+                />
+              </>
             )}
           </>
         ) : (

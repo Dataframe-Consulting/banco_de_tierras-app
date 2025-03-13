@@ -377,6 +377,16 @@ const Form = ({
                 />
               </GenericDiv>
             </GenericPairDiv>
+            <div className="flex flex-col gap-2 w-full">
+              <GenericInput
+                type="textarea"
+                id="comentarios"
+                ariaLabel="Comentarios"
+                placeholder="Pendiente de revisión"
+                defaultValue={data?.comentarios}
+                error={errors?.comentarios}
+              />
+            </div>
             {action === "add" && (
               <>
                 <DynamicItemManager
@@ -397,43 +407,6 @@ const Form = ({
                     />
                   )}
                 />
-                <GenericPairDiv>
-                  <DynamicItemManager
-                    items={transformedSociedades ?? []}
-                    renderForm={(index, items, onSelect) => (
-                      <div
-                        key={index}
-                        className="flex flex-col md:flex-row gap-4 w-full"
-                      >
-                        <div className="w-full md:w-2/3">
-                          <AutocompleteInput
-                            id="sociedad_id"
-                            customClassName="mt-2"
-                            ariaLabel="Sociedad (%)"
-                            error={errors?.sociedad_id}
-                            placeholder="Busca un porcentaje..."
-                            additionOnChange={(e) =>
-                              onSelect(index, e.target.value)
-                            }
-                            suggestions={items.map((i) => ({
-                              value: i.key,
-                              label: i.name,
-                            }))}
-                          />
-                        </div>
-                        <div className="w-full md:w-1/3 flex flex-col gap-2">
-                          <GenericInput
-                            type="number"
-                            id="sociedad_value"
-                            ariaLabel="Valor"
-                            placeholder="94500485.23"
-                            error={errors?.sociedad_value}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  />
-                </GenericPairDiv>
               </>
             )}
             <div className="flex gap-2 items-center justify-end">

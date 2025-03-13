@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 
 const SideBar = () => {
   const menuRef = useRef(null);
+  const pathname = usePathname();
   const [otrosMenu, setOtrosMenu] = useState(false);
 
   const handleOtrosMenu = () => {
@@ -36,25 +37,51 @@ const SideBar = () => {
       <div className="h-full pt-[5rem] px-4 pb-4 overflow-y-auto bg-[#C23B2E]">
         <ul className="flex flex-col gap-2 font-medium">
           <li>
-            <LinkComp href="/admin/home" text="Inicio" />
+            <LinkComp
+              text="Inicio"
+              href="/admin/home"
+              isActive={pathname === "/admin/home"}
+            />
           </li>
           <li>
-            <LinkComp href="/admin/rents" text="Rentas" />
+            <LinkComp
+              text="Rentas"
+              href="/admin/rents"
+              isActive={pathname === "/admin/rents"}
+            />
           </li>
           <li>
-            <LinkComp href="/admin/properties" text="Propiedades" />
+            <LinkComp
+              text="Propiedades"
+              href="/admin/properties"
+              isActive={pathname === "/admin/properties"}
+            />
           </li>
           <li>
-            <LinkComp href="/admin/projects" text="Proyectos" />
+            <LinkComp
+              text="Proyectos"
+              href="/admin/projects"
+              isActive={pathname === "/admin/projects"}
+            />
           </li>
           <li>
-            <LinkComp href="/admin/guarantees" text="Garantías" />
+            <LinkComp
+              text="Garantías"
+              href="/admin/guarantees"
+              isActive={pathname === "/admin/guarantees"}
+            />
           </li>
           <li>
-            <LinkComp href="/admin/legal-processes" text="Procesos Legales" />
+            <LinkComp
+              text="Procesos Legales"
+              href="/admin/legal-processes"
+              isActive={pathname === "/admin/legal-processes"}
+            />
           </li>
 
-          <li ref={menuRef} className="mt-4">
+          <div className="border-t-2 border-white my-2" />
+
+          <li ref={menuRef}>
             <button
               type="button"
               onClick={handleOtrosMenu}
@@ -72,35 +99,66 @@ const SideBar = () => {
             </button>
             <ul
               className={cn(
-                "flex flex-col gap-2 transition duration-300",
-                otrosMenu ? "block" : "hidden"
+                "flex flex-col gap-2 transition duration-300 ml-6 mt-2 space-y-2",
+                otrosMenu ||
+                  pathname === "/admin/locations" ||
+                  pathname === "/admin/owners" ||
+                  pathname === "/admin/partners" ||
+                  pathname === "/admin/societies" ||
+                  pathname === "/admin/physical-situations" ||
+                  pathname === "/admin/vocations" ||
+                  pathname === "/admin/specific-vocations"
+                  ? "block"
+                  : "hidden"
               )}
             >
-              <li>
-                <LinkComp href="/admin/locations" text="Ubicaciones" />
-              </li>
-              <li>
-                <LinkComp href="/admin/owners" text="Propietarios" />
-              </li>
-              <li>
-                <LinkComp href="/admin/partners" text="Socios" />
-              </li>
-              <li>
-                <LinkComp href="/admin/societies" text="Sociedades" />
-              </li>
-              <li>
+              <li className="border-l-2 border-white pl-2">
                 <LinkComp
-                  href="/admin/physical-situations"
-                  text="Situaciones Físicas"
+                  text="Ubicaciones"
+                  href="/admin/locations"
+                  isActive={pathname === "/admin/locations"}
                 />
               </li>
-              <li>
-                <LinkComp href="/admin/vocations" text="Vocaciones" />
-              </li>
-              <li>
+              <li className="border-l-2 border-white pl-2">
                 <LinkComp
-                  href="/admin/specific-vocations"
+                  text="Socios"
+                  href="/admin/partners"
+                  isActive={pathname === "/admin/partners"}
+                />
+              </li>
+              <li className="border-l-2 border-white pl-2">
+                <LinkComp
+                  text="Propietarios"
+                  href="/admin/owners"
+                  isActive={pathname === "/admin/owners"}
+                />
+              </li>
+              <li className="border-l-2 border-white pl-2">
+                <LinkComp
+                  text="Sociedades"
+                  href="/admin/societies"
+                  isActive={pathname === "/admin/societies"}
+                />
+              </li>
+              <li className="border-l-2 border-white pl-2">
+                <LinkComp
+                  text="Situaciones Físicas"
+                  href="/admin/physical-situations"
+                  isActive={pathname === "/admin/physical-situations"}
+                />
+              </li>
+              <li className="border-l-2 border-white pl-2">
+                <LinkComp
+                  text="Vocaciones"
+                  href="/admin/vocations"
+                  isActive={pathname === "/admin/vocations"}
+                />
+              </li>
+              <li className="border-l-2 border-white pl-2">
+                <LinkComp
                   text="Vocaciones Específicas"
+                  href="/admin/specific-vocations"
+                  isActive={pathname === "/admin/specific-vocations"}
                 />
               </li>
             </ul>
@@ -116,12 +174,10 @@ export default SideBar;
 interface ILinkComp {
   href: string;
   text: string;
+  isActive: boolean;
 }
 
-const LinkComp = ({ href, text }: ILinkComp) => {
-  const pathname = usePathname();
-  const isActive = pathname.startsWith(href);
-
+const LinkComp = ({ href, text, isActive }: ILinkComp) => {
   return (
     <Link
       href={href}
