@@ -4,15 +4,13 @@ import { useSearchFilter } from "@/app/shared/hooks";
 import { GenericSearchInput } from "@/app/shared/components";
 import type {
   IVocacion,
-  ISociedad,
   IPropietario,
-  IVocacionEspecifica,
   ISituacionFisica,
+  IVocacionEspecifica,
 } from "@/app/shared/interfaces";
 
 interface ISearchBar {
   vocaciones: IVocacion[];
-  sociedades: ISociedad[];
   propietarios: IPropietario[];
   situacionesFisicas: ISituacionFisica[];
   vocacionesEspecificas: IVocacionEspecifica[];
@@ -20,14 +18,12 @@ interface ISearchBar {
 
 const SearchBar = ({
   vocaciones,
-  sociedades,
   propietarios,
   situacionesFisicas,
   vocacionesEspecificas,
 }: ISearchBar) => {
   const defaultFilters = {
     q: "",
-    sociedad_id: "",
     vocacion_id: "",
     propietario_id: "",
     situacion_fisica_id: "",
@@ -51,20 +47,6 @@ const SearchBar = ({
               label: propietario.nombre,
             }))}
             onChange={(value: string) => handleSearch("propietario_id", value)}
-          />
-        </div>
-        <div>
-          <GenericSearchInput
-            type="select"
-            id="sociedad_id"
-            placeholder="Todas"
-            ariaLabel="Sociedad"
-            value={filters.sociedad_id}
-            options={sociedades.map((sociedad) => ({
-              value: sociedad.id.toString(),
-              label: sociedad.porcentaje_participacion.toString(),
-            }))}
-            onChange={(value: string) => handleSearch("sociedad_id", value)}
           />
         </div>
         <div>

@@ -30,24 +30,40 @@ const baseSchema = z.object({
       message: "La renta sin IVA debe ser igual o mayor a 0",
     }),
   meses_deposito_garantia: z
-    .enum(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"], {
+    .number({
       message: "El número de meses de depósito de garantía es requerido",
     })
-    .optional(),
-  meses_gracia: z
-    .enum(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"], {
-      message: "El número de meses de gracia es requerido",
+    .min(1, {
+      message: "El número de meses de depósito de garantía es requerido",
     })
-    .optional(),
+    .max(10, {
+      message:
+        "El número de meses de depósito de garantía no puede ser mayor a 10",
+    }),
+  meses_gracia: z
+    .number({
+      message: "El número de meses de depósito de garantía es requerido",
+    })
+    .min(1, {
+      message: "El número de meses de depósito de garantía es requerido",
+    })
+    .max(10, {
+      message:
+        "El número de meses de depósito de garantía no puede ser mayor a 10",
+    }),
   meses_gracia_fecha_inicio: z.date().nullable().optional(),
   meses_gracia_fecha_fin: z.date().nullable().optional(),
-  renta_anticipada_concepto: z
-    .string()
-    .max(255, {
-      message:
-        "El concepto de la renta anticipada no puede tener más de 255 caracteres",
+  meses_renta_anticipada: z
+    .number({
+      message: "El número de meses de depósito de garantía es requerido",
     })
-    .optional(),
+    .min(1, {
+      message: "El número de meses de depósito de garantía es requerido",
+    })
+    .max(10, {
+      message:
+        "El número de meses de depósito de garantía no puede ser mayor a 10",
+    }),
   renta_anticipada_fecha_inicio: z.date().nullable().optional(),
   renta_anticipada_fecha_fin: z.date().nullable().optional(),
   incremento_mes: z

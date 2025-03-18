@@ -4,11 +4,10 @@ import { SearchBar, ProjectsDataTable } from "./components";
 import { DatatableSkeleton } from "@/app/shared/components";
 import type {
   IProyecto,
-  ISociedad,
   IVocacion,
   IPropietario,
-  IVocacionEspecifica,
   ISituacionFisica,
+  IVocacionEspecifica,
 } from "@/app/shared/interfaces";
 
 interface IProjectsPage {
@@ -21,7 +20,6 @@ const ProjectsPage = async ({ searchParams }: IProjectsPage) => {
 
   const {
     q = "",
-    sociedad_id = "",
     vocacion_id = "",
     propietario_id = "",
     situacion_fisica_id = "",
@@ -30,7 +28,6 @@ const ProjectsPage = async ({ searchParams }: IProjectsPage) => {
 
   const searchParamsForDataTable = {
     q,
-    sociedad_id,
     vocacion_id,
     propietario_id,
     situacion_fisica_id,
@@ -39,17 +36,11 @@ const ProjectsPage = async ({ searchParams }: IProjectsPage) => {
 
   const [
     vocaciones,
-    sociedades,
     propietarios,
     situaciones_fisicas,
     vocaciones_especificas,
   ] = await Promise.all([
     fetch("http://localhost:8000/api/vocacion", {
-      headers: {
-        Authorization: `${token?.value}`,
-      },
-    }),
-    fetch("http://localhost:8000/api/sociedad", {
       headers: {
         Authorization: `${token?.value}`,
       },
@@ -72,7 +63,6 @@ const ProjectsPage = async ({ searchParams }: IProjectsPage) => {
   ]);
 
   const vocacionesData = (await vocaciones.json()) as IVocacion[];
-  const sociedadesData = (await sociedades.json()) as ISociedad[];
   const propietariosData = (await propietarios.json()) as IPropietario[];
   const situacionesFisicasData =
     (await situaciones_fisicas.json()) as ISituacionFisica[];
@@ -83,7 +73,6 @@ const ProjectsPage = async ({ searchParams }: IProjectsPage) => {
     <>
       <SearchBar
         vocaciones={vocacionesData}
-        sociedades={sociedadesData}
         propietarios={propietariosData}
         situacionesFisicas={situacionesFisicasData}
         vocacionesEspecificas={vocacionesEspecificasData}
@@ -92,7 +81,6 @@ const ProjectsPage = async ({ searchParams }: IProjectsPage) => {
         fallback={<DatatableSkeleton />}
         key={
           q +
-          sociedad_id +
           vocacion_id +
           propietario_id +
           situacion_fisica_id +
@@ -102,7 +90,6 @@ const ProjectsPage = async ({ searchParams }: IProjectsPage) => {
         <DataFetch
           token={token?.value}
           vocaciones={vocacionesData}
-          sociedades={sociedadesData}
           propietarios={propietariosData}
           searchParams={searchParamsForDataTable}
           situacionesFisicas={situacionesFisicasData}
@@ -118,13 +105,11 @@ export default ProjectsPage;
 interface IDataFetch {
   token?: string;
   vocaciones: IVocacion[];
-  sociedades: ISociedad[];
   propietarios: IPropietario[];
   situacionesFisicas: ISituacionFisica[];
   vocacionesEspecificas: IVocacionEspecifica[];
   searchParams: {
     q?: string;
-    sociedad_id?: string;
     vocacion_id?: string;
     propietario_id?: string;
     situacion_fisica_id?: string;
@@ -135,7 +120,6 @@ interface IDataFetch {
 const DataFetch = async ({
   token,
   vocaciones,
-  sociedades,
   propietarios,
   searchParams,
   situacionesFisicas,
@@ -145,8 +129,6 @@ const DataFetch = async ({
   const params = new URLSearchParams();
 
   if (searchParams.q) params.append("q", searchParams.q);
-  if (searchParams.sociedad_id)
-    params.append("sociedad_id", searchParams.sociedad_id);
   if (searchParams.vocacion_id)
     params.append("vocacion_id", searchParams.vocacion_id);
   if (searchParams.propietario_id)
@@ -170,7 +152,6 @@ const DataFetch = async ({
     <ProjectsDataTable
       projects={projectsData}
       vocaciones={vocaciones}
-      sociedades={sociedades}
       propietarios={propietarios}
       situacionesFisicas={situacionesFisicas}
       vocacionesEspecificas={vocacionesEspecificas}

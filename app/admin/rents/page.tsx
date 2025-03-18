@@ -16,13 +16,12 @@ const RentsPage = async ({ searchParams }: IRentsPage) => {
 
   const searchParamsForDataTable = { q, propiedad_id };
 
-  // const propiedades = await fetch("http://localhost:8000/api/propiedad", {
-  //   headers: {
-  //     Authorization: `${token?.value}`,
-  //   },
-  // });
-  // const propiedadesData = (await propiedades.json()) as IPropiedad[];
-  const propiedadesData: IPropiedad[] = [];
+  const propiedades = await fetch("http://localhost:8000/api/propiedad", {
+    headers: {
+      Authorization: `${token?.value}`,
+    },
+  });
+  const propiedadesData = (await propiedades.json()) as IPropiedad[];
 
   return (
     <>
@@ -54,13 +53,12 @@ const DataFetch = async ({ token, searchParams, propiedades }: IDataFetch) => {
   if (searchParams.propiedad_id)
     params.append("propiedad_id", searchParams.propiedad_id);
 
-  // const response = await fetch(`${url}?${params.toString()}`, {
-  //   headers: {
-  //     Authorization: `${token}`,
-  //   },
-  // });
-  // const rentsData = (await response.json()) as IRenta[];
-  const rentsData: IRenta[] = [];
+  const response = await fetch(`${url}?${params.toString()}`, {
+    headers: {
+      Authorization: `${token}`,
+    },
+  });
+  const rentsData = (await response.json()) as IRenta[];
 
   return <RentsDataTable rents={rentsData} propiedades={propiedades} />;
 };

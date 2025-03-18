@@ -1,8 +1,6 @@
 "use client";
 
 import Form from "./Form";
-import cn from "@/app/shared/utils/cn";
-import SociedadesDataTable from "./Sociedades/DataTable";
 import PropietariosDataTable from "./Propietarios/DataTable";
 import { ExpanderComponentProps } from "react-data-table-component";
 import { PencilIcon, PlusCircle, TrashIcon } from "@/app/shared/icons";
@@ -16,11 +14,10 @@ import {
 } from "@/app/shared/components";
 import type {
   IProyecto,
-  ISociedad,
   IVocacion,
   IPropietario,
-  IVocacionEspecifica,
   ISituacionFisica,
+  IVocacionEspecifica,
 } from "@/app/shared/interfaces";
 
 interface State {
@@ -58,44 +55,9 @@ const reducer = (state: State, action: Action): State => {
 const ExpandedComponent: React.FC<ExpanderComponentProps<IProyecto>> = ({
   data,
 }) => {
-  const [tab, setTab] = useState<"propietarios" | "sociedades">("propietarios");
-
   return (
     <div className="pl-12 py-4">
-      <ul className="flex flex-row gap-4">
-        <li>
-          <button
-            onClick={() => setTab("propietarios")}
-            className={cn(
-              "px-4 py-2 rounded-md",
-              tab === "propietarios"
-                ? "bg-[#C23B2E] text-white"
-                : "bg-gray-200 text-gray-700"
-            )}
-          >
-            Propietarios
-          </button>
-        </li>
-        <li>
-          <button
-            onClick={() => setTab("sociedades")}
-            className={cn(
-              "px-4 py-2 rounded-md",
-              tab === "sociedades"
-                ? "bg-[#C23B2E] text-white"
-                : "bg-gray-200 text-gray-700"
-            )}
-          >
-            Sociedades
-          </button>
-        </li>
-      </ul>
-      {tab === "propietarios" && (
-        <PropietariosDataTable propietarios={data.propietarios} />
-      )}
-      {tab === "sociedades" && (
-        <SociedadesDataTable sociedades={data.sociedades} />
-      )}
+      <PropietariosDataTable propietarios={data.propietarios} />
     </div>
   );
 };
@@ -103,7 +65,6 @@ const ExpandedComponent: React.FC<ExpanderComponentProps<IProyecto>> = ({
 interface IProjectsDataTable {
   projects: IProyecto[];
   vocaciones: IVocacion[];
-  sociedades: ISociedad[];
   propietarios: IPropietario[];
   situacionesFisicas: ISituacionFisica[];
   vocacionesEspecificas: IVocacionEspecifica[];
@@ -112,7 +73,6 @@ interface IProjectsDataTable {
 const ProjectsDataTable = ({
   projects,
   vocaciones,
-  sociedades,
   propietarios,
   situacionesFisicas,
   vocacionesEspecificas,
@@ -238,7 +198,6 @@ const ProjectsDataTable = ({
             action={state.action}
             proyecto={state.selectedData}
             vocaciones={vocaciones}
-            sociedades={sociedades}
             propietarios={propietarios}
             situacionesFisicas={situacionesFisicas}
             vocacionesEspecificas={vocacionesEspecificas}

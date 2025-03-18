@@ -11,7 +11,6 @@ import {
 } from "@/app/shared/components";
 import type {
   IProyecto,
-  ISociedad,
   IVocacion,
   IPropietario,
   ISituacionFisica,
@@ -38,7 +37,6 @@ interface IForm {
   action: "add" | "edit" | "delete";
   proyecto: IProyecto | null;
   vocaciones: IVocacion[];
-  sociedades: ISociedad[];
   propietarios: IPropietario[];
   situacionesFisicas: ISituacionFisica[];
   vocacionesEspecificas: IVocacionEspecifica[];
@@ -50,7 +48,6 @@ const Form = ({
   action,
   proyecto,
   vocaciones,
-  sociedades,
   propietarios,
   situacionesFisicas,
   vocacionesEspecificas,
