@@ -1,30 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { IUbicacion } from "@/app/shared/interfaces";
+import PropertiesGuaranteesForm from "./Form";
+import { useModal } from "@/app/shared/hooks";
+import { TrashIcon } from "@/app/shared/icons";
+import formatCurrency from "@/app/shared/utils/format-currency";
 import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
 import {
+  Modal,
   Card404,
   Datatable,
   DatatableSkeleton,
-  Modal,
 } from "@/app/shared/components";
-import PropertiesLocationsForm from "./Form";
-import { useModal } from "@/app/shared/hooks";
-import { TrashIcon } from "@/app/shared/icons";
+import type { IGarantia } from "@/app/shared/interfaces";
 
-interface IUbicacionesDataTable {
+interface IGarantiasDataTable {
   propiedadId: number;
-  ubicaciones: IUbicacion[];
+  garantias: IGarantia[];
 }
 
-const UbicacionesDataTable = ({
+const GarantiasDatatable = ({
   propiedadId,
-  ubicaciones,
-}: IUbicacionesDataTable) => {
+  garantias,
+}: IGarantiasDataTable) => {
   const { isOpen, onClose, onOpen } = useModal();
   const [isClient, setIsClient] = useState(false);
-  const [ubicacionSelected, setUbicacionSelected] = useState<IUbicacion | null>(
+  const [garantiaSelected, setGarantiaSelected] = useState<IGarantia | null>(
     null
   );
 
@@ -32,11 +33,11 @@ const UbicacionesDataTable = ({
     {
       name: "Acciones",
       width: "90px",
-      cell: (row: IUbicacion) => (
+      cell: (row: IGarantia) => (
         <div className="flex justify-center gap-2">
           <button
             onClick={() => {
-              setUbicacionSelected(row);
+              setGarantiaSelected(row);
               onOpen();
             }}
             className="px-4 py-2 text-white bg-red-400 rounded-md"
@@ -47,10 +48,29 @@ const UbicacionesDataTable = ({
       ),
     },
     {
-      name: "Nombre",
-      selector: (row: { nombre: string }) => row.nombre,
+      name: "Beneficiario",
+      selector: (row: { beneficiario: string }) => row.beneficiario,
       sortable: true,
-      cell: (row: { nombre: string }) => row.nombre,
+    },
+    {
+      name: "Monto",
+      selector: (row: { monto: number }) => row.monto,
+      sortable: true,
+      format: (row: { monto: number }) => formatCurrency(row.monto, "MXN"),
+    },
+    {
+      name: "Fecha de Inicio",
+      selector: (row: { fecha_inicio: Date }) => row.fecha_inicio.toString(),
+      sortable: true,
+      format: (row: { fecha_inicio: Date }) =>
+        formatDateLatinAmerican(row.fecha_inicio),
+    },
+    {
+      name: "Fecha de Fin",
+      selector: (row: { fecha_fin: Date }) => row.fecha_fin.toString(),
+      sortable: true,
+      format: (row: { fecha_fin: Date }) =>
+        formatDateLatinAmerican(row.fecha_fin),
     },
     {
       name: "Creado en",
@@ -74,32 +94,32 @@ const UbicacionesDataTable = ({
 
   return (
     <>
-      {isOpen && ubicacionSelected && (
+      {isOpen && garantiaSelected && (
         <Modal isOpen={isOpen} onClose={onClose}>
-          <PropertiesLocationsForm
+          <PropertiesGuaranteesForm
             action="delete"
-            ubicacion={ubicacionSelected}
+            garantia={garantiaSelected}
             propiedadId={propiedadId}
             onCloseForm={onClose}
           />
         </Modal>
       )}
-      {ubicaciones.length > 0 ? (
+      {garantias.length > 0 ? (
         <>
           {isClient ? (
-            <Datatable columns={columns} data={ubicaciones} />
+            <Datatable columns={columns} data={garantias} />
           ) : (
             <DatatableSkeleton />
           )}
         </>
       ) : (
         <Card404
-          title="No se encontraron ubicaciones"
-          description="No hay ubicaciones asociadas a esta propiedad"
+          title="No se encontraron garantias"
+          description="No hay garantias asociadas a esta propiedad"
         />
       )}
     </>
   );
 };
 
-export default UbicacionesDataTable;
+export default GarantiasDatatable;

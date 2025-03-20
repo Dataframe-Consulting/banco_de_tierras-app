@@ -8,11 +8,14 @@ export default async function middleware(request: NextRequest) {
   if (pathname === "/") {
     if (token) {
       try {
-        const response = await fetch("http://localhost:8000/api/auth/me", {
-          headers: {
-            Authorization: `${token}`,
-          },
-        });
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        );
 
         if (response.ok) {
           return NextResponse.redirect(new URL("/admin/home", request.url));
@@ -27,11 +30,14 @@ export default async function middleware(request: NextRequest) {
   if (pathname === "/login") {
     if (token) {
       try {
-        const response = await fetch("http://localhost:8000/api/auth/me", {
-          headers: {
-            Authorization: `${token}`,
-          },
-        });
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        );
 
         if (response.ok) {
           return NextResponse.redirect(new URL("/admin/home", request.url));
@@ -49,11 +55,14 @@ export default async function middleware(request: NextRequest) {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/api/auth/me", {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         console.warn("Token inválido, redirigiendo a /login");

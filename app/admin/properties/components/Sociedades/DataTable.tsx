@@ -2,21 +2,21 @@
 
 import { useEffect, useState } from "react";
 import PropertiesSocietiesForm from "./Form";
+import { useModal } from "@/app/shared/hooks";
+import { TrashIcon } from "@/app/shared/icons";
 import formatCurrency from "@/app/shared/utils/format-currency";
 import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
 import {
+  Modal,
   Card404,
   Datatable,
   DatatableSkeleton,
-  Modal,
 } from "@/app/shared/components";
-import type { ISociedad } from "@/app/shared/interfaces";
-import { TrashIcon } from "@/app/shared/icons";
-import { useModal } from "@/app/shared/hooks";
+import type { ISociedad, ISociedadPropiedad } from "@/app/shared/interfaces";
 
 interface ISociedadesDataTable {
   propiedadId: number;
-  sociedades: ISociedad[];
+  sociedades: ISociedadPropiedad[];
   propiedadValorComercial: number;
 }
 
@@ -27,22 +27,20 @@ const SociedadesDataTable = ({
 }: ISociedadesDataTable) => {
   const { isOpen, onClose, onOpen } = useModal();
   const [isClient, setIsClient] = useState(false);
+  const [sociedadSelected, setSociedadSelected] =
+    useState<ISociedadPropiedad | null>(null);
 
   const columns = [
     {
       name: "Acciones",
       width: "90px",
-      cell: (row: ISociedad) => (
+      cell: (row: ISociedadPropiedad) => (
         <div className="flex justify-center gap-2">
-          <Modal isOpen={isOpen} onClose={onClose}>
-            <PropertiesSocietiesForm
-              action="delete"
-              sociedad={row}
-              propiedadId={propiedadId}
-            />
-          </Modal>
           <button
-            onClick={onOpen}
+            onClick={() => {
+              setSociedadSelected(row);
+              onOpen();
+            }}
             className="px-4 py-2 text-white bg-red-400 rounded-md"
           >
             <TrashIcon />
@@ -52,15 +50,16 @@ const SociedadesDataTable = ({
     },
     {
       name: "Porcentaje de Participación",
-      selector: (row: { porcentaje_participacion: number }) =>
-        row.porcentaje_participacion,
+      selector: (row: { sociedad: ISociedad }) =>
+        row.sociedad.porcentaje_participacion,
       sortable: true,
     },
     {
       name: "Valor de Participación",
-      selector: (row: { porcentaje_participacion: number }) =>
+      selector: (row: { sociedad: ISociedad }) =>
         formatCurrency(
-          (row.porcentaje_participacion * propiedadValorComercial) / 100,
+          (row.sociedad.porcentaje_participacion * propiedadValorComercial) /
+            100,
           "MXN"
         ),
       sortable: true,
@@ -72,13 +71,6 @@ const SociedadesDataTable = ({
       format: (row: { created_at: Date }) =>
         formatDateLatinAmerican(row.created_at),
     },
-    {
-      name: "Actualizado en",
-      selector: (row: { updated_at: Date }) => row.updated_at.toString(),
-      sortable: true,
-      format: (row: { updated_at: Date }) =>
-        formatDateLatinAmerican(row.updated_at),
-    },
   ];
 
   useEffect(() => {
@@ -87,6 +79,16 @@ const SociedadesDataTable = ({
 
   return (
     <>
+      {isOpen && sociedadSelected && (
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <PropertiesSocietiesForm
+            action="delete"
+            sociedad={sociedadSelected}
+            propiedadId={propiedadId}
+            onCloseForm={onClose}
+          />
+        </Modal>
+      )}
       {sociedades.length > 0 ? (
         <>
           {isClient ? (

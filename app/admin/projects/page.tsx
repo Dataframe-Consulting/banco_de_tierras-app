@@ -40,22 +40,22 @@ const ProjectsPage = async ({ searchParams }: IProjectsPage) => {
     situaciones_fisicas,
     vocaciones_especificas,
   ] = await Promise.all([
-    fetch("http://localhost:8000/api/vocacion", {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/vocacion`, {
       headers: {
         Authorization: `${token?.value}`,
       },
     }),
-    fetch("http://localhost:8000/api/propietario", {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/propietario`, {
       headers: {
         Authorization: `${token?.value}`,
       },
     }),
-    fetch("http://localhost:8000/api/situacion_fisica", {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/situacion_fisica`, {
       headers: {
         Authorization: `${token?.value}`,
       },
     }),
-    fetch("http://localhost:8000/api/vocacion_especifica", {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/vocacion_especifica`, {
       headers: {
         Authorization: `${token?.value}`,
       },
@@ -125,7 +125,7 @@ const DataFetch = async ({
   situacionesFisicas,
   vocacionesEspecificas,
 }: IDataFetch) => {
-  const url = new URL("http://localhost:8000/api/proyecto");
+  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/proyecto`);
   const params = new URLSearchParams();
 
   if (searchParams.q) params.append("q", searchParams.q);

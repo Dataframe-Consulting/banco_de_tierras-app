@@ -81,7 +81,7 @@ const Form = ({
 
       try {
         const res = await fetch(
-          `http://localhost:8000/api/proceso_legal${
+          `${process.env.NEXT_PUBLIC_API_URL}/proceso_legal${
             action === "edit" || action === "delete" ? `/${id}` : ""
           }`,
           {

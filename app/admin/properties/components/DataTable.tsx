@@ -9,6 +9,11 @@ import { useEffect, useOptimistic, useReducer, useState } from "react";
 import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
 import { PropertiesSocietiesForm, SociedadesDataTable } from "./Sociedades";
 import { PropertiesLocationsForm, UbicacionesDataTable } from "./Ubicaciones";
+import { PropertiesGuaranteesForm, GarantiasDataTable } from "./Garantias";
+import {
+  PropertiesLegalProcessesForm,
+  ProcesosLegalesDataTable,
+} from "./ProcesosLegales";
 import {
   Modal,
   Card404,
@@ -23,6 +28,7 @@ import type {
   IPropiedad,
   IProcesoLegal,
 } from "@/app/shared/interfaces";
+import { useModal } from "@/app/shared/hooks";
 
 interface State {
   open: boolean;
@@ -129,8 +135,15 @@ const ExpandedComponent: React.FC<ExpanderComponentProps<IPropiedad>> = ({
           ubicaciones={data.ubicaciones}
         />
       )}
-      {tab === "garantias" && <div>GARANTIAS</div>}
-      {tab === "procesos_legales" && <div>PROCESOS LEGALES</div>}
+      {tab === "garantias" && (
+        <GarantiasDataTable propiedadId={data.id} garantias={data.garantias} />
+      )}
+      {tab === "procesos_legales" && (
+        <ProcesosLegalesDataTable
+          propiedadId={data.id}
+          procesosLegales={data.procesos_legales}
+        />
+      )}
     </div>
   );
 };
@@ -152,13 +165,16 @@ const PropertiesDataTable = ({
   propiedades,
   procesosLegales,
 }: IPropertiesDataTable) => {
-  const [addSome, setAddSome] = useState(false);
+  const { isOpen, onClose, onOpen } = useModal();
   const [isClient, setIsClient] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
     open: false,
     action: "add",
     selectedData: null,
   });
+  const [propiedadSelected, setPropiedadSelected] = useState<IPropiedad | null>(
+    null
+  );
 
   const handleAction = (
     data: IPropiedad | null,
@@ -189,8 +205,8 @@ const PropertiesDataTable = ({
         <div className="flex justify-center gap-2">
           <button
             onClick={() => {
-              setAddSome(true);
-              handleAction(row, "add");
+              setPropiedadSelected(row);
+              onOpen();
             }}
             className="px-4 py-2 bg-green-400 text-white rounded-md"
           >
@@ -294,30 +310,34 @@ const PropertiesDataTable = ({
 
   return (
     <>
+      {isOpen && propiedadSelected && (
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <AddMenu
+            propiedad={propiedadSelected}
+            garantias={garantias}
+            sociedades={sociedades}
+            ubicaciones={ubicaciones}
+            procesosLegales={procesosLegales}
+            onClose={onClose}
+          />
+        </Modal>
+      )}
       {state.open && (
         <Modal
           isOpen={state.open}
           onClose={() => dispatch({ type: "CLOSE_MODAL" })}
         >
-          {addSome ? (
-            <AddMenu
-              propiedad={state.selectedData!}
-              garantias={garantias}
-              sociedades={sociedades}
-              ubicaciones={ubicaciones}
-              procesosLegales={procesosLegales}
-              onClose={() => dispatch({ type: "CLOSE_MODAL" })}
-            />
-          ) : (
-            <Form
-              action={state.action}
-              propiedad={state.selectedData}
-              setOptimisticData={setOptimisticData}
-              onClose={() => dispatch({ type: "CLOSE_MODAL" })}
-              proyectos={proyectos}
-              ubicaciones={ubicaciones}
-            />
-          )}
+          <Form
+            action={state.action}
+            propiedad={state.selectedData}
+            setOptimisticData={setOptimisticData}
+            onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+            proyectos={proyectos}
+            sociedades={sociedades}
+            ubicaciones={ubicaciones}
+            garantias={garantias}
+            procesosLegales={procesosLegales}
+          />
         </Modal>
       )}
       <div className="w-full text-right">
@@ -377,8 +397,8 @@ const AddMenu = ({
   >("sociedades");
 
   return (
-    <div className="pl-12 py-4">
-      <ul className="flex flex-row gap-4">
+    <div className="py-4 overflow-x-auto">
+      <ul className="flex flex-row gap-4 mb-4">
         <li>
           <button
             onClick={() => setTab("sociedades")}
@@ -451,8 +471,30 @@ const AddMenu = ({
           onCloseForm={onClose}
         />
       )}
-      {tab === "garantias" && <div>GARANTIAS</div>}
-      {tab === "procesos_legales" && <div>PROCESOS LEGALES</div>}
+      {tab === "garantias" && (
+        <PropertiesGuaranteesForm
+          action="add"
+          propiedadId={propiedad.id}
+          garantia={garantias.filter(
+            (garantia) =>
+              !propiedad.garantias.map((g) => g.id).includes(garantia.id)
+          )}
+          onCloseForm={onClose}
+        />
+      )}
+      {tab === "procesos_legales" && (
+        <PropertiesLegalProcessesForm
+          action="add"
+          propiedadId={propiedad.id}
+          procesoLegal={procesosLegales.filter(
+            (procesoLegal) =>
+              !propiedad.procesos_legales
+                .map((p) => p.id)
+                .includes(procesoLegal.id)
+          )}
+          onCloseForm={onClose}
+        />
+      )}
     </div>
   );
 };

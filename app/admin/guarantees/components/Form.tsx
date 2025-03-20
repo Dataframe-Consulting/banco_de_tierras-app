@@ -86,7 +86,7 @@ const Form = ({
 
       try {
         const res = await fetch(
-          `http://localhost:8000/api/garantia${
+          `${process.env.NEXT_PUBLIC_API_URL}/garantia${
             action === "edit" || action === "delete" ? `/${id}` : ""
           }`,
           {

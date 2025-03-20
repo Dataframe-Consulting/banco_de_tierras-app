@@ -1,42 +1,41 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { IUbicacion } from "@/app/shared/interfaces";
+import { IProcesoLegal } from "@/app/shared/interfaces";
 import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
 import {
+  Modal,
   Card404,
   Datatable,
   DatatableSkeleton,
-  Modal,
 } from "@/app/shared/components";
-import PropertiesLocationsForm from "./Form";
+import PropertiesLegalProcessesForm from "./Form";
 import { useModal } from "@/app/shared/hooks";
 import { TrashIcon } from "@/app/shared/icons";
 
-interface IUbicacionesDataTable {
+interface IProcesosLegalesDataTable {
   propiedadId: number;
-  ubicaciones: IUbicacion[];
+  procesosLegales: IProcesoLegal[];
 }
 
-const UbicacionesDataTable = ({
+const ProcesosLegalesDataTable = ({
   propiedadId,
-  ubicaciones,
-}: IUbicacionesDataTable) => {
+  procesosLegales,
+}: IProcesosLegalesDataTable) => {
   const { isOpen, onClose, onOpen } = useModal();
   const [isClient, setIsClient] = useState(false);
-  const [ubicacionSelected, setUbicacionSelected] = useState<IUbicacion | null>(
-    null
-  );
+  const [procesoLegalSelected, setProcesoLegalSelected] =
+    useState<IProcesoLegal | null>(null);
 
   const columns = [
     {
       name: "Acciones",
       width: "90px",
-      cell: (row: IUbicacion) => (
+      cell: (row: IProcesoLegal) => (
         <div className="flex justify-center gap-2">
           <button
             onClick={() => {
-              setUbicacionSelected(row);
+              setProcesoLegalSelected(row);
               onOpen();
             }}
             className="px-4 py-2 text-white bg-red-400 rounded-md"
@@ -47,10 +46,26 @@ const UbicacionesDataTable = ({
       ),
     },
     {
-      name: "Nombre",
-      selector: (row: { nombre: string }) => row.nombre,
+      name: "Abogado",
+      selector: (row: { abogado: string }) => row.abogado,
       sortable: true,
-      cell: (row: { nombre: string }) => row.nombre,
+      cell: (row: { abogado: string }) => row.abogado,
+    },
+    {
+      name: "Tipo de proceso",
+      selector: (row: { tipo_proceso: string }) => row.tipo_proceso,
+      sortable: true,
+    },
+    {
+      name: "Estatus",
+      selector: (row: { estatus: string }) => row.estatus,
+      sortable: true,
+    },
+    {
+      name: "Comentarios",
+      selector: (row: { comentarios?: string }) =>
+        row.comentarios ?? "Sin comentarios",
+      sortable: true,
     },
     {
       name: "Creado en",
@@ -74,32 +89,32 @@ const UbicacionesDataTable = ({
 
   return (
     <>
-      {isOpen && ubicacionSelected && (
+      {isOpen && procesoLegalSelected && (
         <Modal isOpen={isOpen} onClose={onClose}>
-          <PropertiesLocationsForm
+          <PropertiesLegalProcessesForm
             action="delete"
-            ubicacion={ubicacionSelected}
+            procesoLegal={procesoLegalSelected}
             propiedadId={propiedadId}
             onCloseForm={onClose}
           />
         </Modal>
       )}
-      {ubicaciones.length > 0 ? (
+      {procesosLegales.length > 0 ? (
         <>
           {isClient ? (
-            <Datatable columns={columns} data={ubicaciones} />
+            <Datatable columns={columns} data={procesosLegales} />
           ) : (
             <DatatableSkeleton />
           )}
         </>
       ) : (
         <Card404
-          title="No se encontraron ubicaciones"
-          description="No hay ubicaciones asociadas a esta propiedad"
+          title="No se encontraron procesos legales"
+          description="No hay procesos legales asociadas a esta propiedad"
         />
       )}
     </>
   );
 };
 
-export default UbicacionesDataTable;
+export default ProcesosLegalesDataTable;

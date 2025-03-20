@@ -16,7 +16,7 @@ const GuaranteesPage = async ({ searchParams }: IGuaranteesPage) => {
 
   const searchParamsForDataTable = { q, propiedad_id };
 
-  // const propiedades = await fetch("http://localhost:8000/api/propiedad", {
+  // const propiedades = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/propiedad`, {
   //   headers: {
   //     Authorization: `${token?.value}`,
   //   },
@@ -47,7 +47,7 @@ interface IDataFetch {
 }
 
 const DataFetch = async ({ token, searchParams, propiedades }: IDataFetch) => {
-  const url = new URL("http://localhost:8000/api/garantia");
+  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/garantia`);
   const params = new URLSearchParams();
 
   if (searchParams.q) params.append("q", searchParams.q);

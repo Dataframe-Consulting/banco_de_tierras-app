@@ -7,7 +7,7 @@ import {
   AutocompleteInput,
   DynamicItemManager,
 } from "@/app/shared/components";
-import type { IUbicacion } from "@/app/shared/interfaces";
+import type { IProcesoLegal } from "@/app/shared/interfaces";
 
 interface IFormState {
   message?: string;
@@ -16,19 +16,19 @@ interface IFormState {
   };
 }
 
-interface IPropertiesLocationsForm {
+interface IPropertiesLegalProcessesForm {
   propiedadId: number;
   action: "add" | "delete";
-  ubicacion: IUbicacion | IUbicacion[];
+  procesoLegal: IProcesoLegal | IProcesoLegal[];
   onCloseForm?: () => void;
 }
 
-const PropertiesLocationsForm = ({
+const PropertiesLegalProcessesForm = ({
   action,
   propiedadId,
-  ubicacion,
+  procesoLegal,
   onCloseForm,
-}: IPropertiesLocationsForm) => {
+}: IPropertiesLegalProcessesForm) => {
   const router = useRouter();
 
   const initialState: IFormState = {
@@ -40,22 +40,22 @@ const PropertiesLocationsForm = ({
     async (_prev: unknown, formData: FormData) => {
       try {
         if (action === "add") {
-          const propiedadesIds = formData.getAll("ubicacion") as string[];
+          const dataIds = formData.getAll("proceso_legal") as string[];
           if (
-            propiedadesIds.length === 0 ||
-            propiedadesIds.some((id) => id === null || id === "")
+            dataIds.length === 0 ||
+            dataIds.some((id) => id === null || id === "")
           ) {
             return {
               errors: {
-                ubicacion: "Debe seleccionar al menos una ubicación",
+                proceso_legal: "Debe seleccionar al menos un proceso legal",
               },
             };
           }
 
-          const addPropiedades = await Promise.all(
-            propiedadesIds.map(async (id) => {
+          const addData = await Promise.all(
+            dataIds.map(async (id) => {
               const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${propiedadId}/ubicacion/${id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${propiedadId}/proceso_legal/${id}`,
                 {
                   method: "POST",
                   headers: {
@@ -68,17 +68,17 @@ const PropertiesLocationsForm = ({
             })
           );
 
-          if (addPropiedades.includes(false)) {
+          if (addData.includes(false)) {
             return {
-              message: "Error adding propiedades",
+              message: "Error adding data",
             };
           }
         } else {
           const deleteResponse = await fetch(
             `${
               process.env.NEXT_PUBLIC_API_URL
-            }/propiedad/${propiedadId}/ubicacion/${
-              (ubicacion as IUbicacion).id
+            }/propiedad/${propiedadId}/proceso_legal/${
+              (procesoLegal as IProcesoLegal).id
             }`,
             {
               method: "DELETE",
@@ -88,7 +88,7 @@ const PropertiesLocationsForm = ({
 
           if (!deleteResponse.ok) {
             return {
-              message: "Error deleting ubicacion",
+              message: "Error deleting data",
             };
           }
         }
@@ -102,7 +102,7 @@ const PropertiesLocationsForm = ({
         onCloseForm?.();
       }
     },
-    [action, router, onCloseForm, ubicacion, propiedadId]
+    [action, router, onCloseForm, procesoLegal, propiedadId]
   );
 
   const [state, handleSubmit, isPending] = useActionState(
@@ -112,10 +112,10 @@ const PropertiesLocationsForm = ({
 
   const { errors, message } = state ?? {};
 
-  const transformedUbicaciones = Array.isArray(ubicacion)
-    ? ubicacion.map(({ id, nombre, ...rest }) => ({
+  const transformedData = Array.isArray(procesoLegal)
+    ? procesoLegal.map(({ id, abogado, ...rest }) => ({
         key: id.toString(),
-        name: nombre,
+        name: abogado,
         ...rest,
       }))
     : [];
@@ -130,15 +130,15 @@ const PropertiesLocationsForm = ({
         )}
         {action === "add" ? (
           <DynamicItemManager
-            items={transformedUbicaciones ?? []}
+            items={transformedData ?? []}
             renderForm={(index, items, onSelect) => (
               <AutocompleteInput
                 key={index}
-                id="ubicacion"
-                ariaLabel="Ubicación"
+                id="proceso_legal"
+                ariaLabel="Proceso Legal"
                 customClassName="mt-2"
-                error={errors?.ubicacion}
-                placeholder="Busca una ubicación..."
+                error={errors?.proceso_legal}
+                placeholder="Busca un Proceso Legal..."
                 additionOnChange={(e) => onSelect(index, e.target.value)}
                 suggestions={items.map((i) => ({
                   value: i.key,
@@ -150,9 +150,9 @@ const PropertiesLocationsForm = ({
         ) : (
           <div className="text-center">
             <p>
-              ¿Estás seguro de que deseas eliminar la ubicacion{" "}
+              ¿Estás seguro de que deseas eliminar el proceso legal{" "}
               <span className="font-bold">
-                {(ubicacion as IUbicacion)?.nombre}
+                {(procesoLegal as IProcesoLegal)?.abogado}
               </span>{" "}
               de esta propiedad?
             </p>
@@ -170,4 +170,4 @@ const PropertiesLocationsForm = ({
   );
 };
 
-export default PropertiesLocationsForm;
+export default PropertiesLegalProcessesForm;

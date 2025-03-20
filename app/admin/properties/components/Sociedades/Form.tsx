@@ -5,7 +5,7 @@ import {
   AutocompleteInput,
   DynamicItemManager,
 } from "@/app/shared/components";
-import type { ISociedad } from "@/app/shared/interfaces";
+import type { ISociedad, ISociedadPropiedad } from "@/app/shared/interfaces";
 
 interface IFormState {
   message?: string;
@@ -17,7 +17,7 @@ interface IFormState {
 interface IPropertiesSocietiesForm {
   propiedadId: number;
   action: "add" | "delete";
-  sociedad: ISociedad | ISociedad[];
+  sociedad: ISociedadPropiedad | ISociedad[];
   onCloseForm?: () => void;
 }
 
@@ -27,10 +27,6 @@ const PropertiesSocietiesForm = ({
   sociedad,
   onCloseForm,
 }: IPropertiesSocietiesForm) => {
-  console.log("action", action);
-  console.log("propiedadId", propiedadId);
-  console.log("sociedad", sociedad);
-
   const router = useRouter();
 
   const initialState: IFormState = {
@@ -57,7 +53,7 @@ const PropertiesSocietiesForm = ({
           const addPropiedades = await Promise.all(
             propiedadesIds.map(async (id) => {
               const res = await fetch(
-                `http://localhost:8000/api/propiedad/${propiedadId}/sociedad/${id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${propiedadId}/sociedad/${id}`,
                 {
                   method: "POST",
                   headers: {
@@ -77,8 +73,10 @@ const PropertiesSocietiesForm = ({
           }
         } else {
           const deleteResponse = await fetch(
-            `http://localhost:8000/api/propiedad/${propiedadId}/sociedad/${
-              (sociedad as ISociedad).id
+            `${
+              process.env.NEXT_PUBLIC_API_URL
+            }/propiedad/${propiedadId}/sociedad/${
+              (sociedad as ISociedadPropiedad).id
             }`,
             {
               method: "DELETE",
@@ -152,7 +150,11 @@ const PropertiesSocietiesForm = ({
             <p>
               ¿Estás seguro de que deseas eliminar la sociedad{" "}
               <span className="font-bold">
-                {(sociedad as ISociedad)?.porcentaje_participacion}
+                {
+                  (sociedad as ISociedadPropiedad)?.sociedad
+                    .porcentaje_participacion
+                }
+                %
               </span>{" "}
               de esta propiedad?
             </p>

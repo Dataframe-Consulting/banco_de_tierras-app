@@ -139,14 +139,16 @@ export interface IPropiedad {
 
   proyecto: IProyecto;
 
-  sociedades: ISociedad[];
+  sociedades: ISociedadPropiedad[];
   ubicaciones: IUbicacion[];
   garantias: IGarantia[];
   procesos_legales: IProcesoLegal[];
 }
 
 export interface ISociedadPropiedad {
+  id: number;
   sociedad_id: number;
+  sociedad: ISociedad;
   propiedad_id: number;
   created_at: Date;
 }

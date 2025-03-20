@@ -92,7 +92,7 @@ const Form = ({
           const addPropiedades = await Promise.all(
             propiedadesIds.map(async (id) => {
               const res = await fetch(
-                `http://localhost:8000/api/renta/${rentaId}/propiedad/${id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/renta/${rentaId}/propiedad/${id}`,
                 {
                   method: "POST",
                   headers: {
@@ -112,7 +112,7 @@ const Form = ({
           }
         } else {
           const deleteResponse = await fetch(
-            `http://localhost:8000/api/renta/${rentaId}/propiedad/${
+            `${process.env.NEXT_PUBLIC_API_URL}/renta/${rentaId}/propiedad/${
               (propiedad as IPropiedad).id
             }`,
             {

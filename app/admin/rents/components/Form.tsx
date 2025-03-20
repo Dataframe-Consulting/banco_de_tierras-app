@@ -151,7 +151,7 @@ const Form = ({
 
       try {
         const res = await fetch(
-          `http://localhost:8000/api/renta${
+          `${process.env.NEXT_PUBLIC_API_URL}/renta${
             action === "edit" || action === "delete" ? `/${id}` : ""
           }`,
           {
@@ -193,7 +193,7 @@ const Form = ({
           const addPropiedades = await Promise.all(
             propiedadesIds.map(async (id) => {
               const res = await fetch(
-                `http://localhost:8000/api/renta/${newRenta.id}/propiedad/${id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/renta/${newRenta.id}/propiedad/${id}`,
                 {
                   method: "POST",
                   headers: {

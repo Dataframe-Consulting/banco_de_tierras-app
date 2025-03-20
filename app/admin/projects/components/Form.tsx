@@ -154,7 +154,7 @@ const Form = ({
 
       try {
         const res = await fetch(
-          `http://localhost:8000/api/proyecto${
+          `${process.env.NEXT_PUBLIC_API_URL}/proyecto${
             action === "edit" || action === "delete" ? `/${id}` : ""
           }`,
           {
@@ -200,7 +200,7 @@ const Form = ({
           const addPropietarios = await Promise.all(
             propietariosIds.map(async (id) => {
               const res = await fetch(
-                `http://localhost:8000/api/proyecto/${newProyecto.id}/propietario/${id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/proyecto/${newProyecto.id}/propietario/${id}`,
                 {
                   method: "POST",
                   headers: {
@@ -222,7 +222,7 @@ const Form = ({
           const addSociedades = await Promise.all(
             sociedadesIds.map(async (id) => {
               const res = await fetch(
-                `http://localhost:8000/api/proyecto/${
+                `${process.env.NEXT_PUBLIC_API_URL}/proyecto/${
                   newProyecto.id
                 }/sociedad/${id}/${
                   sociedadesValues[sociedadesIds.indexOf(id)]

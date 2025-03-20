@@ -13,6 +13,9 @@ import type {
   IProyecto,
   IPropiedad,
   IUbicacion,
+  ISociedad,
+  IGarantia,
+  IProcesoLegal,
 } from "@/app/shared/interfaces";
 
 interface IPropertiesState {
@@ -40,7 +43,10 @@ interface IForm {
   action: "add" | "edit" | "delete";
   setOptimisticData: (data: IPropiedad | null) => void;
   proyectos: IProyecto[];
+  sociedades: ISociedad[];
   ubicaciones: IUbicacion[];
+  garantias: IGarantia[];
+  procesosLegales: IProcesoLegal[];
 }
 
 const Form = ({
@@ -49,7 +55,10 @@ const Form = ({
   onClose,
   setOptimisticData,
   proyectos,
+  sociedades,
   ubicaciones,
+  garantias,
+  procesosLegales,
 }: IForm) => {
   const router = useRouter();
 
@@ -100,6 +109,19 @@ const Form = ({
           return { errors, data: dataToValidate };
         }
         if (action === "add") {
+          const sociedadesIds = formData.getAll("sociedad") as string[];
+          if (
+            sociedadesIds.length === 0 ||
+            sociedadesIds.some((id) => id === null || id === "")
+          ) {
+            return {
+              data: dataToValidate,
+              errors: {
+                sociedad: "Debes seleccionar al menos una sociedad",
+              },
+            };
+          }
+
           const ubicacionesIds = formData.getAll("ubicacion") as string[];
           if (
             ubicacionesIds.length === 0 ||
@@ -109,6 +131,34 @@ const Form = ({
               data: dataToValidate,
               errors: {
                 ubicacion: "Debes seleccionar al menos una ubicación",
+              },
+            };
+          }
+
+          const garantiasIds = formData.getAll("garantia") as string[];
+          if (
+            garantiasIds.length === 0 ||
+            garantiasIds.some((id) => id === null || id === "")
+          ) {
+            return {
+              data: dataToValidate,
+              errors: {
+                garantia: "Debes seleccionar al menos una garantía",
+              },
+            };
+          }
+
+          const procesosLegalesIds = formData.getAll(
+            "proceso_legal"
+          ) as string[];
+          if (
+            procesosLegalesIds.length === 0 ||
+            procesosLegalesIds.some((id) => id === null || id === "")
+          ) {
+            return {
+              data: dataToValidate,
+              errors: {
+                proceso_legal: "Debes seleccionar al menos un proceso legal",
               },
             };
           }
@@ -127,7 +177,7 @@ const Form = ({
 
       try {
         const res = await fetch(
-          `http://localhost:8000/api/propiedad${
+          `${process.env.NEXT_PUBLIC_API_URL}/propiedad${
             action === "edit" || action === "delete" ? `/${id}` : ""
           }`,
           {
@@ -161,15 +211,20 @@ const Form = ({
         }
 
         if (action === "add") {
+          const sociedadIds = formData.getAll("sociedad") as string[];
           const ubicacionesIds = formData.getAll("ubicacion") as string[];
-          const responseData = await res.json();
+          const garantiasIds = formData.getAll("garantia") as string[];
+          const procesosLegalesIds = formData.getAll(
+            "proceso_legal"
+          ) as string[];
 
+          const responseData = await res.json();
           const newPropiedad = responseData as IPropiedad;
 
-          const addUbicaciones = await Promise.all(
-            ubicacionesIds.map(async (id) => {
+          const addSociedades = await Promise.all(
+            sociedadIds.map(async (id) => {
               const res = await fetch(
-                `http://localhost:8000/api/propiedad/${newPropiedad.id}/ubicacion/${id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${newPropiedad.id}/sociedad/${id}`,
                 {
                   method: "POST",
                   credentials: "include",
@@ -178,11 +233,67 @@ const Form = ({
               return res.ok;
             })
           );
+          if (addSociedades.includes(false)) {
+            return {
+              data: dataToValidate,
+              message: "Error adding sociedades",
+            };
+          }
 
+          const addUbicaciones = await Promise.all(
+            ubicacionesIds.map(async (id) => {
+              const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${newPropiedad.id}/ubicacion/${id}`,
+                {
+                  method: "POST",
+                  credentials: "include",
+                }
+              );
+              return res.ok;
+            })
+          );
           if (addUbicaciones.includes(false)) {
             return {
               data: dataToValidate,
               message: "Error adding ubicaciones",
+            };
+          }
+
+          const addGarantias = await Promise.all(
+            garantiasIds.map(async (id) => {
+              const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${newPropiedad.id}/garantia/${id}`,
+                {
+                  method: "POST",
+                  credentials: "include",
+                }
+              );
+              return res.ok;
+            })
+          );
+          if (addGarantias.includes(false)) {
+            return {
+              data: dataToValidate,
+              message: "Error adding garantias",
+            };
+          }
+
+          const addProcesosLegales = await Promise.all(
+            procesosLegalesIds.map(async (id) => {
+              const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${newPropiedad.id}/proceso_legal/${id}`,
+                {
+                  method: "POST",
+                  credentials: "include",
+                }
+              );
+              return res.ok;
+            })
+          );
+          if (addProcesosLegales.includes(false)) {
+            return {
+              data: dataToValidate,
+              message: "Error adding procesos legales",
             };
           }
         }
@@ -207,11 +318,33 @@ const Form = ({
 
   const { errors, data, message } = state ?? {};
 
+  const transformedSociedades = sociedades.map(
+    ({ id, porcentaje_participacion, ...rest }) => ({
+      key: id.toString(),
+      name: porcentaje_participacion.toString(),
+      ...rest,
+    })
+  );
+
   const transformedUbicaciones = ubicaciones.map(({ id, nombre, ...rest }) => ({
     key: id.toString(),
     name: nombre,
     ...rest,
   }));
+
+  const transformedGarantias = garantias.map(({ id, monto, ...rest }) => ({
+    key: id.toString(),
+    name: monto.toString(),
+    ...rest,
+  }));
+
+  const transformedProcesosLegales = procesosLegales.map(
+    ({ id, abogado, ...rest }) => ({
+      key: id.toString(),
+      name: abogado,
+      ...rest,
+    })
+  );
 
   return (
     <form action={handleSubmit} className="flex flex-col gap-4">
@@ -336,15 +469,14 @@ const Form = ({
             {action === "add" && (
               <>
                 <DynamicItemManager
-                  // CHANGE TO SOCIEDADES
-                  items={transformedUbicaciones ?? []}
+                  items={transformedSociedades ?? []}
                   renderForm={(index, items, onSelect) => (
                     <AutocompleteInput
                       key={index}
                       id="sociedad"
                       ariaLabel="Sociedad"
                       customClassName="mt-2"
-                      error={errors?.ubicacion}
+                      error={errors?.sociedad}
                       placeholder="Busca una sociedad..."
                       additionOnChange={(e) => onSelect(index, e.target.value)}
                       suggestions={items.map((i) => ({
@@ -373,15 +505,14 @@ const Form = ({
                   )}
                 />
                 <DynamicItemManager
-                  // CHANGE TO GARANTIAS
-                  items={transformedUbicaciones ?? []}
+                  items={transformedGarantias ?? []}
                   renderForm={(index, items, onSelect) => (
                     <AutocompleteInput
                       key={index}
                       id="garantia"
                       ariaLabel="Garantía"
                       customClassName="mt-2"
-                      error={errors?.ubicacion}
+                      error={errors?.garantia}
                       placeholder="Busca una garantía..."
                       additionOnChange={(e) => onSelect(index, e.target.value)}
                       suggestions={items.map((i) => ({
@@ -392,15 +523,14 @@ const Form = ({
                   )}
                 />
                 <DynamicItemManager
-                  // CHANGE TO PROCESOS LEGALES
-                  items={transformedUbicaciones ?? []}
+                  items={transformedProcesosLegales ?? []}
                   renderForm={(index, items, onSelect) => (
                     <AutocompleteInput
                       key={index}
                       id="proceso_legal"
                       ariaLabel="Proceso Legal"
                       customClassName="mt-2"
-                      error={errors?.ubicacion}
+                      error={errors?.proceso_legal}
                       placeholder="Busca un proceso legal..."
                       additionOnChange={(e) => onSelect(index, e.target.value)}
                       suggestions={items.map((i) => ({

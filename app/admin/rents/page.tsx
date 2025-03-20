@@ -16,11 +16,14 @@ const RentsPage = async ({ searchParams }: IRentsPage) => {
 
   const searchParamsForDataTable = { q, propiedad_id };
 
-  const propiedades = await fetch("http://localhost:8000/api/propiedad", {
-    headers: {
-      Authorization: `${token?.value}`,
-    },
-  });
+  const propiedades = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/propiedad`,
+    {
+      headers: {
+        Authorization: `${token?.value}`,
+      },
+    }
+  );
   const propiedadesData = (await propiedades.json()) as IPropiedad[];
 
   return (
@@ -46,7 +49,7 @@ interface IDataFetch {
 }
 
 const DataFetch = async ({ token, searchParams, propiedades }: IDataFetch) => {
-  const url = new URL("http://localhost:8000/api/renta");
+  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/renta`);
   const params = new URLSearchParams();
 
   if (searchParams.q) params.append("q", searchParams.q);
