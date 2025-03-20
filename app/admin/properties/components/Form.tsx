@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import validatePropertiesSchema from "../schemas";
+import { useActionState, useCallback } from "react";
 import {
   GenericInput,
   SubmitButton,
@@ -12,129 +13,318 @@ import type {
   IProyecto,
   IPropiedad,
   IUbicacion,
+  ISociedad,
+  IGarantia,
+  IProcesoLegal,
 } from "@/app/shared/interfaces";
+
+interface IPropertiesState {
+  message?: string;
+  data?: {
+    nombre?: string;
+    superficie?: number;
+    valor_comercial?: number;
+    anio_valor_comercial?: number;
+    clave_catastral?: string;
+    base_predial?: number;
+    adeudo_predial?: number;
+    anios_pend_predial?: number;
+    comentarios?: string;
+    proyecto_id?: number;
+  } | null;
+  errors?: {
+    [key: string]: string;
+  };
+}
 
 interface IForm {
   onClose: () => void;
-  data: IPropiedad | null;
+  propiedad: IPropiedad | null;
   action: "add" | "edit" | "delete";
   setOptimisticData: (data: IPropiedad | null) => void;
   proyectos: IProyecto[];
+  sociedades: ISociedad[];
   ubicaciones: IUbicacion[];
+  garantias: IGarantia[];
+  procesosLegales: IProcesoLegal[];
 }
 
 const Form = ({
-  data,
+  propiedad,
   action,
   onClose,
-  // setOptimisticData,
+  setOptimisticData,
   proyectos,
+  sociedades,
   ubicaciones,
+  garantias,
+  procesosLegales,
 }: IForm) => {
   const router = useRouter();
-  const [isPending, setIsPending] = useState(false);
-  // const [badResponse, setBadResponse] = useState();
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (
-    event
-  ) => {
-    setIsPending(true);
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const body = Object.fromEntries(formData.entries());
-
-    const parsedBody = {
-      ...body,
-      superficie: body.superficie
-        ? parseFloat(body.superficie as string)
-        : null,
-      valor_comercial: body.valor_comercial
-        ? parseFloat(body.valor_comercial as string)
-        : null,
-      anio_valor_comercial: body.anio_valor_comercial
-        ? parseInt(body.anio_valor_comercial as string)
-        : null,
-      base_predial: body.base_predial
-        ? parseFloat(body.base_predial as string)
-        : null,
-      adeudo_predial: body.adeudo_predial
-        ? parseFloat(body.adeudo_predial as string)
-        : null,
-      anios_pend_predial: body.anios_pend_predial
-        ? parseInt(body.anios_pend_predial as string)
-        : null,
-      proyecto_id: body.proyecto_id
-        ? parseInt(body.proyecto_id as string)
-        : null,
-    };
-
-    // startTransition(() => {
-    //   setOptimisticData({
-    //     id: 0,
-    //     ...parsedBody,
-    //   } as IRenta);
-    // });
-
-    try {
-      const res = await fetch(
-        `http://localhost:8000/api/propiedad${
-          action === "edit" || action === "delete" ? `/${data?.id}` : ""
-        }`,
-        {
-          method:
-            action === "delete" ? "DELETE" : action === "edit" ? "PUT" : "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(parsedBody),
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error(
-          `Error ${
-            action === "edit"
-              ? "updating"
-              : action === "delete"
-              ? "deleting"
-              : "creating"
-          } propiedad`
-        );
-      }
-
-      if (action === "add") {
-        const ubicacionesIds = formData.getAll("ubicacion") as string[];
-        const responseData = await res.json();
-
-        const newPropiedad = responseData as IPropiedad;
-
-        const addUbicaciones = await Promise.all(
-          ubicacionesIds.map(async (id) => {
-            const res = await fetch(
-              `http://localhost:8000/api/propiedad/${newPropiedad.id}/ubicacion/${id}`,
-              {
-                method: "POST",
-              }
-            );
-            return res.ok;
-          })
-        );
-
-        if (addUbicaciones.includes(false)) {
-          throw new Error("Error adding ubicaciones");
-        }
-
-        console.log("Success adding ubicaciones");
-      }
-
-      router.refresh();
-      onClose();
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsPending(false);
-    }
+  const initialState: IPropertiesState = {
+    errors: {},
+    message: "",
+    data: propiedad,
   };
+
+  const formAction = useCallback(
+    async (_prev: unknown, formData: FormData) => {
+      const dataToValidate = {
+        nombre: formData.get("nombre")
+          ? (formData.get("nombre") as string)
+          : undefined,
+        superficie: formData.get("superficie")
+          ? parseFloat(formData.get("superficie") as string)
+          : undefined,
+        valor_comercial: formData.get("valor_comercial")
+          ? parseFloat(formData.get("valor_comercial") as string)
+          : undefined,
+        anio_valor_comercial: formData.get("anio_valor_comercial")
+          ? parseInt(formData.get("anio_valor_comercial") as string)
+          : undefined,
+        clave_catastral: formData.get("clave_catastral")
+          ? (formData.get("clave_catastral") as string)
+          : undefined,
+        base_predial: formData.get("base_predial")
+          ? parseFloat(formData.get("base_predial") as string)
+          : undefined,
+        adeudo_predial: formData.get("adeudo_predial")
+          ? parseFloat(formData.get("adeudo_predial") as string)
+          : undefined,
+        anios_pend_predial: formData.get("anios_pend_predial")
+          ? parseInt(formData.get("anios_pend_predial") as string)
+          : undefined,
+        comentarios: formData.get("comentarios")
+          ? (formData.get("comentarios") as string)
+          : undefined,
+        proyecto_id: formData.get("proyecto_id")
+          ? parseInt(formData.get("proyecto_id") as string)
+          : undefined,
+      };
+
+      if (action !== "delete") {
+        const errors = validatePropertiesSchema(action, dataToValidate);
+        if (Object.keys(errors).length > 0) {
+          return { errors, data: dataToValidate };
+        }
+        if (action === "add") {
+          const sociedadesIds = formData.getAll("sociedad") as string[];
+          if (
+            sociedadesIds.length === 0 ||
+            sociedadesIds.some((id) => id === null || id === "")
+          ) {
+            return {
+              data: dataToValidate,
+              errors: {
+                sociedad: "Debes seleccionar al menos una sociedad",
+              },
+            };
+          }
+
+          const ubicacionesIds = formData.getAll("ubicacion") as string[];
+          if (
+            ubicacionesIds.length === 0 ||
+            ubicacionesIds.some((id) => id === null || id === "")
+          ) {
+            return {
+              data: dataToValidate,
+              errors: {
+                ubicacion: "Debes seleccionar al menos una ubicación",
+              },
+            };
+          }
+
+          const garantiasIds = formData.getAll("garantia") as string[];
+          if (
+            garantiasIds.length === 0 ||
+            garantiasIds.some((id) => id === null || id === "")
+          ) {
+            return {
+              data: dataToValidate,
+              errors: {
+                garantia: "Debes seleccionar al menos una garantía",
+              },
+            };
+          }
+
+          const procesosLegalesIds = formData.getAll(
+            "proceso_legal"
+          ) as string[];
+          if (
+            procesosLegalesIds.length === 0 ||
+            procesosLegalesIds.some((id) => id === null || id === "")
+          ) {
+            return {
+              data: dataToValidate,
+              errors: {
+                proceso_legal: "Debes seleccionar al menos un proceso legal",
+              },
+            };
+          }
+        }
+      }
+
+      const id = propiedad?.id ?? 0;
+      const created_at = propiedad?.created_at ?? new Date();
+      const updated_at = new Date();
+      setOptimisticData({
+        id,
+        created_at,
+        updated_at,
+        ...dataToValidate,
+      } as IPropiedad | null);
+
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/propiedad${
+            action === "edit" || action === "delete" ? `/${id}` : ""
+          }`,
+          {
+            method:
+              action === "delete"
+                ? "DELETE"
+                : action === "edit"
+                ? "PUT"
+                : "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dataToValidate),
+            credentials: "include",
+          }
+        );
+
+        if (!res.ok) {
+          const apiResponse = await res.json();
+          console.error(apiResponse);
+          return {
+            data: dataToValidate,
+            message: `Error ${
+              action === "edit"
+                ? "updating"
+                : action === "delete"
+                ? "deleting"
+                : "creating"
+            } propiedad`,
+          };
+        }
+
+        if (action === "add") {
+          const sociedadIds = formData.getAll("sociedad") as string[];
+          const ubicacionesIds = formData.getAll("ubicacion") as string[];
+          const garantiasIds = formData.getAll("garantia") as string[];
+          const procesosLegalesIds = formData.getAll(
+            "proceso_legal"
+          ) as string[];
+
+          const responseData = await res.json();
+          const newPropiedad = responseData as IPropiedad;
+
+          const addSociedades = await Promise.all(
+            sociedadIds.map(async (id) => {
+              const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${newPropiedad.id}/sociedad/${id}`,
+                {
+                  method: "POST",
+                  credentials: "include",
+                }
+              );
+              return res.ok;
+            })
+          );
+          if (addSociedades.includes(false)) {
+            return {
+              data: dataToValidate,
+              message: "Error adding sociedades",
+            };
+          }
+
+          const addUbicaciones = await Promise.all(
+            ubicacionesIds.map(async (id) => {
+              const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${newPropiedad.id}/ubicacion/${id}`,
+                {
+                  method: "POST",
+                  credentials: "include",
+                }
+              );
+              return res.ok;
+            })
+          );
+          if (addUbicaciones.includes(false)) {
+            return {
+              data: dataToValidate,
+              message: "Error adding ubicaciones",
+            };
+          }
+
+          const addGarantias = await Promise.all(
+            garantiasIds.map(async (id) => {
+              const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${newPropiedad.id}/garantia/${id}`,
+                {
+                  method: "POST",
+                  credentials: "include",
+                }
+              );
+              return res.ok;
+            })
+          );
+          if (addGarantias.includes(false)) {
+            return {
+              data: dataToValidate,
+              message: "Error adding garantias",
+            };
+          }
+
+          const addProcesosLegales = await Promise.all(
+            procesosLegalesIds.map(async (id) => {
+              const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${newPropiedad.id}/proceso_legal/${id}`,
+                {
+                  method: "POST",
+                  credentials: "include",
+                }
+              );
+              return res.ok;
+            })
+          );
+          if (addProcesosLegales.includes(false)) {
+            return {
+              data: dataToValidate,
+              message: "Error adding procesos legales",
+            };
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        return {
+          data: dataToValidate,
+          message: "Error interno",
+        };
+      } finally {
+        router.refresh();
+        onClose();
+      }
+    },
+    [action, onClose, propiedad, setOptimisticData, router]
+  );
+
+  const [state, handleSubmit, isPending] = useActionState(
+    formAction,
+    initialState
+  );
+
+  const { errors, data, message } = state ?? {};
+
+  const transformedSociedades = sociedades.map(
+    ({ id, porcentaje_participacion, ...rest }) => ({
+      key: id.toString(),
+      name: porcentaje_participacion.toString(),
+      ...rest,
+    })
+  );
 
   const transformedUbicaciones = ubicaciones.map(({ id, nombre, ...rest }) => ({
     key: id.toString(),
@@ -142,9 +332,28 @@ const Form = ({
     ...rest,
   }));
 
+  const transformedGarantias = garantias.map(({ id, monto, ...rest }) => ({
+    key: id.toString(),
+    name: monto.toString(),
+    ...rest,
+  }));
+
+  const transformedProcesosLegales = procesosLegales.map(
+    ({ id, abogado, ...rest }) => ({
+      key: id.toString(),
+      name: abogado,
+      ...rest,
+    })
+  );
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form action={handleSubmit} className="flex flex-col gap-4">
       <fieldset disabled={isPending} className="disabled:opacity-50 space-y-4">
+        {message && (
+          <div className="text-center text-white bg-red-500 p-2 rounded">
+            {message}
+          </div>
+        )}
         {action !== "delete" ? (
           <>
             <GenericPairDiv>
@@ -155,6 +364,7 @@ const Form = ({
                   ariaLabel="Nombre"
                   placeholder="SUN A-1"
                   defaultValue={data?.nombre ?? ""}
+                  error={errors?.nombre}
                 />
               </GenericDiv>
               <GenericDiv>
@@ -163,7 +373,8 @@ const Form = ({
                   id="superficie"
                   ariaLabel="Superficie"
                   placeholder="47.92"
-                  defaultValue={data?.superficie.toString() ?? ""}
+                  defaultValue={data?.superficie?.toString()}
+                  error={errors?.superficie}
                 />
               </GenericDiv>
               <GenericDiv>
@@ -172,7 +383,8 @@ const Form = ({
                   id="valor_comercial"
                   ariaLabel="Valor Comercial"
                   placeholder="1980677.36"
-                  defaultValue={data?.valor_comercial.toString() ?? ""}
+                  defaultValue={data?.valor_comercial?.toString() ?? ""}
+                  error={errors?.valor_comercial}
                 />
               </GenericDiv>
             </GenericPairDiv>
@@ -182,6 +394,7 @@ const Form = ({
                   type="select"
                   id="proyecto_id"
                   ariaLabel="Proyecto"
+                  error={errors?.proyecto_id}
                   placeholder="Selecciona un proyecto..."
                   defaultValue={data?.proyecto_id?.toString() ?? ""}
                   options={proyectos.map((p) => ({
@@ -197,6 +410,7 @@ const Form = ({
                   ariaLabel="Año Valor Comercial"
                   placeholder="2023"
                   defaultValue={data?.anio_valor_comercial?.toString() ?? ""}
+                  error={errors?.anio_valor_comercial}
                 />
               </GenericDiv>
               <GenericDiv>
@@ -206,6 +420,7 @@ const Form = ({
                   ariaLabel="Clave Catastral"
                   placeholder="360030958001"
                   defaultValue={data?.clave_catastral ?? ""}
+                  error={errors?.clave_catastral}
                 />
               </GenericDiv>
             </GenericPairDiv>
@@ -216,7 +431,8 @@ const Form = ({
                   id="base_predial"
                   ariaLabel="Base Predial"
                   placeholder="916.0"
-                  defaultValue={data?.base_predial.toString() ?? ""}
+                  defaultValue={data?.base_predial?.toString() ?? ""}
+                  error={errors?.base_predial}
                 />
               </GenericDiv>
               <GenericDiv>
@@ -226,6 +442,7 @@ const Form = ({
                   ariaLabel="Adeudo Predial"
                   placeholder="200.0"
                   defaultValue={data?.adeudo_predial?.toString() ?? ""}
+                  error={errors?.adeudo_predial}
                 />
               </GenericDiv>
               <GenericDiv>
@@ -235,36 +452,95 @@ const Form = ({
                   ariaLabel="Años Pend. Predial"
                   placeholder="2"
                   defaultValue={data?.anios_pend_predial?.toString() ?? ""}
-                />
-              </GenericDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="text"
-                  id="comentarios"
-                  ariaLabel="Comentarios"
-                  placeholder="Sin comentarios"
-                  defaultValue={data?.comentarios ?? ""}
+                  error={errors?.anios_pend_predial}
                 />
               </GenericDiv>
             </GenericPairDiv>
-            {action === "add" && (
-              <DynamicItemManager
-                items={transformedUbicaciones ?? []}
-                renderForm={(index, items, onSelect) => (
-                  <AutocompleteInput
-                    key={index}
-                    id="ubicacion"
-                    ariaLabel="Ubicación"
-                    customClassName="mt-2"
-                    placeholder="Busca un ubicación..."
-                    additionOnChange={(e) => onSelect(index, e.target.value)}
-                    suggestions={items.map((i) => ({
-                      value: i.key,
-                      label: i.name,
-                    }))}
-                  />
-                )}
+            <div className="flex flex-col gap-2 w-full">
+              <GenericInput
+                type="textarea"
+                id="comentarios"
+                ariaLabel="Comentarios"
+                placeholder="Sin comentarios"
+                defaultValue={data?.comentarios ?? ""}
+                error={errors?.comentarios}
               />
+            </div>
+            {action === "add" && (
+              <>
+                <DynamicItemManager
+                  items={transformedSociedades ?? []}
+                  renderForm={(index, items, onSelect) => (
+                    <AutocompleteInput
+                      key={index}
+                      id="sociedad"
+                      ariaLabel="Sociedad"
+                      customClassName="mt-2"
+                      error={errors?.sociedad}
+                      placeholder="Busca una sociedad..."
+                      additionOnChange={(e) => onSelect(index, e.target.value)}
+                      suggestions={items.map((i) => ({
+                        value: i.key,
+                        label: i.name,
+                      }))}
+                    />
+                  )}
+                />
+                <DynamicItemManager
+                  items={transformedUbicaciones ?? []}
+                  renderForm={(index, items, onSelect) => (
+                    <AutocompleteInput
+                      key={index}
+                      id="ubicacion"
+                      ariaLabel="Ubicación"
+                      customClassName="mt-2"
+                      error={errors?.ubicacion}
+                      placeholder="Busca un ubicación..."
+                      additionOnChange={(e) => onSelect(index, e.target.value)}
+                      suggestions={items.map((i) => ({
+                        value: i.key,
+                        label: i.name,
+                      }))}
+                    />
+                  )}
+                />
+                <DynamicItemManager
+                  items={transformedGarantias ?? []}
+                  renderForm={(index, items, onSelect) => (
+                    <AutocompleteInput
+                      key={index}
+                      id="garantia"
+                      ariaLabel="Garantía"
+                      customClassName="mt-2"
+                      error={errors?.garantia}
+                      placeholder="Busca una garantía..."
+                      additionOnChange={(e) => onSelect(index, e.target.value)}
+                      suggestions={items.map((i) => ({
+                        value: i.key,
+                        label: i.name,
+                      }))}
+                    />
+                  )}
+                />
+                <DynamicItemManager
+                  items={transformedProcesosLegales ?? []}
+                  renderForm={(index, items, onSelect) => (
+                    <AutocompleteInput
+                      key={index}
+                      id="proceso_legal"
+                      ariaLabel="Proceso Legal"
+                      customClassName="mt-2"
+                      error={errors?.proceso_legal}
+                      placeholder="Busca un proceso legal..."
+                      additionOnChange={(e) => onSelect(index, e.target.value)}
+                      suggestions={items.map((i) => ({
+                        value: i.key,
+                        label: i.name,
+                      }))}
+                    />
+                  )}
+                />
+              </>
             )}
           </>
         ) : (

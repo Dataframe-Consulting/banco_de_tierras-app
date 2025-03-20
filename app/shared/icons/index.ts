@@ -8,6 +8,7 @@ import MinusCircle from "./MinusCircle";
 import LeftChevron from "./LeftChevron";
 import DownChevron from "./DownChevron";
 import RightChevron from "./RightChevron";
+import DoorArrowRight from "./DoorArrowRight";
 
 export {
   XMark,
@@ -20,4 +21,5 @@ export {
   LeftChevron,
   DownChevron,
   RightChevron,
+  DoorArrowRight,
 };

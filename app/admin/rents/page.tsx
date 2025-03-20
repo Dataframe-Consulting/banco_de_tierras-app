@@ -1,8 +1,8 @@
 import { Suspense } from "react";
+import { cookies } from "next/headers";
 import { SearchBar, RentsDataTable } from "./components";
 import { DatatableSkeleton } from "@/app/shared/components";
 import type { IPropiedad, IRenta } from "@/app/shared/interfaces";
-import { cookies } from "next/headers";
 
 interface IRentsPage {
   searchParams?: Promise<{ [key: string]: string }>;
@@ -10,17 +10,20 @@ interface IRentsPage {
 
 const RentsPage = async ({ searchParams }: IRentsPage) => {
   const cookieStore = await cookies();
-
   const token = cookieStore.get("access_token");
+
   const { q = "", propiedad_id = "" } = (await searchParams) || {};
 
   const searchParamsForDataTable = { q, propiedad_id };
 
-  const propiedades = await fetch("http://localhost:8000/api/propiedad", {
-    headers: {
-      Authorization: `${token?.value}`,
-    },
-  });
+  const propiedades = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/propiedad`,
+    {
+      headers: {
+        Authorization: `${token?.value}`,
+      },
+    }
+  );
   const propiedadesData = (await propiedades.json()) as IPropiedad[];
 
   return (
@@ -46,7 +49,7 @@ interface IDataFetch {
 }
 
 const DataFetch = async ({ token, searchParams, propiedades }: IDataFetch) => {
-  const url = new URL("http://localhost:8000/api/renta");
+  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/renta`);
   const params = new URLSearchParams();
 
   if (searchParams.q) params.append("q", searchParams.q);

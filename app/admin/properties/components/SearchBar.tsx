@@ -2,28 +2,43 @@
 
 import { useSearchFilter } from "@/app/shared/hooks";
 import { GenericSearchInput } from "@/app/shared/components";
-import type { IProyecto, IUbicacion } from "@/app/shared/interfaces";
+import type {
+  IGarantia,
+  IProyecto,
+  ISociedad,
+  IUbicacion,
+  IProcesoLegal,
+} from "@/app/shared/interfaces";
 
 interface ISearchBar {
   proyectos: IProyecto[];
+  garantias: IGarantia[];
+  sociedades: ISociedad[];
   ubicaciones: IUbicacion[];
+  procesosLegales: IProcesoLegal[];
 }
 
-const SearchBar = ({ proyectos, ubicaciones }: ISearchBar) => {
-  const defaultFilters = { q: "", proyecto_id: "", ubicacion_id: "" };
+const SearchBar = ({
+  proyectos,
+  garantias,
+  sociedades,
+  ubicaciones,
+  procesosLegales,
+}: ISearchBar) => {
+  const defaultFilters = {
+    q: "",
+    proyecto_id: "",
+    garantia_id: "",
+    sociedad_id: "",
+    ubicacion_id: "",
+    proceso_legal_id: "",
+  };
 
   const { filters, handleSearch } = useSearchFilter(defaultFilters);
 
   return (
     <search className="max-w-lg mx-auto mt-6 mb-4">
       <div className="flex flex-col md:flex-row gap-2 items-end">
-        <GenericSearchInput
-          type="text"
-          inputClassName="h-full"
-          value={filters.q}
-          onChange={(value: string) => handleSearch("q", value)}
-          placeholder="Busca por nombre..."
-        />
         <div>
           <GenericSearchInput
             type="select"
@@ -41,8 +56,22 @@ const SearchBar = ({ proyectos, ubicaciones }: ISearchBar) => {
         <div>
           <GenericSearchInput
             type="select"
+            id="sociedad_id"
+            placeholder="Todas"
+            ariaLabel="Sociedad"
+            value={filters.sociedad_id}
+            options={sociedades.map((sociedad) => ({
+              value: sociedad.id.toString(),
+              label: sociedad.porcentaje_participacion.toString(),
+            }))}
+            onChange={(value: string) => handleSearch("sociedad_id", value)}
+          />
+        </div>
+        <div>
+          <GenericSearchInput
+            type="select"
             id="ubicacion_id"
-            placeholder="Todos"
+            placeholder="Todas"
             ariaLabel="Ubicación"
             value={filters.ubicacion_id}
             options={ubicaciones.map((ubicacion) => ({
@@ -52,6 +81,45 @@ const SearchBar = ({ proyectos, ubicaciones }: ISearchBar) => {
             onChange={(value: string) => handleSearch("ubicacion_id", value)}
           />
         </div>
+        <div>
+          <GenericSearchInput
+            type="select"
+            id="garantia_id"
+            placeholder="Todas"
+            ariaLabel="Garantía"
+            value={filters.garantia_id}
+            options={garantias.map((garantia) => ({
+              value: garantia.id.toString(),
+              label: garantia.beneficiario,
+            }))}
+            onChange={(value: string) => handleSearch("garantia_id", value)}
+          />
+        </div>
+        <div>
+          <GenericSearchInput
+            type="select"
+            id="proceso_legal_id"
+            placeholder="Todos"
+            ariaLabel="Proceso Legal"
+            value={filters.proceso_legal_id}
+            options={procesosLegales.map((procesoLegal) => ({
+              value: procesoLegal.id.toString(),
+              label: procesoLegal.tipo_proceso,
+            }))}
+            onChange={(value: string) =>
+              handleSearch("proceso_legal_id", value)
+            }
+          />
+        </div>
+      </div>
+      <div className="mt-4">
+        <GenericSearchInput
+          type="text"
+          inputClassName="h-full"
+          value={filters.q}
+          onChange={(value: string) => handleSearch("q", value)}
+          placeholder="Busca por nombre..."
+        />
       </div>
     </search>
   );

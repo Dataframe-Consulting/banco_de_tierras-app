@@ -1,10 +1,14 @@
 import { Suspense } from "react";
-import { PropertiesDataTable, SearchBar } from "./components";
+import { cookies } from "next/headers";
 import { DatatableSkeleton } from "@/app/shared/components";
+import { PropertiesDataTable, SearchBar } from "./components";
 import type {
-  IPropiedad,
+  IGarantia,
   IProyecto,
+  ISociedad,
   IUbicacion,
+  IPropiedad,
+  IProcesoLegal,
 } from "@/app/shared/interfaces";
 
 interface IPropertiesPage {
@@ -12,32 +16,90 @@ interface IPropertiesPage {
 }
 
 const PropertiesPage = async ({ searchParams }: IPropertiesPage) => {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("access_token");
+
   const {
     q = "",
+    garanta_id = "",
     proyecto_id = "",
+    sociedad_id = "",
     ubicacion_id = "",
+    proceso_legal_id = "",
   } = (await searchParams) || {};
 
-  const searchParamsForDatatable = { q, proyecto_id, ubicacion_id };
+  const searchParamsForDatatable = {
+    q,
+    garanta_id,
+    proyecto_id,
+    sociedad_id,
+    ubicacion_id,
+    proceso_legal_id,
+  };
 
-  const [proyectos, ubicacinoes] = await Promise.all([
-    fetch("http://localhost:8000/api/proyecto"),
-    fetch("http://localhost:8000/api/ubicacion"),
-  ]);
+  const [proyectos, sociedades, ubicaciones, garantias, procesos_legales] =
+    await Promise.all([
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/proyecto`, {
+        headers: {
+          Authorization: `${token?.value}`,
+        },
+      }),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/sociedad`, {
+        headers: {
+          Authorization: `${token?.value}`,
+        },
+      }),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/ubicacion`, {
+        headers: {
+          Authorization: `${token?.value}`,
+        },
+      }),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/garantia`, {
+        headers: {
+          Authorization: `${token?.value}`,
+        },
+      }),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/proceso_legal`, {
+        headers: {
+          Authorization: `${token?.value}`,
+        },
+      }),
+    ]);
 
   const proyectosData = (await proyectos.json()) as IProyecto[];
-  const ubicacionesData = (await ubicacinoes.json()) as IUbicacion[];
+  const garantiasData = (await garantias.json()) as IGarantia[];
+  const sociedadesData = (await sociedades.json()) as ISociedad[];
+  const ubicacionesData = (await ubicaciones.json()) as IUbicacion[];
+  const procesosLegalesData =
+    (await procesos_legales.json()) as IProcesoLegal[];
 
   return (
     <>
-      <SearchBar proyectos={proyectosData} ubicaciones={ubicacionesData} />
+      <SearchBar
+        proyectos={proyectosData}
+        garantias={garantiasData}
+        sociedades={sociedadesData}
+        ubicaciones={ubicacionesData}
+        procesosLegales={procesosLegalesData}
+      />
       <Suspense
-        key={q + proyecto_id + ubicacion_id}
+        key={
+          q +
+          garanta_id +
+          proyecto_id +
+          sociedad_id +
+          ubicacion_id +
+          proceso_legal_id
+        }
         fallback={<DatatableSkeleton />}
       >
         <DataFetch
+          token={token?.value}
           proyectos={proyectosData}
+          garantias={garantiasData}
+          sociedades={sociedadesData}
           ubicaciones={ubicacionesData}
+          procesosLegales={procesosLegalesData}
           searchParams={searchParamsForDatatable}
         />
       </Suspense>
@@ -48,33 +110,61 @@ const PropertiesPage = async ({ searchParams }: IPropertiesPage) => {
 export default PropertiesPage;
 
 interface IDataFetch {
+  token?: string;
   proyectos: IProyecto[];
+  garantias: IGarantia[];
+  sociedades: ISociedad[];
   ubicaciones: IUbicacion[];
-  searchParams: { q?: string; proyecto_id?: string; ubicacion_id?: string };
+  procesosLegales: IProcesoLegal[];
+  searchParams: {
+    q?: string;
+    garantia_id?: string;
+    proyecto_id?: string;
+    sociedad_id?: string;
+    ubicacion_id?: string;
+    proceso_legal_id?: string;
+  };
 }
 
 const DataFetch = async ({
+  token,
   proyectos,
+  garantias,
+  sociedades,
   ubicaciones,
   searchParams,
+  procesosLegales,
 }: IDataFetch) => {
-  const url = new URL("http://localhost:8000/api/propiedad");
+  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/propiedad`);
   const params = new URLSearchParams();
 
   if (searchParams.q) params.append("q", searchParams.q);
   if (searchParams.proyecto_id)
     params.append("proyecto_id", searchParams.proyecto_id);
+  if (searchParams.garantia_id)
+    params.append("garantia_id", searchParams.garantia_id);
+  if (searchParams.sociedad_id)
+    params.append("sociedad_id", searchParams.sociedad_id);
   if (searchParams.ubicacion_id)
     params.append("ubicacion_id", searchParams.ubicacion_id);
+  if (searchParams.proceso_legal_id)
+    params.append("proceso_legal_id", searchParams.proceso_legal_id);
 
-  const response = await fetch(`${url}?${params.toString()}`);
+  const response = await fetch(`${url}?${params.toString()}`, {
+    headers: {
+      Authorization: `${token}`,
+    },
+  });
   const propertiesData = (await response.json()) as IPropiedad[];
 
   return (
     <PropertiesDataTable
+      garantias={garantias}
       proyectos={proyectos}
+      sociedades={sociedades}
       ubicaciones={ubicaciones}
       propiedades={propertiesData}
+      procesosLegales={procesosLegales}
     />
   );
 };
