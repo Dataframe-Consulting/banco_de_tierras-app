@@ -1,23 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import validateSocietiesSchema from "../schemas";
 import { useCallback, useActionState } from "react";
-import validateLegalProcessesSchema from "../schemas";
-import {
-  AutocompleteInput,
-  DynamicItemManager,
-  GenericInput,
-  SubmitButton,
-} from "@/app/shared/components";
-import type { IPropiedad, IProcesoLegal } from "@/app/shared/interfaces";
+import { GenericInput, SubmitButton } from "@/app/shared/components";
+import type { ISociedad } from "@/app/shared/interfaces";
 
-interface IRentaState {
+interface IFormState {
   message?: string;
   data?: {
-    abogado?: string;
-    tipo_proceso?: string;
-    estatus?: string;
-    propiedad_id?: number;
+    porcentaje_participacion?: number;
   } | null;
   errors?: {
     [key: string]: string;
@@ -26,46 +18,30 @@ interface IRentaState {
 
 interface IForm {
   onClose: () => void;
-  procesoLegal: IProcesoLegal | null;
-  propiedades: IPropiedad[];
+  societie: ISociedad | null;
   action: "add" | "edit" | "delete";
-  setOptimisticData: (data: IProcesoLegal | null) => void;
+  setOptimisticData: (data: ISociedad | null) => void;
 }
 
-const Form = ({
-  procesoLegal,
-  action,
-  onClose,
-  propiedades,
-  setOptimisticData,
-}: IForm) => {
+const Form = ({ action, societie, onClose, setOptimisticData }: IForm) => {
   const router = useRouter();
 
-  const initialState: IRentaState = {
+  const initialState: IFormState = {
     errors: {},
     message: "",
-    data: procesoLegal,
+    data: societie,
   };
 
   const formAction = useCallback(
     async (_prev: unknown, formData: FormData) => {
       const dataToValidate = {
-        abogado: formData.get("abogado")
-          ? (formData.get("abogado") as string)
-          : undefined,
-        tipo_proceso: formData.get("tipo_proceso")
-          ? (formData.get("tipo_proceso") as string)
-          : undefined,
-        estatus: formData.get("estatus")
-          ? (formData.get("estatus") as string)
-          : undefined,
-        propiedad_id: formData.get("propiedad_id")
-          ? parseInt(formData.get("propiedad_id") as string)
+        porcentaje_participacion: formData.get("porcentaje_participacion")
+          ? Number(formData.get("porcentaje_participacion"))
           : undefined,
       };
 
       if (action !== "delete") {
-        const errors = validateLegalProcessesSchema(action, dataToValidate);
+        const errors = validateSocietiesSchema(action, dataToValidate);
         if (Object.keys(errors).length > 0) {
           return {
             errors,
@@ -74,19 +50,19 @@ const Form = ({
         }
       }
 
-      const id = procesoLegal?.id ?? 0;
-      const created_at = procesoLegal?.created_at ?? new Date();
+      const id = societie?.id ?? 0;
+      const created_at = societie?.created_at ?? new Date();
       const updated_at = new Date();
       setOptimisticData({
         id,
         created_at,
         updated_at,
         ...dataToValidate,
-      } as IProcesoLegal | null);
+      } as ISociedad | null);
 
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/proceso_legal${
+          `${process.env.NEXT_PUBLIC_API_URL}/sociedad${
             action === "edit" || action === "delete" ? `/${id}` : ""
           }`,
           {
@@ -129,7 +105,7 @@ const Form = ({
         onClose();
       }
     },
-    [procesoLegal, router, action, onClose, setOptimisticData]
+    [societie, router, action, onClose, setOptimisticData]
   );
 
   const [state, handleSubmit, isPending] = useActionState(
@@ -148,14 +124,14 @@ const Form = ({
           </div>
         )}
         {action !== "delete" ? (
-          <div className="flex flex-col gap-2 w-full">
+          <div className="flex flex-col gap-2">
             <GenericInput
+              type="number"
+              id="porcentaje_participacion"
+              placeholder="22"
+              step="0.01"
               min="0"
               max="100"
-              step="0.01"
-              type="number"
-              placeholder="50"
-              id="porcentaje_participacion"
               ariaLabel="Porcentaje de participación"
               defaultValue={data?.porcentaje_participacion?.toString()}
               error={errors?.porcentaje_participacion}
@@ -164,9 +140,11 @@ const Form = ({
         ) : (
           <div className="text-center">
             <p>
-              ¿Estás seguro de que deseas eliminar el proceso legal con el
-              abogado{" "}
-              <span className="font-bold">{procesoLegal?.abogado}?</span>
+              ¿Estás seguro de que deseas eliminar a la sociedad con el valor de
+              participación{" "}
+              <span className="font-bold">
+                {societie?.porcentaje_participacion}?
+              </span>
             </p>
           </div>
         )}
@@ -191,17 +169,3 @@ const Form = ({
 };
 
 export default Form;
-
-const GenericPairDiv = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="flex flex-col sm:flex-row gap-4 w-full">{children}</div>
-  );
-};
-
-const GenericDiv = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="flex flex-col gap-2 w-full sm:w-1/2 justify-end">
-      {children}
-    </div>
-  );
-};

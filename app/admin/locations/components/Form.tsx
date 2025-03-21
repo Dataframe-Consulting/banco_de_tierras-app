@@ -2,17 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useActionState } from "react";
-import validateLegalProcessesSchema from "../schemas";
+import validateLocationsSchema from "../schemas";
 import { GenericInput, SubmitButton } from "@/app/shared/components";
-import type { IPropiedad, IProcesoLegal } from "@/app/shared/interfaces";
+import type { IUbicacion } from "@/app/shared/interfaces";
 
 interface IRentaState {
   message?: string;
   data?: {
-    abogado?: string;
-    tipo_proceso?: string;
-    estatus?: string;
-    propiedad_id?: number;
+    nombre?: string;
   } | null;
   errors?: {
     [key: string]: string;
@@ -21,46 +18,30 @@ interface IRentaState {
 
 interface IForm {
   onClose: () => void;
-  procesoLegal: IProcesoLegal | null;
-  propiedades: IPropiedad[];
+  location: IUbicacion | null;
   action: "add" | "edit" | "delete";
-  setOptimisticData: (data: IProcesoLegal | null) => void;
+  setOptimisticData: (data: IUbicacion | null) => void;
 }
 
-const Form = ({
-  procesoLegal,
-  action,
-  onClose,
-  propiedades,
-  setOptimisticData,
-}: IForm) => {
+const Form = ({ action, location, onClose, setOptimisticData }: IForm) => {
   const router = useRouter();
 
   const initialState: IRentaState = {
     errors: {},
     message: "",
-    data: procesoLegal,
+    data: location,
   };
 
   const formAction = useCallback(
     async (_prev: unknown, formData: FormData) => {
       const dataToValidate = {
-        abogado: formData.get("abogado")
-          ? (formData.get("abogado") as string)
-          : undefined,
-        tipo_proceso: formData.get("tipo_proceso")
-          ? (formData.get("tipo_proceso") as string)
-          : undefined,
-        estatus: formData.get("estatus")
-          ? (formData.get("estatus") as string)
-          : undefined,
-        propiedad_id: formData.get("propiedad_id")
-          ? parseInt(formData.get("propiedad_id") as string)
+        nombre: formData.get("nombre")
+          ? (formData.get("nombre") as string)
           : undefined,
       };
 
       if (action !== "delete") {
-        const errors = validateLegalProcessesSchema(action, dataToValidate);
+        const errors = validateLocationsSchema(action, dataToValidate);
         if (Object.keys(errors).length > 0) {
           return {
             errors,
@@ -69,19 +50,19 @@ const Form = ({
         }
       }
 
-      const id = procesoLegal?.id ?? 0;
-      const created_at = procesoLegal?.created_at ?? new Date();
+      const id = location?.id ?? 0;
+      const created_at = location?.created_at ?? new Date();
       const updated_at = new Date();
       setOptimisticData({
         id,
         created_at,
         updated_at,
         ...dataToValidate,
-      } as IProcesoLegal | null);
+      } as IUbicacion | null);
 
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/proceso_legal${
+          `${process.env.NEXT_PUBLIC_API_URL}/ubicacion${
             action === "edit" || action === "delete" ? `/${id}` : ""
           }`,
           {
@@ -124,7 +105,7 @@ const Form = ({
         onClose();
       }
     },
-    [procesoLegal, router, action, onClose, setOptimisticData]
+    [location, router, action, onClose, setOptimisticData]
   );
 
   const [state, handleSubmit, isPending] = useActionState(
@@ -156,9 +137,8 @@ const Form = ({
         ) : (
           <div className="text-center">
             <p>
-              ¿Estás seguro de que deseas eliminar el proceso legal con el
-              abogado{" "}
-              <span className="font-bold">{procesoLegal?.abogado}?</span>
+              ¿Estás seguro de que deseas eliminar la ubicacion{" "}
+              <span className="font-bold">{location?.nombre}?</span>
             </p>
           </div>
         )}
@@ -183,17 +163,3 @@ const Form = ({
 };
 
 export default Form;
-
-const GenericPairDiv = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="flex flex-col sm:flex-row gap-4 w-full">{children}</div>
-  );
-};
-
-const GenericDiv = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="flex flex-col gap-2 w-full sm:w-1/2 justify-end">
-      {children}
-    </div>
-  );
-};

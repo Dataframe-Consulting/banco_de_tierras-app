@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useActionState } from "react";
 import validateLegalProcessesSchema from "../schemas";
 import { GenericInput, SubmitButton } from "@/app/shared/components";
-import type { IPropiedad, IProcesoLegal } from "@/app/shared/interfaces";
+import type { IProcesoLegal } from "@/app/shared/interfaces";
 
 interface IRentaState {
   message?: string;
@@ -12,7 +12,7 @@ interface IRentaState {
     abogado?: string;
     tipo_proceso?: string;
     estatus?: string;
-    propiedad_id?: number;
+    comentarios?: string;
   } | null;
   errors?: {
     [key: string]: string;
@@ -22,18 +22,11 @@ interface IRentaState {
 interface IForm {
   onClose: () => void;
   procesoLegal: IProcesoLegal | null;
-  propiedades: IPropiedad[];
   action: "add" | "edit" | "delete";
   setOptimisticData: (data: IProcesoLegal | null) => void;
 }
 
-const Form = ({
-  procesoLegal,
-  action,
-  onClose,
-  propiedades,
-  setOptimisticData,
-}: IForm) => {
+const Form = ({ procesoLegal, action, onClose, setOptimisticData }: IForm) => {
   const router = useRouter();
 
   const initialState: IRentaState = {
@@ -54,8 +47,8 @@ const Form = ({
         estatus: formData.get("estatus")
           ? (formData.get("estatus") as string)
           : undefined,
-        propiedad_id: formData.get("propiedad_id")
-          ? parseInt(formData.get("propiedad_id") as string)
+        comentarios: formData.get("comentarios")
+          ? (formData.get("comentarios") as string)
           : undefined,
       };
 

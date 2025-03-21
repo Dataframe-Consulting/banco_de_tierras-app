@@ -1,4 +1,4 @@
 import SearchBar from "./SearchBar";
-import LegalProcessesDataTable from "./DataTable";
+import VocationsDataTable from "./DataTable";
 
-export { SearchBar, LegalProcessesDataTable };
+export { SearchBar, VocationsDataTable };

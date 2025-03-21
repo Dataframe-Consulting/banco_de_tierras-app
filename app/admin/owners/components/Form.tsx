@@ -2,22 +2,20 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useActionState } from "react";
-import validateLegalProcessesSchema from "../schemas";
+import validateOwnerSchema from "../schemas";
 import {
   AutocompleteInput,
   DynamicItemManager,
   GenericInput,
   SubmitButton,
 } from "@/app/shared/components";
-import type { IPropiedad, IProcesoLegal } from "@/app/shared/interfaces";
+import type { ISocio, IPropietario } from "@/app/shared/interfaces";
 
 interface IRentaState {
   message?: string;
   data?: {
-    abogado?: string;
-    tipo_proceso?: string;
-    estatus?: string;
-    propiedad_id?: number;
+    nombre?: string;
+    rfc?: string;
   } | null;
   errors?: {
     [key: string]: string;
@@ -26,17 +24,17 @@ interface IRentaState {
 
 interface IForm {
   onClose: () => void;
-  procesoLegal: IProcesoLegal | null;
-  propiedades: IPropiedad[];
+  propietario: IPropietario | null;
+  socios: ISocio[];
   action: "add" | "edit" | "delete";
-  setOptimisticData: (data: IProcesoLegal | null) => void;
+  setOptimisticData: (data: IPropietario | null) => void;
 }
 
 const Form = ({
-  procesoLegal,
+  propietario,
   action,
   onClose,
-  propiedades,
+  socios,
   setOptimisticData,
 }: IForm) => {
   const router = useRouter();
@@ -44,49 +42,55 @@ const Form = ({
   const initialState: IRentaState = {
     errors: {},
     message: "",
-    data: procesoLegal,
+    data: propietario,
   };
 
   const formAction = useCallback(
     async (_prev: unknown, formData: FormData) => {
       const dataToValidate = {
-        abogado: formData.get("abogado")
-          ? (formData.get("abogado") as string)
+        nombre: formData.get("nombre")
+          ? (formData.get("nombre") as string)
           : undefined,
-        tipo_proceso: formData.get("tipo_proceso")
-          ? (formData.get("tipo_proceso") as string)
-          : undefined,
-        estatus: formData.get("estatus")
-          ? (formData.get("estatus") as string)
-          : undefined,
-        propiedad_id: formData.get("propiedad_id")
-          ? parseInt(formData.get("propiedad_id") as string)
-          : undefined,
+        rfc: formData.get("rfc") ? (formData.get("rfc") as string) : undefined,
       };
 
       if (action !== "delete") {
-        const errors = validateLegalProcessesSchema(action, dataToValidate);
+        const errors = validateOwnerSchema(action, dataToValidate);
         if (Object.keys(errors).length > 0) {
           return {
             errors,
             data: dataToValidate,
           };
         }
+        if (action === "add") {
+          const sociosIds = formData.getAll("socio") as string[];
+          if (
+            sociosIds.length === 0 ||
+            sociosIds.some((id) => id === null || id === "")
+          ) {
+            return {
+              data: dataToValidate,
+              errors: {
+                socio: "El socio es requerido",
+              },
+            };
+          }
+        }
       }
 
-      const id = procesoLegal?.id ?? 0;
-      const created_at = procesoLegal?.created_at ?? new Date();
+      const id = propietario?.id ?? 0;
+      const created_at = propietario?.created_at ?? new Date();
       const updated_at = new Date();
       setOptimisticData({
         id,
         created_at,
         updated_at,
         ...dataToValidate,
-      } as IProcesoLegal | null);
+      } as IPropietario | null);
 
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/proceso_legal${
+          `${process.env.NEXT_PUBLIC_API_URL}/propietario${
             action === "edit" || action === "delete" ? `/${id}` : ""
           }`,
           {
@@ -118,6 +122,35 @@ const Form = ({
             } renta`,
           };
         }
+
+        if (action === "add") {
+          const sociosIds = formData.getAll("socio") as string[];
+          const responseData = await res.json();
+
+          const newPropietario = responseData as IPropietario;
+
+          const addSocios = await Promise.all(
+            sociosIds.map(async (id) => {
+              const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/propietario/${newPropietario.id}/socio/${id}`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  credentials: "include",
+                }
+              );
+              return res.ok;
+            })
+          );
+          if (addSocios.includes(false)) {
+            return {
+              data: dataToValidate,
+              message: "Error adding data",
+            };
+          }
+        }
       } catch (error) {
         console.error(error);
         return {
@@ -129,7 +162,7 @@ const Form = ({
         onClose();
       }
     },
-    [procesoLegal, router, action, onClose, setOptimisticData]
+    [propietario, router, action, onClose, setOptimisticData]
   );
 
   const [state, handleSubmit, isPending] = useActionState(
@@ -138,6 +171,11 @@ const Form = ({
   );
 
   const { errors, data, message } = state ?? {};
+
+  const transformedData = socios.map(({ id, nombre }) => ({
+    key: id.toString(),
+    name: nombre,
+  }));
 
   return (
     <form action={handleSubmit} className="flex flex-col gap-4">
@@ -173,8 +211,7 @@ const Form = ({
             </GenericPairDiv>
             {action === "add" && (
               <DynamicItemManager
-                //  CHANGE TO SOCIO
-                items={[]}
+                items={transformedData ?? []}
                 renderForm={(index, items, onSelect) => (
                   <AutocompleteInput
                     key={index}
@@ -196,9 +233,8 @@ const Form = ({
         ) : (
           <div className="text-center">
             <p>
-              ¿Estás seguro de que deseas eliminar el proceso legal con el
-              abogado{" "}
-              <span className="font-bold">{procesoLegal?.abogado}?</span>
+              ¿Estás seguro de que deseas eliminar al propietario
+              <span className="font-bold">{propietario?.nombre}?</span>
             </p>
           </div>
         )}

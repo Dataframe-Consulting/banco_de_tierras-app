@@ -1,7 +1,7 @@
 "use client";
 
 import Form from "./Form";
-import PropietariosDataTable from "./Propietarios/DataTable";
+import { ProjectsOwnersForm, PropietariosDataTable } from "./Propietarios";
 import { ExpanderComponentProps } from "react-data-table-component";
 import { PencilIcon, PlusCircle, TrashIcon } from "@/app/shared/icons";
 import { useEffect, useOptimistic, useReducer, useState } from "react";
@@ -57,7 +57,10 @@ const ExpandedComponent: React.FC<ExpanderComponentProps<IProyecto>> = ({
 }) => {
   return (
     <div className="pl-12 py-4">
-      <PropietariosDataTable propietarios={data.propietarios} />
+      <PropietariosDataTable
+        proyectoId={data.id}
+        propietarios={data.propietarios}
+      />
     </div>
   );
 };
@@ -108,9 +111,17 @@ const ProjectsDataTable = ({
   const columns = [
     {
       name: "Acciones",
-      width: "150px",
+      width: "220px",
       cell: (row: IProyecto) => (
         <div className="flex justify-center gap-2">
+          <ProjectsOwnersForm
+            action="add"
+            proyectoId={row.id}
+            propietario={propietarios.filter(
+              (propietario) =>
+                !row.propietarios.map(({ id }) => id).includes(propietario.id)
+            )}
+          />
           <button
             onClick={() => handleAction(row, "edit")}
             className="px-4 py-2 text-white bg-blue-400 rounded-md"

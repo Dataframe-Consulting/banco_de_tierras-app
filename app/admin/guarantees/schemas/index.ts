@@ -25,9 +25,6 @@ const baseSchema = z.object({
   fecha_fin: z.date({
     message: "La fecha de fin es requerida",
   }),
-  propiedad_id: z.number({
-    message: "La propiedad es requerida",
-  }),
 });
 
 const createSchema = baseSchema.extend({});
@@ -44,14 +41,3 @@ export default function validateGuaranteesSchema(
 ) {
   return validateSchema(schemas, action, data);
 }
-
-// CREATE TABLE IF NOT EXISTS garantia (
-//   id SERIAL PRIMARY KEY,
-//   beneficiario VARCHAR(255) NOT NULL,
-//   monto FLOAT NOT NULL,
-//   fecha_inicio DATE NOT NULL,
-//   fecha_fin DATE NOT NULL,
-//   propiedad_id INT NOT NULL REFERENCES propiedad(id) ON DELETE CASCADE,
-//   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-// );

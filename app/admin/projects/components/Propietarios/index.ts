@@ -1,3 +1,4 @@
+import ProjectsOwnersForm from "./Form";
 import PropietariosDataTable from "./DataTable";
 
-export { PropietariosDataTable };
+export { ProjectsOwnersForm, PropietariosDataTable };
