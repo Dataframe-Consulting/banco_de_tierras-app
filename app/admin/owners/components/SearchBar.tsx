@@ -2,10 +2,10 @@
 
 import { useSearchFilter } from "@/app/shared/hooks";
 import { GenericSearchInput } from "@/app/shared/components";
-import type { IPropiedad } from "@/app/shared/interfaces";
+import type { ISocio } from "@/app/shared/interfaces";
 
-const SearchBar = ({ propiedades }: { propiedades: IPropiedad[] }) => {
-  const defaultFilters = { q: "", propiedad_id: "" };
+const SearchBar = ({ socios }: { socios: ISocio[] }) => {
+  const defaultFilters = { q: "", socio_id: "" };
 
   const { filters, handleSearch } = useSearchFilter(defaultFilters);
 
@@ -22,15 +22,15 @@ const SearchBar = ({ propiedades }: { propiedades: IPropiedad[] }) => {
         <div>
           <GenericSearchInput
             type="select"
-            id="propiedad_id"
+            id="socio_id"
             placeholder="Todos"
-            ariaLabel="Propiedad"
-            value={filters.propiedad_id}
-            options={propiedades.map((propiedad) => ({
-              value: propiedad.id.toString(),
-              label: propiedad.nombre,
+            ariaLabel="Socio"
+            value={filters.socio_id}
+            options={socios.map((socio) => ({
+              value: socio.id.toString(),
+              label: socio.nombre,
             }))}
-            onChange={(value: string) => handleSearch("propiedad_id", value)}
+            onChange={(value: string) => handleSearch("socio_id", value)}
           />
         </div>
       </div>

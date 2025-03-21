@@ -11,7 +11,7 @@ import {
   Datatable,
   DatatableSkeleton,
 } from "@/app/shared/components";
-import type { IGarantia, IPropiedad } from "@/app/shared/interfaces";
+import type { IGarantia } from "@/app/shared/interfaces";
 
 interface State {
   open: boolean;
@@ -44,13 +44,9 @@ const reducer = (state: State, action: Action): State => {
 
 interface IGuaranteesDataTable {
   guarantees: IGarantia[];
-  propiedades: IPropiedad[];
 }
 
-const GuaranteesDataTable = ({
-  guarantees,
-  propiedades,
-}: IGuaranteesDataTable) => {
+const GuaranteesDataTable = ({ guarantees }: IGuaranteesDataTable) => {
   const [isClient, setIsClient] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
     open: false,
@@ -127,12 +123,6 @@ const GuaranteesDataTable = ({
         formatDateLatinAmerican(row.fecha_fin),
     },
     {
-      name: "Propiedad",
-      selector: (row: { propiedad: { nombre: string } }) =>
-        row.propiedad.nombre,
-      sortable: true,
-    },
-    {
       name: "Creado en",
       selector: (row: { created_at: Date }) => row.created_at.toString(),
       sortable: true,
@@ -161,7 +151,6 @@ const GuaranteesDataTable = ({
         >
           <Form
             action={state.action}
-            propiedades={propiedades}
             garantia={state.selectedData}
             setOptimisticData={setOptimisticData}
             onClose={() => dispatch({ type: "CLOSE_MODAL" })}

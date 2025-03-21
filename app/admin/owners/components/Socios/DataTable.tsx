@@ -1,32 +1,29 @@
 "use client";
 
+import OwnersPartnersForm from "./Form";
 import { useEffect, useState } from "react";
-import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
 import { Card404, Datatable, DatatableSkeleton } from "@/app/shared/components";
-import type { IPropietario } from "@/app/shared/interfaces";
-import ProjectsOwnersForm from "./Form";
+import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
+import type { ISocio } from "@/app/shared/interfaces";
 
-interface IPropietariosDataTable {
-  proyectoId: number;
-  propietarios: IPropietario[];
+interface ISociosDataTable {
+  propietarioId: number;
+  socios: ISocio[];
 }
 
-const PropietariosDataTable = ({
-  proyectoId,
-  propietarios,
-}: IPropietariosDataTable) => {
+const SociosDataTable = ({ propietarioId, socios }: ISociosDataTable) => {
   const [isClient, setIsClient] = useState(false);
 
   const columns = [
     {
       name: "Acciones",
       width: "90px",
-      cell: (row: IPropietario) => (
+      cell: (row: ISocio) => (
         <div className="flex justify-center gap-2">
-          <ProjectsOwnersForm
+          <OwnersPartnersForm
             action="delete"
-            propietario={row}
-            proyectoId={proyectoId}
+            propietarioId={propietarioId}
+            socio={row}
           />
         </div>
       ),
@@ -36,11 +33,6 @@ const PropietariosDataTable = ({
       selector: (row: { nombre: string }) => row.nombre,
       sortable: true,
       cell: (row: { nombre: string }) => row.nombre,
-    },
-    {
-      name: "RFC",
-      selector: (row: { rfc: string }) => row.rfc,
-      sortable: true,
     },
     {
       name: "Creado en",
@@ -64,22 +56,22 @@ const PropietariosDataTable = ({
 
   return (
     <>
-      {propietarios.length > 0 ? (
+      {socios.length > 0 ? (
         <>
           {isClient ? (
-            <Datatable columns={columns} data={propietarios} />
+            <Datatable columns={columns} data={socios} />
           ) : (
             <DatatableSkeleton />
           )}
         </>
       ) : (
         <Card404
-          title="No se encontraron propietarios"
-          description="No hay propietarios asociadas a este proyecto"
+          title="No se encontraron socios"
+          description="No hay socios asociados a este propietario"
         />
       )}
     </>
   );
 };
 
-export default PropietariosDataTable;
+export default SociosDataTable;

@@ -10,12 +10,14 @@ import {
   Datatable,
   DatatableSkeleton,
 } from "@/app/shared/components";
-import type { IProcesoLegal, IPropiedad } from "@/app/shared/interfaces";
+import type { ISocio, IPropietario } from "@/app/shared/interfaces";
+import { OwnersPartnersForm, SociosDataTable } from "./Socios";
+import { ExpanderComponentProps } from "react-data-table-component";
 
 interface State {
   open: boolean;
   action: "add" | "edit" | "delete";
-  selectedData: IProcesoLegal | null;
+  selectedData: IPropietario | null;
 }
 
 type Action =
@@ -23,7 +25,7 @@ type Action =
       type: "OPEN_MODAL";
       payload: {
         action: "add" | "edit" | "delete";
-        data: IProcesoLegal | null;
+        data: IPropietario | null;
       };
     }
   | { type: "CLOSE_MODAL" };
@@ -44,15 +46,22 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-interface ILegalProcessesDataTable {
-  legalProcesses: IProcesoLegal[];
-  propiedades: IPropiedad[];
+const ExpandedComponent: React.FC<ExpanderComponentProps<IPropietario>> = ({
+  data,
+}) => {
+  return (
+    <div className="pl-12 py-4">
+      <SociosDataTable propietarioId={data.id} socios={data.socios} />
+    </div>
+  );
+};
+
+interface IOwnersDataTable {
+  socios: ISocio[];
+  propietarios: IPropietario[];
 }
 
-const LegalProcessesDataTable = ({
-  legalProcesses,
-  propiedades,
-}: ILegalProcessesDataTable) => {
+const OwnersDataTable = ({ socios, propietarios }: IOwnersDataTable) => {
   const [isClient, setIsClient] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
     open: false,
@@ -61,23 +70,23 @@ const LegalProcessesDataTable = ({
   });
 
   const handleAction = (
-    data: IProcesoLegal | null,
+    data: IPropietario | null,
     action: "add" | "edit" | "delete"
   ) => {
     dispatch({ type: "OPEN_MODAL", payload: { action, data } });
   };
 
   const [optimisticData, setOptimisticData] = useOptimistic(
-    legalProcesses,
-    (currentData, data: IProcesoLegal | null) => {
+    propietarios,
+    (currentData, data: IPropietario | null) => {
       if (state.action === "add")
-        return [...currentData, data] as IProcesoLegal[];
+        return [...currentData, data] as IPropietario[];
       if (state.action === "edit")
         return currentData.map((i) =>
           i.id === data?.id ? data : i
-        ) as IProcesoLegal[];
+        ) as IPropietario[];
       if (state.action === "delete")
-        return currentData.filter((i) => i.id !== data?.id) as IProcesoLegal[];
+        return currentData.filter((i) => i.id !== data?.id) as IPropietario[];
       return currentData;
     }
   );
@@ -85,9 +94,16 @@ const LegalProcessesDataTable = ({
   const columns = [
     {
       name: "Acciones",
-      width: "150px",
-      cell: (row: IProcesoLegal) => (
+      width: "220px",
+      cell: (row: IPropietario) => (
         <div className="flex justify-center gap-2">
+          <OwnersPartnersForm
+            action="add"
+            propietarioId={row.id}
+            socio={socios.filter(
+              (socio) => !row.socios.map(({ id }) => id).includes(socio.id)
+            )}
+          />
           <button
             onClick={() => handleAction(row, "edit")}
             className="px-4 py-2 text-white bg-blue-400 rounded-md"
@@ -104,25 +120,13 @@ const LegalProcessesDataTable = ({
       ),
     },
     {
-      name: "Abogado",
-      maxwidth: "200px",
-      selector: (row: { abogado: string }) => row.abogado,
+      name: "Nombre",
+      selector: (row: { nombre: string }) => row.nombre,
       sortable: true,
     },
     {
-      name: "Tipo proceso",
-      selector: (row: { tipo_proceso: string }) => row.tipo_proceso,
-      sortable: true,
-    },
-    {
-      name: "Estatus",
-      selector: (row: { estatus: string }) => row.estatus,
-      sortable: true,
-    },
-    {
-      name: "Propiedad",
-      selector: (row: { propiedad: { nombre: string } }) =>
-        row.propiedad.nombre,
+      name: "RFC",
+      selector: (row: { rfc: string }) => row.rfc,
       sortable: true,
     },
     {
@@ -154,8 +158,8 @@ const LegalProcessesDataTable = ({
         >
           <Form
             action={state.action}
-            propiedades={propiedades}
-            procesoLegal={state.selectedData}
+            propietario={state.selectedData}
+            socios={socios}
             setOptimisticData={setOptimisticData}
             onClose={() => dispatch({ type: "CLOSE_MODAL" })}
           />
@@ -169,22 +173,29 @@ const LegalProcessesDataTable = ({
           <PlusCircle />
         </button>
       </div>
-      {legalProcesses.length > 0 ? (
+      {propietarios.length > 0 ? (
         <>
           {isClient ? (
-            <Datatable columns={columns} data={optimisticData} />
+            <Datatable
+              columns={columns}
+              data={optimisticData}
+              isExpandable
+              expandableRowsComponent={(props) => (
+                <ExpandedComponent {...props} />
+              )}
+            />
           ) : (
             <DatatableSkeleton />
           )}
         </>
       ) : (
         <Card404
-          title="No se encontraron procesos legales."
-          description="No se encontraron procesos legales en la base de datos."
+          title="No se encontraron propietarios."
+          description="No se encontraron propietarios en la base de datos."
         />
       )}
     </>
   );
 };
 
-export default LegalProcessesDataTable;
+export default OwnersDataTable;

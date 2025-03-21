@@ -5,7 +5,7 @@ import validateGuaranteesSchema from "../schemas";
 import { useCallback, useActionState } from "react";
 import formatdateInput from "@/app/shared/utils/formatdate-input";
 import { GenericInput, SubmitButton } from "@/app/shared/components";
-import type { IPropiedad, IGarantia } from "@/app/shared/interfaces";
+import type { IGarantia } from "@/app/shared/interfaces";
 
 interface IRentaState {
   message?: string;
@@ -14,7 +14,6 @@ interface IRentaState {
     monto?: number;
     fecha_inicio?: Date;
     fecha_fin?: Date;
-    propiedad_id?: number;
   } | null;
   errors?: {
     [key: string]: string;
@@ -24,18 +23,11 @@ interface IRentaState {
 interface IForm {
   onClose: () => void;
   garantia: IGarantia | null;
-  propiedades: IPropiedad[];
   action: "add" | "edit" | "delete";
   setOptimisticData: (data: IGarantia | null) => void;
 }
 
-const Form = ({
-  garantia,
-  action,
-  onClose,
-  propiedades,
-  setOptimisticData,
-}: IForm) => {
+const Form = ({ garantia, action, onClose, setOptimisticData }: IForm) => {
   const router = useRouter();
 
   const initialState: IRentaState = {
@@ -58,9 +50,6 @@ const Form = ({
           : undefined,
         fecha_fin: formData.get("fecha_fin")
           ? new Date(formData.get("fecha_fin") as string)
-          : undefined,
-        propiedad_id: formData.get("propiedad_id")
-          ? parseInt(formData.get("propiedad_id") as string)
           : undefined,
       };
 

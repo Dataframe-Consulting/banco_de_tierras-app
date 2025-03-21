@@ -107,38 +107,6 @@ const Form = ({
               },
             };
           }
-          const sociedadesIds = formData.getAll("sociedad_id") as string[];
-          if (
-            sociedadesIds.length === 0 ||
-            sociedadesIds.some((id) => id === null || id === "")
-          ) {
-            return {
-              data: dataToValidate,
-              errors: {
-                sociedad_id: "Debe seleccionar al menos una sociedad",
-              },
-            };
-          }
-          const sociedadesValues = formData.getAll(
-            "sociedad_value"
-          ) as string[];
-          if (
-            sociedadesValues.length === 0 ||
-            sociedadesValues.some((value) => value === null || value === "")
-          ) {
-            return {
-              data: dataToValidate,
-              errors: {
-                sociedad_value: "Los valores de las sociedades son requeridos",
-              },
-            };
-          }
-          if (sociedadesIds.length !== sociedadesValues.length) {
-            return {
-              data: dataToValidate,
-              message: "El número de sociedades y valores no coincide",
-            };
-          }
         }
       }
 
@@ -189,10 +157,6 @@ const Form = ({
 
         if (action === "add") {
           const propietariosIds = formData.getAll("propietario") as string[];
-          const sociedadesIds = formData.getAll("sociedad_id") as string[];
-          const sociedadesValues = formData.getAll(
-            "sociedad_value"
-          ) as string[];
           const responseData = await res.json();
 
           const newProyecto = responseData as IProyecto;
@@ -216,33 +180,6 @@ const Form = ({
             return {
               data: dataToValidate,
               message: "Error adding propietarios",
-            };
-          }
-
-          const addSociedades = await Promise.all(
-            sociedadesIds.map(async (id) => {
-              const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/proyecto/${
-                  newProyecto.id
-                }/sociedad/${id}/${
-                  sociedadesValues[sociedadesIds.indexOf(id)]
-                }`,
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  credentials: "include",
-                }
-              );
-              return res.ok;
-            })
-          );
-
-          if (addSociedades.includes(false)) {
-            return {
-              data: dataToValidate,
-              message: "Error adding sociedades",
             };
           }
         }
@@ -271,13 +208,6 @@ const Form = ({
     key: id.toString(),
     name: nombre,
   }));
-
-  const transformedSociedades = sociedades.map(
-    ({ id, porcentaje_participacion }) => ({
-      key: id.toString(),
-      name: porcentaje_participacion.toString(),
-    })
-  );
 
   const transformedSituacionesFisicas = situacionesFisicas.map(
     ({ id, nombre }) => ({

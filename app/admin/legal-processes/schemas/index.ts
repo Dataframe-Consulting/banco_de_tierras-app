@@ -32,9 +32,7 @@ const baseSchema = z.object({
     .max(255, {
       message: "El estatus no puede tener más de 255 caracteres",
     }),
-  propiedad_id: z.number({
-    message: "La propiedad es requerida",
-  }),
+  comentarios: z.string().optional(),
 });
 
 const createSchema = baseSchema.extend({});
@@ -51,13 +49,3 @@ export default function validateLegalProcessesSchema(
 ) {
   return validateSchema(schemas, action, data);
 }
-
-// CREATE TABLE IF NOT EXISTS proceso_legal (
-//   id SERIAL PRIMARY KEY,
-//   abogado VARCHAR(255) NOT NULL,
-//   tipo_proceso VARCHAR(255) NOT NULL,
-//   estatus VARCHAR(255) NOT NULL,
-//   propiedad_id INT NOT NULL REFERENCES propiedad(id) ON DELETE CASCADE,
-//   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-// );

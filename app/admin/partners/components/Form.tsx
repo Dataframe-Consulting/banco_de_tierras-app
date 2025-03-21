@@ -1,23 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import validatePartnersSchema from "../schemas";
 import { useCallback, useActionState } from "react";
-import validateLegalProcessesSchema from "../schemas";
-import {
-  AutocompleteInput,
-  DynamicItemManager,
-  GenericInput,
-  SubmitButton,
-} from "@/app/shared/components";
-import type { IPropiedad, IProcesoLegal } from "@/app/shared/interfaces";
+import { GenericInput, SubmitButton } from "@/app/shared/components";
+import type { ISocio } from "@/app/shared/interfaces";
 
 interface IRentaState {
   message?: string;
   data?: {
-    abogado?: string;
-    tipo_proceso?: string;
-    estatus?: string;
-    propiedad_id?: number;
+    nombre?: string;
   } | null;
   errors?: {
     [key: string]: string;
@@ -26,46 +18,30 @@ interface IRentaState {
 
 interface IForm {
   onClose: () => void;
-  procesoLegal: IProcesoLegal | null;
-  propiedades: IPropiedad[];
+  partner: ISocio | null;
   action: "add" | "edit" | "delete";
-  setOptimisticData: (data: IProcesoLegal | null) => void;
+  setOptimisticData: (data: ISocio | null) => void;
 }
 
-const Form = ({
-  procesoLegal,
-  action,
-  onClose,
-  propiedades,
-  setOptimisticData,
-}: IForm) => {
+const Form = ({ action, partner, onClose, setOptimisticData }: IForm) => {
   const router = useRouter();
 
   const initialState: IRentaState = {
     errors: {},
     message: "",
-    data: procesoLegal,
+    data: partner,
   };
 
   const formAction = useCallback(
     async (_prev: unknown, formData: FormData) => {
       const dataToValidate = {
-        abogado: formData.get("abogado")
-          ? (formData.get("abogado") as string)
-          : undefined,
-        tipo_proceso: formData.get("tipo_proceso")
-          ? (formData.get("tipo_proceso") as string)
-          : undefined,
-        estatus: formData.get("estatus")
-          ? (formData.get("estatus") as string)
-          : undefined,
-        propiedad_id: formData.get("propiedad_id")
-          ? parseInt(formData.get("propiedad_id") as string)
+        nombre: formData.get("nombre")
+          ? (formData.get("nombre") as string)
           : undefined,
       };
 
       if (action !== "delete") {
-        const errors = validateLegalProcessesSchema(action, dataToValidate);
+        const errors = validatePartnersSchema(action, dataToValidate);
         if (Object.keys(errors).length > 0) {
           return {
             errors,
@@ -74,19 +50,19 @@ const Form = ({
         }
       }
 
-      const id = procesoLegal?.id ?? 0;
-      const created_at = procesoLegal?.created_at ?? new Date();
+      const id = partner?.id ?? 0;
+      const created_at = partner?.created_at ?? new Date();
       const updated_at = new Date();
       setOptimisticData({
         id,
         created_at,
         updated_at,
         ...dataToValidate,
-      } as IProcesoLegal | null);
+      } as ISocio | null);
 
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/proceso_legal${
+          `${process.env.NEXT_PUBLIC_API_URL}/socio${
             action === "edit" || action === "delete" ? `/${id}` : ""
           }`,
           {
@@ -129,7 +105,7 @@ const Form = ({
         onClose();
       }
     },
-    [procesoLegal, router, action, onClose, setOptimisticData]
+    [partner, router, action, onClose, setOptimisticData]
   );
 
   const [state, handleSubmit, isPending] = useActionState(
@@ -148,12 +124,12 @@ const Form = ({
           </div>
         )}
         {action !== "delete" ? (
-          <div className="flex flex-col gap-2 w-full">
+          <div className="flex flex-col gap-2">
             <GenericInput
-              id="nombre"
               type="text"
+              id="nombre"
+              placeholder="Real MC"
               ariaLabel="Nombre"
-              placeholder="REAL MC"
               defaultValue={data?.nombre}
               error={errors?.nombre}
             />
@@ -161,9 +137,8 @@ const Form = ({
         ) : (
           <div className="text-center">
             <p>
-              ¿Estás seguro de que deseas eliminar el proceso legal con el
-              abogado{" "}
-              <span className="font-bold">{procesoLegal?.abogado}?</span>
+              ¿Estás seguro de que deseas eliminar al socio{" "}
+              <span className="font-bold">{partner?.nombre}?</span>
             </p>
           </div>
         )}
@@ -188,17 +163,3 @@ const Form = ({
 };
 
 export default Form;
-
-const GenericPairDiv = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="flex flex-col sm:flex-row gap-4 w-full">{children}</div>
-  );
-};
-
-const GenericDiv = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="flex flex-col gap-2 w-full sm:w-1/2 justify-end">
-      {children}
-    </div>
-  );
-};

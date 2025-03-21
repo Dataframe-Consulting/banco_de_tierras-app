@@ -10,12 +10,12 @@ import {
   Datatable,
   DatatableSkeleton,
 } from "@/app/shared/components";
-import type { IProcesoLegal, IPropiedad } from "@/app/shared/interfaces";
+import type { IUbicacion } from "@/app/shared/interfaces";
 
 interface State {
   open: boolean;
   action: "add" | "edit" | "delete";
-  selectedData: IProcesoLegal | null;
+  selectedData: IUbicacion | null;
 }
 
 type Action =
@@ -23,7 +23,7 @@ type Action =
       type: "OPEN_MODAL";
       payload: {
         action: "add" | "edit" | "delete";
-        data: IProcesoLegal | null;
+        data: IUbicacion | null;
       };
     }
   | { type: "CLOSE_MODAL" };
@@ -44,15 +44,11 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-interface ILegalProcessesDataTable {
-  legalProcesses: IProcesoLegal[];
-  propiedades: IPropiedad[];
+interface ILocationsDataTable {
+  locations: IUbicacion[];
 }
 
-const LegalProcessesDataTable = ({
-  legalProcesses,
-  propiedades,
-}: ILegalProcessesDataTable) => {
+const LocationsDataTable = ({ locations }: ILocationsDataTable) => {
   const [isClient, setIsClient] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
     open: false,
@@ -61,23 +57,22 @@ const LegalProcessesDataTable = ({
   });
 
   const handleAction = (
-    data: IProcesoLegal | null,
+    data: IUbicacion | null,
     action: "add" | "edit" | "delete"
   ) => {
     dispatch({ type: "OPEN_MODAL", payload: { action, data } });
   };
 
   const [optimisticData, setOptimisticData] = useOptimistic(
-    legalProcesses,
-    (currentData, data: IProcesoLegal | null) => {
-      if (state.action === "add")
-        return [...currentData, data] as IProcesoLegal[];
+    locations,
+    (currentData, data: IUbicacion | null) => {
+      if (state.action === "add") return [...currentData, data] as IUbicacion[];
       if (state.action === "edit")
         return currentData.map((i) =>
           i.id === data?.id ? data : i
-        ) as IProcesoLegal[];
+        ) as IUbicacion[];
       if (state.action === "delete")
-        return currentData.filter((i) => i.id !== data?.id) as IProcesoLegal[];
+        return currentData.filter((i) => i.id !== data?.id) as IUbicacion[];
       return currentData;
     }
   );
@@ -86,7 +81,7 @@ const LegalProcessesDataTable = ({
     {
       name: "Acciones",
       width: "150px",
-      cell: (row: IProcesoLegal) => (
+      cell: (row: IUbicacion) => (
         <div className="flex justify-center gap-2">
           <button
             onClick={() => handleAction(row, "edit")}
@@ -104,25 +99,8 @@ const LegalProcessesDataTable = ({
       ),
     },
     {
-      name: "Abogado",
-      maxwidth: "200px",
-      selector: (row: { abogado: string }) => row.abogado,
-      sortable: true,
-    },
-    {
-      name: "Tipo proceso",
-      selector: (row: { tipo_proceso: string }) => row.tipo_proceso,
-      sortable: true,
-    },
-    {
-      name: "Estatus",
-      selector: (row: { estatus: string }) => row.estatus,
-      sortable: true,
-    },
-    {
-      name: "Propiedad",
-      selector: (row: { propiedad: { nombre: string } }) =>
-        row.propiedad.nombre,
+      name: "Nombre",
+      selector: (row: { nombre: string }) => row.nombre,
       sortable: true,
     },
     {
@@ -154,8 +132,7 @@ const LegalProcessesDataTable = ({
         >
           <Form
             action={state.action}
-            propiedades={propiedades}
-            procesoLegal={state.selectedData}
+            location={state.selectedData}
             setOptimisticData={setOptimisticData}
             onClose={() => dispatch({ type: "CLOSE_MODAL" })}
           />
@@ -169,7 +146,7 @@ const LegalProcessesDataTable = ({
           <PlusCircle />
         </button>
       </div>
-      {legalProcesses.length > 0 ? (
+      {locations.length > 0 ? (
         <>
           {isClient ? (
             <Datatable columns={columns} data={optimisticData} />
@@ -179,12 +156,12 @@ const LegalProcessesDataTable = ({
         </>
       ) : (
         <Card404
-          title="No se encontraron procesos legales."
-          description="No se encontraron procesos legales en la base de datos."
+          title="No se encontraron ubicaciones."
+          description="No se encontraron ubicaciones en la base de datos."
         />
       )}
     </>
   );
 };
 
-export default LegalProcessesDataTable;
+export default LocationsDataTable;

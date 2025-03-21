@@ -10,7 +10,7 @@ import {
   Datatable,
   DatatableSkeleton,
 } from "@/app/shared/components";
-import type { IProcesoLegal, IPropiedad } from "@/app/shared/interfaces";
+import type { IProcesoLegal } from "@/app/shared/interfaces";
 
 interface State {
   open: boolean;
@@ -46,12 +46,10 @@ const reducer = (state: State, action: Action): State => {
 
 interface ILegalProcessesDataTable {
   legalProcesses: IProcesoLegal[];
-  propiedades: IPropiedad[];
 }
 
 const LegalProcessesDataTable = ({
   legalProcesses,
-  propiedades,
 }: ILegalProcessesDataTable) => {
   const [isClient, setIsClient] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
@@ -120,10 +118,11 @@ const LegalProcessesDataTable = ({
       sortable: true,
     },
     {
-      name: "Propiedad",
-      selector: (row: { propiedad: { nombre: string } }) =>
-        row.propiedad.nombre,
+      name: "Comentarios",
+      selector: (row: { comentarios?: string }) =>
+        row.comentarios ?? "Sin comentarios",
       sortable: true,
+      wrap: true,
     },
     {
       name: "Creado en",
@@ -154,7 +153,6 @@ const LegalProcessesDataTable = ({
         >
           <Form
             action={state.action}
-            propiedades={propiedades}
             procesoLegal={state.selectedData}
             setOptimisticData={setOptimisticData}
             onClose={() => dispatch({ type: "CLOSE_MODAL" })}
