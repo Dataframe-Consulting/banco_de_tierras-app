@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export default async function middleware(request: NextRequest) {
   const token = request.cookies.get("access_token")?.value;
+  console.log("Token:", token);
   const pathname = request.nextUrl.pathname;
+  console.log("Pathname:", pathname);
   const protectedRoutes = ["/admin"];
 
   if (pathname === "/") {
@@ -28,7 +30,9 @@ export default async function middleware(request: NextRequest) {
   }
 
   if (pathname === "/login") {
+    console.log("Pathname: /login", pathname);
     if (token) {
+      console.log("Token: /login", token);
       try {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
@@ -40,6 +44,7 @@ export default async function middleware(request: NextRequest) {
         );
 
         if (response.ok) {
+          console.log("Redirigiendo a /admin/home en /login");
           return NextResponse.redirect(new URL("/admin/home", request.url));
         }
       } catch (error) {
@@ -51,6 +56,7 @@ export default async function middleware(request: NextRequest) {
 
   if (protectedRoutes.some((route) => pathname.startsWith(route))) {
     if (!token) {
+      console.warn("Token no encontrado, redirigiendo a /login en /admin");
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
