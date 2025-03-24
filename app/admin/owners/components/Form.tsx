@@ -62,20 +62,20 @@ const Form = ({
             data: dataToValidate,
           };
         }
-        if (action === "add") {
-          const sociosIds = formData.getAll("socio") as string[];
-          if (
-            sociosIds.length === 0 ||
-            sociosIds.some((id) => id === null || id === "")
-          ) {
-            return {
-              data: dataToValidate,
-              errors: {
-                socio: "El socio es requerido",
-              },
-            };
-          }
-        }
+        // if (action === "add") {
+        //   const sociosIds = formData.getAll("socio") as string[];
+        //   if (
+        //     sociosIds.length === 0 ||
+        //     sociosIds.some((id) => id === null || id === "")
+        //   ) {
+        //     return {
+        //       data: dataToValidate,
+        //       errors: {
+        //         socio: "El socio es requerido",
+        //       },
+        //     };
+        //   }
+        // }
       }
 
       const id = propietario?.id ?? 0;
@@ -123,8 +123,12 @@ const Form = ({
           };
         }
 
-        if (action === "add") {
-          const sociosIds = formData.getAll("socio") as string[];
+        const sociosIds = formData.getAll("socio") as string[];
+        if (
+          action === "add" &&
+          (sociosIds.length !== 0 ||
+            sociosIds.some((id) => id !== null || id !== ""))
+        ) {
           const responseData = await res.json();
 
           const newPropietario = responseData as IPropietario;

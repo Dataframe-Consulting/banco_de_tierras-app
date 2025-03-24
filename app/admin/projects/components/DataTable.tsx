@@ -57,6 +57,11 @@ const ExpandedComponent: React.FC<ExpanderComponentProps<IProyecto>> = ({
 }) => {
   return (
     <div className="pl-12 py-4">
+      {data.propietarios.length > 0 && (
+        <h1 className="text-2xl font-semibold mb-4">
+          Propietarios de {data.nombre} ({data.propietarios.length})
+        </h1>
+      )}
       <PropietariosDataTable
         proyectoId={data.id}
         propietarios={data.propietarios}
@@ -138,23 +143,26 @@ const ProjectsDataTable = ({
       ),
     },
     {
+      width: "200px",
       name: "Nombre",
       selector: (row: { nombre: string }) => row.nombre,
       sortable: true,
     },
     {
+      width: "180px",
       name: "Superficie Total (m²)",
       selector: (row: { superficie_total: number }) => row.superficie_total,
       sortable: true,
     },
     {
-      name: "Activo",
+      name: "¿Está Activo?",
       selector: (row: { esta_activo: boolean }) => row.esta_activo,
       sortable: true,
       format: (row: { esta_activo: boolean }) =>
         row.esta_activo ? "Sí" : "No",
     },
     {
+      width: "400px",
       name: "Comentarios",
       selector: (row: { comentarios?: string }) =>
         row.comentarios ?? "Sin comentarios",
@@ -162,17 +170,20 @@ const ProjectsDataTable = ({
       wrap: true,
     },
     {
+      width: "150px",
       name: "Situación Física",
       selector: (row: { situacion_fisica: { nombre: string } }) =>
         row.situacion_fisica.nombre,
       sortable: true,
     },
     {
+      widthL: "250px",
       name: "Vocación",
       selector: (row: { vocacion: { valor: string } }) => row.vocacion.valor,
       sortable: true,
     },
     {
+      widthL: "350px",
       name: "Vocación Específica",
       selector: (row: { vocacion_especifica: { valor: string } }) =>
         row.vocacion_especifica.valor,
