@@ -255,6 +255,7 @@ const Form = ({
                   id="superficie_total"
                   ariaLabel="Superficie Total"
                   placeholder="5302.98"
+                  step="0.01"
                   defaultValue={data?.superficie_total?.toString()}
                   error={errors?.superficie_total}
                 />
@@ -341,7 +342,7 @@ const Form = ({
                 type="checkbox"
                 id="esta_activo"
                 ariaLabel="¿Es un proyecto activo?"
-                defaultChecked={data?.esta_activo}
+                defaultChecked={data?.esta_activo ?? true}
               />
             </div>
           </>
