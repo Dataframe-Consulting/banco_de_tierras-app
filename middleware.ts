@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export default async function middleware(request: NextRequest) {
-  const cookies = request.cookies.getAll();
+  const access_token = request.headers.get("access_token");
+  console.log("access_token", access_token);
+  const cookies = request.headers.get("cookie");
   console.log("cookies", cookies);
   // const token = request.cookies.get("access_token")?.value;
   const pathname = request.nextUrl.pathname;
