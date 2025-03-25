@@ -10,21 +10,23 @@ interface IRentsPage {
 
 const RentsPage = async ({ searchParams }: IRentsPage) => {
   const cookieStore = await cookies();
+  console.log("cookieStore", cookieStore);
   const token = cookieStore.get("access_token");
 
   const { q = "", propiedad_id = "" } = (await searchParams) || {};
 
   const searchParamsForDataTable = { q, propiedad_id };
 
-  const propiedades = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/propiedad`,
-    {
-      headers: {
-        Authorization: `${token?.value}`,
-      },
-    }
-  );
-  const propiedadesData = (await propiedades.json()) as IPropiedad[];
+  // const propiedades = await fetch(
+  //   `${process.env.NEXT_PUBLIC_API_URL}/propiedad`,
+  //   {
+  //     headers: {
+  //       Authorization: `${token?.value}`,
+  //     },
+  //   }
+  // );
+  // const propiedadesData = (await propiedades.json()) as IPropiedad[];
+  const propiedadesData = [] as IPropiedad[];
 
   return (
     <>
