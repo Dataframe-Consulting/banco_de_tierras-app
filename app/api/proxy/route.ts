@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const cookieHeader = req.headers.get("cookie") || "";
+  const cookieHeader = req.headers.get("access_token") || "";
   console.log("cookieHeader", cookieHeader);
 
   const { searchParams } = new URL(req.url);
