@@ -1,8 +1,11 @@
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export default async function middleware(request: NextRequest) {
   const token = request.cookies.get("access_token")?.value;
   console.log("Token from MIDDLEWARE:", token);
+  const allCookiesFromCookies = (await cookies()).getAll();
+  console.log("ALL COOKIES", allCookiesFromCookies);
   const pathname = request.nextUrl.pathname;
   const protectedRoutes = ["/admin"];
 
