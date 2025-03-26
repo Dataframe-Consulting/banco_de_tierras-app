@@ -21,7 +21,7 @@ const RentsPageContent = () => {
         setLoading(true);
 
         const propiedadesResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/propiedad`,
+          `https://bdt-web-app.azurewebsites.net/api/propiedad`,
           {
             credentials: "include",
           }
@@ -29,7 +29,7 @@ const RentsPageContent = () => {
         const propiedadesData = await propiedadesResponse.json();
         setPropiedades(propiedadesData);
 
-        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/renta`);
+        const url = new URL(`https://bdt-web-app.azurewebsites.net/api/renta`);
         const params = new URLSearchParams();
 
         if (q) params.append("q", q);
