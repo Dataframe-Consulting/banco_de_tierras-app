@@ -10,16 +10,44 @@ export interface IAuthContext {
 export const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<IUser | null>(null);
+  const pathname =
+    typeof window !== "undefined" ? window.location.pathname : "";
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-      credentials: "include",
-    })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => setUser(data))
-      .catch(() => setUser(null));
-  }, []);
+    const checkUser = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data);
+        } else {
+          setUser(null);
+        }
+      } catch {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkUser();
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!loading) {
+      if (pathname === "/login" && user) {
+        window.location.href = "/admin/home";
+      }
+
+      if (pathname.startsWith("/admin") && !user) {
+        window.location.href = "/login";
+      }
+    }
+  }, [loading, pathname, user]);
 
   const login = async (username: string, password: string) => {
     const formData = new URLSearchParams();
