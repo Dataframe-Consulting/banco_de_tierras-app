@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { SearchBar, RentsDataTable } from "./components";
 import { DatatableSkeleton } from "@/app/shared/components";
 import type { IPropiedad, IRenta } from "@/app/shared/interfaces";
 
-const RentsPage = () => {
+const RentsPageContent = () => {
   const [propiedades, setPropiedades] = useState<IPropiedad[]>([]);
   const [rentsData, setRentsData] = useState<IRenta[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -59,6 +59,14 @@ const RentsPage = () => {
         <RentsDataTable rents={rentsData} propiedades={propiedades} />
       )}
     </>
+  );
+};
+
+const RentsPage = () => {
+  return (
+    <Suspense fallback={<DatatableSkeleton />}>
+      <RentsPageContent />
+    </Suspense>
   );
 };
 
