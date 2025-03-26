@@ -1,63 +1,74 @@
-import { Suspense } from "react";
-import { cookies } from "next/headers";
-import { DatatableSkeleton } from "@/app/shared/components";
+"use client";
+
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { SearchBar, OwnersDataTable } from "./components";
+import { DatatableSkeleton } from "@/app/shared/components";
 import type { ISocio, IPropietario } from "@/app/shared/interfaces";
 
-interface ILegalProcessesPage {
-  searchParams?: Promise<{ [key: string]: string }>;
-}
+const OwnersPageContent = () => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [socios, setSocios] = useState<ISocio[]>([]);
+  const [propietarios, setPropietarios] = useState<IPropietario[]>([]);
 
-const LegalProcessesPage = async ({ searchParams }: ILegalProcessesPage) => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token");
+  const searchParams = useSearchParams();
+  const q = searchParams.get("q") || "";
+  const socio_id = searchParams.get("socio_id") || "";
 
-  const { q = "", socio_id = "" } = (await searchParams) || {};
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
-  const searchParamsForDataTable = { q, socio_id };
+        const sociosResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/socio`,
+          { credentials: "include" }
+        );
+        const sociosData = await sociosResponse.json();
+        setSocios(sociosData);
 
-  const socios = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/socio`, {
-    headers: {
-      Authorization: `${token?.value}`,
-    },
-  });
-  const sociosData = (await socios.json()) as ISocio[];
+        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/propietario`);
+        const params = new URLSearchParams();
+
+        if (q) params.append("q", q);
+        if (socio_id) params.append("socio_id", socio_id);
+
+        const propietariosResponse = await fetch(
+          `${url}?${params.toString()}`,
+          {
+            credentials: "include",
+          }
+        );
+        const propietariosData = await propietariosResponse.json();
+        setPropietarios(propietariosData);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [q, socio_id]);
 
   return (
     <>
-      <SearchBar socios={sociosData} />
-      <Suspense key={q} fallback={<DatatableSkeleton />}>
-        <DataFetch
-          token={token?.value}
-          socios={sociosData}
-          searchParams={searchParamsForDataTable}
-        />
-      </Suspense>
+      <SearchBar socios={socios} />
+      {loading ? (
+        <DatatableSkeleton />
+      ) : (
+        <OwnersDataTable socios={socios} propietarios={propietarios} />
+      )}
     </>
   );
 };
 
-export default LegalProcessesPage;
-
-interface IDataFetch {
-  token?: string;
-  socios: ISocio[];
-  searchParams: { q?: string; socio_id?: string };
-}
-
-const DataFetch = async ({ token, searchParams, socios }: IDataFetch) => {
-  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/propietario`);
-  const params = new URLSearchParams();
-
-  if (searchParams.q) params.append("q", searchParams.q);
-  if (searchParams.socio_id) params.append("socio_id", searchParams.socio_id);
-
-  const response = await fetch(`${url}?${params.toString()}`, {
-    headers: {
-      Authorization: `${token}`,
-    },
-  });
-  const propietariosData = (await response.json()) as IPropietario[];
-
-  return <OwnersDataTable socios={socios} propietarios={propietariosData} />;
+const OwnersPage = () => {
+  return (
+    <Suspense fallback={<DatatableSkeleton />}>
+      <OwnersPageContent />;
+    </Suspense>
+  );
 };
+
+export default OwnersPage;
