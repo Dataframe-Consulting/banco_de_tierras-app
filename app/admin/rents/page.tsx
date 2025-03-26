@@ -7,9 +7,9 @@ import { DatatableSkeleton } from "@/app/shared/components";
 import type { IPropiedad, IRenta } from "@/app/shared/interfaces";
 
 const RentsPageContent = () => {
-  const [propiedades, setPropiedades] = useState<IPropiedad[]>([]);
-  const [rentsData, setRentsData] = useState<IRenta[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [rentsData, setRentsData] = useState<IRenta[]>([]);
+  const [propiedades, setPropiedades] = useState<IPropiedad[]>([]);
 
   const searchParams = useSearchParams();
   const q = searchParams.get("q") || "";
@@ -21,15 +21,16 @@ const RentsPageContent = () => {
         setLoading(true);
 
         const propiedadesResponse = await fetch(
-          `https://bdt-web-app.azurewebsites.net/api/propiedad`,
+          `${process.env.NEXT_PUBLIC_API_URL}/propiedad`,
           {
             credentials: "include",
           }
         );
         const propiedadesData = await propiedadesResponse.json();
+        console.log(propiedadesData);
         setPropiedades(propiedadesData);
 
-        const url = new URL(`https://bdt-web-app.azurewebsites.net/api/renta`);
+        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/renta`);
         const params = new URLSearchParams();
 
         if (q) params.append("q", q);
@@ -39,6 +40,7 @@ const RentsPageContent = () => {
           credentials: "include",
         });
         const rentsData = await rentsResponse.json();
+        console.log(rentsData);
         setRentsData(rentsData);
       } catch (error) {
         console.error("Error fetching data", error);
