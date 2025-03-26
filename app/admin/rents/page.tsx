@@ -26,8 +26,9 @@ const RentsPageContent = () => {
             credentials: "include",
           }
         );
+        console.log("propiedadesResponse", propiedadesResponse);
         const propiedadesData = await propiedadesResponse.json();
-        console.log(propiedadesData);
+        console.log("propiedadesData", propiedadesData);
         setPropiedades(propiedadesData);
 
         const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/renta`);
