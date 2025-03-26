@@ -1,53 +1,62 @@
-import { Suspense } from "react";
-import { cookies } from "next/headers";
-import { DatatableSkeleton } from "@/app/shared/components";
+"use client";
+
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 import { SearchBar, LegalProcessesDataTable } from "./components";
+import { DatatableSkeleton } from "@/app/shared/components";
 import type { IProcesoLegal } from "@/app/shared/interfaces";
 
-interface ILegalProcessesPage {
-  searchParams?: Promise<{ [key: string]: string }>;
-}
+const LegalProcessesPageContent = () => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [legalProcesses, setLegalProcesses] = useState<IProcesoLegal[]>([]);
 
-const LegalProcessesPage = async ({ searchParams }: ILegalProcessesPage) => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token");
+  const searchParams = useSearchParams();
+  const q = searchParams.get("q") || "";
 
-  const { q = "" } = (await searchParams) || {};
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const url = new URL(
+          `${process.env.NEXT_PUBLIC_API_URL}/proceso_legal/`
+        );
+        const params = new URLSearchParams();
 
-  const searchParamsForDataTable = { q };
+        if (q) params.append("q", q);
+
+        const response = await fetch(`${url}?${params.toString()}`, {
+          credentials: "include",
+        });
+        const data = await response.json();
+        setLegalProcesses(data);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [q]);
 
   return (
     <>
       <SearchBar />
-      <Suspense key={q} fallback={<DatatableSkeleton />}>
-        <DataFetch
-          token={token?.value}
-          searchParams={searchParamsForDataTable}
-        />
-      </Suspense>
+      {loading ? (
+        <DatatableSkeleton />
+      ) : (
+        <LegalProcessesDataTable legalProcesses={legalProcesses} />
+      )}
     </>
   );
 };
 
-export default LegalProcessesPage;
-
-interface IDataFetch {
-  token?: string;
-  searchParams: { q?: string };
-}
-
-const DataFetch = async ({ token, searchParams }: IDataFetch) => {
-  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/proceso_legal`);
-  const params = new URLSearchParams();
-
-  if (searchParams.q) params.append("q", searchParams.q);
-
-  const response = await fetch(`${url}?${params.toString()}`, {
-    headers: {
-      Authorization: `${token}`,
-    },
-  });
-  const legalProcessesData = (await response.json()) as IProcesoLegal[];
-
-  return <LegalProcessesDataTable legalProcesses={legalProcessesData} />;
+const LegalProcessesPage = () => {
+  return (
+    <Suspense fallback={<DatatableSkeleton />}>
+      <LegalProcessesPageContent />
+    </Suspense>
+  );
 };
+
+export default LegalProcessesPage;

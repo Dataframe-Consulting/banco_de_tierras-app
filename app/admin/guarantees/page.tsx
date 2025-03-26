@@ -1,53 +1,49 @@
-import { Suspense } from "react";
-import { cookies } from "next/headers";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { DatatableSkeleton } from "@/app/shared/components";
 import { SearchBar, GuaranteesDataTable } from "./components";
 import type { IGarantia } from "@/app/shared/interfaces";
 
-interface IGuaranteesPage {
-  searchParams?: Promise<{ [key: string]: string }>;
-}
+const GuaranteesPage = () => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [guarantees, setGuarantees] = useState<IGarantia[]>([]);
+  const searchParams = useSearchParams();
+  const q = searchParams.get("q") || "";
 
-const GuaranteesPage = async ({ searchParams }: IGuaranteesPage) => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token");
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/garantia/`);
+        if (q) url.searchParams.append("q", q);
 
-  const { q = "" } = (await searchParams) || {};
+        const response = await fetch(url.toString(), {
+          credentials: "include",
+        });
+        const data = await response.json();
+        setGuarantees(data);
+      } catch (error) {
+        console.error("Error fetching guarantees", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const searchParamsForDataTable = { q };
+    fetchData();
+  }, [q]);
 
   return (
     <>
       <SearchBar />
-      <Suspense key={q} fallback={<DatatableSkeleton />}>
-        <DataFetch
-          token={token?.value}
-          searchParams={searchParamsForDataTable}
-        />
-      </Suspense>
+      {loading ? (
+        <DatatableSkeleton />
+      ) : (
+        <GuaranteesDataTable guarantees={guarantees} />
+      )}
     </>
   );
 };
 
 export default GuaranteesPage;
-
-interface IDataFetch {
-  token?: string;
-  searchParams: { q?: string };
-}
-
-const DataFetch = async ({ token, searchParams }: IDataFetch) => {
-  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/garantia`);
-  const params = new URLSearchParams();
-
-  if (searchParams.q) params.append("q", searchParams.q);
-
-  const response = await fetch(`${url}?${params.toString()}`, {
-    headers: {
-      Authorization: `${token}`,
-    },
-  });
-  const guaranteesData = (await response.json()) as IGarantia[];
-
-  return <GuaranteesDataTable guarantees={guaranteesData} />;
-};

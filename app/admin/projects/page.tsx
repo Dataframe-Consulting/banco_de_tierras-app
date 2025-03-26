@@ -1,5 +1,7 @@
-import { Suspense } from "react";
-import { cookies } from "next/headers";
+"use client";
+
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { SearchBar, ProjectsDataTable } from "./components";
 import { DatatableSkeleton } from "@/app/shared/components";
 import type {
@@ -10,151 +12,117 @@ import type {
   IVocacionEspecifica,
 } from "@/app/shared/interfaces";
 
-interface IProjectsPage {
-  searchParams?: Promise<{ [key: string]: string }>;
-}
+const ProjectsPageContent = () => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [projects, setProjects] = useState<IProyecto[]>([]);
+  const [vocaciones, setVocaciones] = useState<IVocacion[]>([]);
+  const [propietarios, setPropietarios] = useState<IPropietario[]>([]);
+  const [situacionesFisicas, setSituacionesFisicas] = useState<
+    ISituacionFisica[]
+  >([]);
+  const [vocacionesEspecificas, setVocacionesEspecificas] = useState<
+    IVocacionEspecifica[]
+  >([]);
 
-const ProjectsPage = async ({ searchParams }: IProjectsPage) => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token");
+  const searchParams = useSearchParams();
+  const q = searchParams.get("q") || "";
+  const vocacion_id = searchParams.get("vocacion_id") || "";
+  const propietario_id = searchParams.get("propietario_id") || "";
+  const situacion_fisica_id = searchParams.get("situacion_fisica_id") || "";
+  const vocacion_especifica_id =
+    searchParams.get("vocacion_especifica_id") || "";
 
-  const {
-    q = "",
-    vocacion_id = "",
-    propietario_id = "",
-    situacion_fisica_id = "",
-    vocacion_especifica_id = "",
-  } = (await searchParams) || {};
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
-  const searchParamsForDataTable = {
+        const fetchWithAuth = async (endpoint: string) => {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`,
+            { credentials: "include" }
+          );
+          return response.json();
+        };
+
+        const [
+          vocacionesData,
+          propietariosData,
+          situacionesFisicasData,
+          vocacionesEspecificasData,
+        ] = await Promise.all([
+          fetchWithAuth("vocacion/"),
+          fetchWithAuth("propietario/"),
+          fetchWithAuth("situacion_fisica/"),
+          fetchWithAuth("vocacion_especifica/"),
+        ]);
+
+        setVocaciones(vocacionesData);
+        setPropietarios(propietariosData);
+        setSituacionesFisicas(situacionesFisicasData);
+        setVocacionesEspecificas(vocacionesEspecificasData);
+
+        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/proyecto/`);
+        const params = new URLSearchParams();
+
+        if (q) params.append("q", q);
+        if (vocacion_id) params.append("vocacion_id", vocacion_id);
+        if (propietario_id) params.append("propietario_id", propietario_id);
+        if (situacion_fisica_id)
+          params.append("situacion_fisica_id", situacion_fisica_id);
+        if (vocacion_especifica_id)
+          params.append("vocacion_especifica_id", vocacion_especifica_id);
+
+        const projectsResponse = await fetch(`${url}?${params.toString()}`, {
+          credentials: "include",
+        });
+        const projectsData = await projectsResponse.json();
+        setProjects(projectsData);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [
     q,
     vocacion_id,
     propietario_id,
     situacion_fisica_id,
     vocacion_especifica_id,
-  };
-
-  const [
-    vocaciones,
-    propietarios,
-    situaciones_fisicas,
-    vocaciones_especificas,
-  ] = await Promise.all([
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/vocacion`, {
-      headers: {
-        Authorization: `${token?.value}`,
-      },
-    }),
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/propietario`, {
-      headers: {
-        Authorization: `${token?.value}`,
-      },
-    }),
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/situacion_fisica`, {
-      headers: {
-        Authorization: `${token?.value}`,
-      },
-    }),
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/vocacion_especifica`, {
-      headers: {
-        Authorization: `${token?.value}`,
-      },
-    }),
   ]);
-
-  const vocacionesData = (await vocaciones.json()) as IVocacion[];
-  const propietariosData = (await propietarios.json()) as IPropietario[];
-  const situacionesFisicasData =
-    (await situaciones_fisicas.json()) as ISituacionFisica[];
-  const vocacionesEspecificasData =
-    (await vocaciones_especificas.json()) as IVocacionEspecifica[];
 
   return (
     <>
       <SearchBar
-        vocaciones={vocacionesData}
-        propietarios={propietariosData}
-        situacionesFisicas={situacionesFisicasData}
-        vocacionesEspecificas={vocacionesEspecificasData}
+        vocaciones={vocaciones}
+        propietarios={propietarios}
+        situacionesFisicas={situacionesFisicas}
+        vocacionesEspecificas={vocacionesEspecificas}
       />
-      <Suspense
-        fallback={<DatatableSkeleton />}
-        key={
-          q +
-          vocacion_id +
-          propietario_id +
-          situacion_fisica_id +
-          vocacion_especifica_id
-        }
-      >
-        <DataFetch
-          token={token?.value}
-          vocaciones={vocacionesData}
-          propietarios={propietariosData}
-          searchParams={searchParamsForDataTable}
-          situacionesFisicas={situacionesFisicasData}
-          vocacionesEspecificas={vocacionesEspecificasData}
+      {loading ? (
+        <DatatableSkeleton />
+      ) : (
+        <ProjectsDataTable
+          projects={projects}
+          vocaciones={vocaciones}
+          propietarios={propietarios}
+          situacionesFisicas={situacionesFisicas}
+          vocacionesEspecificas={vocacionesEspecificas}
         />
-      </Suspense>
+      )}
     </>
   );
 };
 
-export default ProjectsPage;
-
-interface IDataFetch {
-  token?: string;
-  vocaciones: IVocacion[];
-  propietarios: IPropietario[];
-  situacionesFisicas: ISituacionFisica[];
-  vocacionesEspecificas: IVocacionEspecifica[];
-  searchParams: {
-    q?: string;
-    vocacion_id?: string;
-    propietario_id?: string;
-    situacion_fisica_id?: string;
-    vocacion_especifica_id?: string;
-  };
-}
-
-const DataFetch = async ({
-  token,
-  vocaciones,
-  propietarios,
-  searchParams,
-  situacionesFisicas,
-  vocacionesEspecificas,
-}: IDataFetch) => {
-  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/proyecto`);
-  const params = new URLSearchParams();
-
-  if (searchParams.q) params.append("q", searchParams.q);
-  if (searchParams.vocacion_id)
-    params.append("vocacion_id", searchParams.vocacion_id);
-  if (searchParams.propietario_id)
-    params.append("propietario_id", searchParams.propietario_id);
-  if (searchParams.situacion_fisica_id)
-    params.append("situacion_fisica_id", searchParams.situacion_fisica_id);
-  if (searchParams.vocacion_especifica_id)
-    params.append(
-      "vocacion_especifica_id",
-      searchParams.vocacion_especifica_id
-    );
-
-  const response = await fetch(`${url}?${params.toString()}`, {
-    headers: {
-      Authorization: `${token}`,
-    },
-  });
-  const projectsData = (await response.json()) as IProyecto[];
-
+const ProjectsPage = () => {
   return (
-    <ProjectsDataTable
-      projects={projectsData}
-      vocaciones={vocaciones}
-      propietarios={propietarios}
-      situacionesFisicas={situacionesFisicas}
-      vocacionesEspecificas={vocacionesEspecificas}
-    />
+    <Suspense fallback={<DatatableSkeleton />}>
+      <ProjectsPageContent />
+    </Suspense>
   );
 };
+
+export default ProjectsPage;
