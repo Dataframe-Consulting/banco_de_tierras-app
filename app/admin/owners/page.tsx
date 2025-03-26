@@ -21,13 +21,13 @@ const OwnersPageContent = () => {
         setLoading(true);
 
         const sociosResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/socio`,
+          `${process.env.NEXT_PUBLIC_API_URL}/socio/`,
           { credentials: "include" }
         );
         const sociosData = await sociosResponse.json();
         setSocios(sociosData);
 
-        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/propietario`);
+        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/propietario/`);
         const params = new URLSearchParams();
 
         if (q) params.append("q", q);

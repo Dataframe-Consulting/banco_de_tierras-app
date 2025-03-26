@@ -91,7 +91,7 @@ const Form = ({
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/propietario${
-            action === "edit" || action === "delete" ? `/${id}` : ""
+            action === "edit" || action === "delete" ? `/${id}` : "/"
           }`,
           {
             method:
