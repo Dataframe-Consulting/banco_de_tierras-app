@@ -75,6 +75,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       credentials: "include",
     });
     setUser(null);
+    window.location.href = "/login";
   };
 
   return <AuthContext value={{ user, login, logout }}>{children}</AuthContext>;
