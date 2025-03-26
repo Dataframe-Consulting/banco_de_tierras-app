@@ -7,8 +7,8 @@ import { DoorArrowRight } from "@/app/shared/icons";
 const Header = () => {
   const { logout } = useAuth();
 
-  const handleLogOut = () => {
-    logout();
+  const handleLogOut = async () => {
+    await logout();
     window.location.href = "/login";
   };
 
