@@ -1,5 +1,7 @@
-import { Suspense } from "react";
-import { cookies } from "next/headers";
+"use client";
+
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { DatatableSkeleton } from "@/app/shared/components";
 import { PropertiesDataTable, SearchBar } from "./components";
 import type {
@@ -11,160 +13,119 @@ import type {
   IProcesoLegal,
 } from "@/app/shared/interfaces";
 
-interface IPropertiesPage {
-  searchParams?: Promise<{ [key: string]: string }>;
-}
+const PropertiesPageContent = () => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [properties, setProperties] = useState<IPropiedad[]>([]);
+  const [proyectos, setProyectos] = useState<IProyecto[]>([]);
+  const [sociedades, setSociedades] = useState<ISociedad[]>([]);
+  const [ubicaciones, setUbicaciones] = useState<IUbicacion[]>([]);
+  const [garantias, setGarantias] = useState<IGarantia[]>([]);
+  const [procesosLegales, setProcesosLegales] = useState<IProcesoLegal[]>([]);
 
-const PropertiesPage = async ({ searchParams }: IPropertiesPage) => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token");
+  const searchParams = useSearchParams();
+  const q = searchParams.get("q") || "";
+  const garantia_id = searchParams.get("garantia_id") || "";
+  const proyecto_id = searchParams.get("proyecto_id") || "";
+  const sociedad_id = searchParams.get("sociedad_id") || "";
+  const ubicacion_id = searchParams.get("ubicacion_id") || "";
+  const proceso_legal_id = searchParams.get("proceso_legal_id") || "";
 
-  const {
-    q = "",
-    garanta_id = "",
-    proyecto_id = "",
-    sociedad_id = "",
-    ubicacion_id = "",
-    proceso_legal_id = "",
-  } = (await searchParams) || {};
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
-  const searchParamsForDatatable = {
+        const fetchWithAuth = async (endpoint: string) => {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`,
+            { credentials: "include" }
+          );
+          return response.json();
+        };
+
+        const [
+          proyectosData,
+          sociedadesData,
+          ubicacionesData,
+          garantiasData,
+          procesosLegalesData,
+        ] = await Promise.all([
+          fetchWithAuth("proyecto/"),
+          fetchWithAuth("sociedad/"),
+          fetchWithAuth("ubicacion/"),
+          fetchWithAuth("garantia/"),
+          fetchWithAuth("proceso_legal/"),
+        ]);
+        setProyectos(proyectosData);
+        setSociedades(sociedadesData);
+        setUbicaciones(ubicacionesData);
+        setGarantias(garantiasData);
+        setProcesosLegales(procesosLegalesData);
+
+        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/propiedad/`);
+        const params = new URLSearchParams();
+
+        if (q) params.append("q", q);
+        if (garantia_id) params.append("garantia_id", garantia_id);
+        if (proyecto_id) params.append("proyecto_id", proyecto_id);
+        if (sociedad_id) params.append("sociedad_id", sociedad_id);
+        if (ubicacion_id) params.append("ubicacion_id", ubicacion_id);
+        if (proceso_legal_id)
+          params.append("proceso_legal_id", proceso_legal_id);
+
+        const propertiesResponse = await fetch(`${url}?${params.toString()}`, {
+          credentials: "include",
+        });
+        const propertiesData = await propertiesResponse.json();
+        setProperties(propertiesData);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [
     q,
-    garanta_id,
+    garantia_id,
     proyecto_id,
     sociedad_id,
     ubicacion_id,
     proceso_legal_id,
-  };
-
-  const [proyectos, sociedades, ubicaciones, garantias, procesos_legales] =
-    await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/proyecto`, {
-        headers: {
-          Authorization: `${token?.value}`,
-        },
-      }),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/sociedad`, {
-        headers: {
-          Authorization: `${token?.value}`,
-        },
-      }),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/ubicacion`, {
-        headers: {
-          Authorization: `${token?.value}`,
-        },
-      }),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/garantia`, {
-        headers: {
-          Authorization: `${token?.value}`,
-        },
-      }),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/proceso_legal`, {
-        headers: {
-          Authorization: `${token?.value}`,
-        },
-      }),
-    ]);
-
-  const proyectosData = (await proyectos.json()) as IProyecto[];
-  const garantiasData = (await garantias.json()) as IGarantia[];
-  const sociedadesData = (await sociedades.json()) as ISociedad[];
-  const ubicacionesData = (await ubicaciones.json()) as IUbicacion[];
-  const procesosLegalesData =
-    (await procesos_legales.json()) as IProcesoLegal[];
+  ]);
 
   return (
     <>
       <SearchBar
-        proyectos={proyectosData}
-        garantias={garantiasData}
-        sociedades={sociedadesData}
-        ubicaciones={ubicacionesData}
-        procesosLegales={procesosLegalesData}
+        proyectos={proyectos}
+        garantias={garantias}
+        sociedades={sociedades}
+        ubicaciones={ubicaciones}
+        procesosLegales={procesosLegales}
       />
-      <Suspense
-        key={
-          q +
-          garanta_id +
-          proyecto_id +
-          sociedad_id +
-          ubicacion_id +
-          proceso_legal_id
-        }
-        fallback={<DatatableSkeleton />}
-      >
-        <DataFetch
-          token={token?.value}
-          proyectos={proyectosData}
-          garantias={garantiasData}
-          sociedades={sociedadesData}
-          ubicaciones={ubicacionesData}
-          procesosLegales={procesosLegalesData}
-          searchParams={searchParamsForDatatable}
+      {loading ? (
+        <DatatableSkeleton />
+      ) : (
+        <PropertiesDataTable
+          garantias={garantias}
+          proyectos={proyectos}
+          sociedades={sociedades}
+          ubicaciones={ubicaciones}
+          propiedades={properties}
+          procesosLegales={procesosLegales}
         />
-      </Suspense>
+      )}
     </>
   );
 };
 
-export default PropertiesPage;
-
-interface IDataFetch {
-  token?: string;
-  proyectos: IProyecto[];
-  garantias: IGarantia[];
-  sociedades: ISociedad[];
-  ubicaciones: IUbicacion[];
-  procesosLegales: IProcesoLegal[];
-  searchParams: {
-    q?: string;
-    garantia_id?: string;
-    proyecto_id?: string;
-    sociedad_id?: string;
-    ubicacion_id?: string;
-    proceso_legal_id?: string;
-  };
-}
-
-const DataFetch = async ({
-  token,
-  proyectos,
-  garantias,
-  sociedades,
-  ubicaciones,
-  searchParams,
-  procesosLegales,
-}: IDataFetch) => {
-  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/propiedad`);
-  const params = new URLSearchParams();
-
-  if (searchParams.q) params.append("q", searchParams.q);
-  if (searchParams.proyecto_id)
-    params.append("proyecto_id", searchParams.proyecto_id);
-  if (searchParams.garantia_id)
-    params.append("garantia_id", searchParams.garantia_id);
-  if (searchParams.sociedad_id)
-    params.append("sociedad_id", searchParams.sociedad_id);
-  if (searchParams.ubicacion_id)
-    params.append("ubicacion_id", searchParams.ubicacion_id);
-  if (searchParams.proceso_legal_id)
-    params.append("proceso_legal_id", searchParams.proceso_legal_id);
-
-  const response = await fetch(`${url}?${params.toString()}`, {
-    headers: {
-      Authorization: `${token}`,
-    },
-  });
-  const propertiesData = (await response.json()) as IPropiedad[];
-
+const PropertiesPage = () => {
   return (
-    <PropertiesDataTable
-      garantias={garantias}
-      proyectos={proyectos}
-      sociedades={sociedades}
-      ubicaciones={ubicaciones}
-      propiedades={propertiesData}
-      procesosLegales={procesosLegales}
-    />
+    <Suspense fallback={<DatatableSkeleton />}>
+      <PropertiesPageContent />
+    </Suspense>
   );
 };
+
+export default PropertiesPage;
