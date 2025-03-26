@@ -1,67 +1,65 @@
-import { Suspense } from "react";
-import { cookies } from "next/headers";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { SearchBar, RentsDataTable } from "./components";
 import { DatatableSkeleton } from "@/app/shared/components";
 import type { IPropiedad, IRenta } from "@/app/shared/interfaces";
 
-interface IRentsPage {
-  searchParams?: Promise<{ [key: string]: string }>;
-}
+const RentsPage = () => {
+  const [propiedades, setPropiedades] = useState<IPropiedad[]>([]);
+  const [rentsData, setRentsData] = useState<IRenta[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-const RentsPage = async ({ searchParams }: IRentsPage) => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token");
+  const searchParams = useSearchParams();
+  const q = searchParams.get("q") || "";
+  const propiedad_id = searchParams.get("propiedad_id") || "";
 
-  const { q = "", propiedad_id = "" } = (await searchParams) || {};
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
-  const searchParamsForDataTable = { q, propiedad_id };
+        const propiedadesResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/propiedad`,
+          {
+            credentials: "include",
+          }
+        );
+        const propiedadesData = await propiedadesResponse.json();
+        setPropiedades(propiedadesData);
 
-  const propiedades = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/propiedad`,
-    {
-      headers: {
-        Authorization: `${token?.value}`,
-      },
-    }
-  );
-  const propiedadesData = (await propiedades.json()) as IPropiedad[];
+        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/renta`);
+        const params = new URLSearchParams();
+
+        if (q) params.append("q", q);
+        if (propiedad_id) params.append("propiedad_id", propiedad_id);
+
+        const rentsResponse = await fetch(`${url}?${params.toString()}`, {
+          credentials: "include",
+        });
+        const rentsData = await rentsResponse.json();
+        setRentsData(rentsData);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [q, propiedad_id]);
 
   return (
     <>
-      <SearchBar propiedades={propiedadesData} />
-      <Suspense key={q} fallback={<DatatableSkeleton />}>
-        <DataFetch
-          token={token?.value}
-          propiedades={propiedadesData}
-          searchParams={searchParamsForDataTable}
-        />
-      </Suspense>
+      <SearchBar propiedades={propiedades} />
+      {loading ? (
+        <DatatableSkeleton />
+      ) : (
+        <RentsDataTable rents={rentsData} propiedades={propiedades} />
+      )}
     </>
   );
 };
 
 export default RentsPage;
-
-interface IDataFetch {
-  token?: string;
-  propiedades: IPropiedad[];
-  searchParams: { q?: string; propiedad_id?: string };
-}
-
-const DataFetch = async ({ token, searchParams, propiedades }: IDataFetch) => {
-  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/renta`);
-  const params = new URLSearchParams();
-
-  if (searchParams.q) params.append("q", searchParams.q);
-  if (searchParams.propiedad_id)
-    params.append("propiedad_id", searchParams.propiedad_id);
-
-  const response = await fetch(`${url}?${params.toString()}`, {
-    headers: {
-      Authorization: `${token}`,
-    },
-  });
-  const rentsData = (await response.json()) as IRenta[];
-
-  return <RentsDataTable rents={rentsData} propiedades={propiedades} />;
-};
