@@ -2,24 +2,17 @@ export async function GET(req: Request) {
   const cookie = req.headers.get("cookie");
   console.log("cookie", cookie);
 
-  console.log(
-    "accces_token",
-    cookie
-      ?.split(";")
-      .find((c) => c.trim().startsWith("access_token="))
-      ?.split("=")
-      .pop()
-  );
+  const token = cookie
+    ?.split(";")
+    .find((c) => c.trim().startsWith("access_token="))
+    ?.split("=")
+    .pop();
+
+  console.log("access_token", token);
 
   const user = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
     headers: {
-      // Authorization: `${token?.value}`,
-      Authorization: `${cookie
-        ?.split(";")
-        .find((c) => c.trim().startsWith("access_token="))
-        ?.split("=")
-        .pop()},
-        }`,
+      Authorization: `Bearer ${token}`,
     },
   });
 
