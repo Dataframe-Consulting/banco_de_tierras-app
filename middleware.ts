@@ -7,6 +7,10 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
+  if (pathname === "/admin") {
+    return NextResponse.redirect(new URL("/admin/home", request.url));
+  }
+
   return NextResponse.next();
 }
 
