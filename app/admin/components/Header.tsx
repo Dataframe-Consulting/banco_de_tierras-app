@@ -1,16 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { useAuth } from "@/app/shared/hooks";
-import { DoorArrowRight } from "@/app/shared/icons";
+// import { useAuth } from "@/app/shared/hooks";
+// import { DoorArrowRight } from "@/app/shared/icons";
 
 const Header = () => {
-  const { logout } = useAuth();
+  // const { logout } = useAuth();
 
-  const handleLogOut = async () => {
-    await logout();
-    // window.location.href = "/login";
-  };
+  // const handleLogOut = async () => {
+  //   await logout();
+  // };
 
   return (
     <header className="fixed z-30 top-0 w-full">
@@ -28,7 +27,8 @@ const Header = () => {
               />
             </div>
           </li>
-          <li>
+          <li></li>
+          {/* <li>
             <button
               title="Cerrar sesión"
               onClick={() => handleLogOut()}
@@ -36,7 +36,7 @@ const Header = () => {
             >
               <DoorArrowRight />
             </button>
-          </li>
+          </li> */}
         </ul>
       </nav>
     </header>
