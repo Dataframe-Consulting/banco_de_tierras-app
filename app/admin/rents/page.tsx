@@ -21,17 +21,15 @@ const RentsPageContent = () => {
         setLoading(true);
 
         const propiedadesResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/propiedad`,
+          `${process.env.NEXT_PUBLIC_API_URL}/propiedad/`,
           {
             credentials: "include",
           }
         );
-        console.log("propiedadesResponse", propiedadesResponse);
         const propiedadesData = await propiedadesResponse.json();
-        console.log("propiedadesData", propiedadesData);
         setPropiedades(propiedadesData);
 
-        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/renta`);
+        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/renta/`);
         const params = new URLSearchParams();
 
         if (q) params.append("q", q);
@@ -41,7 +39,6 @@ const RentsPageContent = () => {
           credentials: "include",
         });
         const rentsData = await rentsResponse.json();
-        console.log(rentsData);
         setRentsData(rentsData);
       } catch (error) {
         console.error("Error fetching data", error);
