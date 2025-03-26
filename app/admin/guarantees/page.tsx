@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { DatatableSkeleton } from "@/app/shared/components";
 import { SearchBar, GuaranteesDataTable } from "./components";
 import type { IGarantia } from "@/app/shared/interfaces";
 
-const GuaranteesPage = () => {
+const GuaranteesPageContent = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [guarantees, setGuarantees] = useState<IGarantia[]>([]);
   const searchParams = useSearchParams();
@@ -43,6 +43,14 @@ const GuaranteesPage = () => {
         <GuaranteesDataTable guarantees={guarantees} />
       )}
     </>
+  );
+};
+
+const GuaranteesPage = () => {
+  return (
+    <Suspense fallback={<DatatableSkeleton />}>
+      <GuaranteesPageContent />
+    </Suspense>
   );
 };
 
