@@ -1,7 +1,6 @@
 "use client";
 
 import cn from "@/app/shared/utils/cn";
-import { useRouter } from "next/navigation";
 import { useModal } from "@/app/shared/hooks";
 import { useActionState, useCallback } from "react";
 import { PlusCircle, TrashIcon } from "@/app/shared/icons";
@@ -17,6 +16,7 @@ interface IRentsPropertiesForm {
   rentaId: number;
   action: "add" | "delete";
   propiedad: IPropiedad | IPropiedad[];
+  refresh: () => void;
   onCloseForm?: () => void;
 }
 
@@ -24,6 +24,7 @@ const RentsPropertiesForm = ({
   action,
   rentaId,
   propiedad,
+  refresh,
 }: IRentsPropertiesForm) => {
   const { onOpen, isOpen, onClose } = useModal();
 
@@ -34,6 +35,7 @@ const RentsPropertiesForm = ({
           action={action}
           rentaId={rentaId}
           propiedad={propiedad}
+          refresh={refresh}
           onCloseForm={onClose}
         />
       </Modal>
@@ -64,10 +66,9 @@ const Form = ({
   action,
   rentaId,
   propiedad,
+  refresh,
   onCloseForm,
 }: IRentsPropertiesForm) => {
-  const router = useRouter();
-
   const initialState: IFormState = {
     errors: {},
     message: "",
@@ -133,11 +134,11 @@ const Form = ({
           message: "Error connecting to the server",
         };
       } finally {
-        router.refresh();
+        refresh();
         onCloseForm?.();
       }
     },
-    [action, router, onCloseForm, propiedad, rentaId]
+    [action, propiedad, rentaId, refresh, onCloseForm]
   );
 
   const [state, handleSubmit, isPending] = useActionState(

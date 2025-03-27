@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import validateRentsSchema from "../schemas";
 import { useCallback, useActionState } from "react";
 import formatdateInput from "@/app/shared/utils/formatdate-input";
@@ -38,22 +37,22 @@ interface IRentaState {
 }
 
 interface IForm {
-  onClose: () => void;
   renta: IRenta | null;
   propiedades: IPropiedad[];
   action: "add" | "edit" | "delete";
+  onClose: () => void;
+  refresh: () => void;
   setOptimisticData: (data: IRenta | null) => void;
 }
 
 const Form = ({
   renta,
   action,
-  onClose,
   propiedades,
+  onClose,
+  refresh,
   setOptimisticData,
 }: IForm) => {
-  const router = useRouter();
-
   const initialState: IRentaState = {
     errors: {},
     message: "",
@@ -220,11 +219,11 @@ const Form = ({
           message: "Error connecting to the server",
         };
       } finally {
-        router.refresh();
+        refresh();
         onClose();
       }
     },
-    [renta, router, action, onClose, setOptimisticData]
+    [renta, action, refresh, onClose, setOptimisticData]
   );
 
   const [state, handleSubmit, isPending] = useActionState(
