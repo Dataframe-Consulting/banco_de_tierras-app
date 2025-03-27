@@ -1,58 +1,65 @@
-import { Suspense } from "react";
-import { cookies } from "next/headers";
-import { DatatableSkeleton } from "@/app/shared/components";
+"use client";
+
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { SearchBar, SpecificVocationsDataTable } from "./components";
+import { DatatableSkeleton } from "@/app/shared/components";
 import type { IVocacionEspecifica } from "@/app/shared/interfaces";
 
-interface ISpecificVocationsPage {
-  searchParams?: Promise<{ [key: string]: string }>;
-}
+const SpecificVocationsContent = () => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [specificVocations, setSpecificVocations] = useState<
+    IVocacionEspecifica[]
+  >([]);
 
-const SpecificVocationsPage = async ({
-  searchParams,
-}: ISpecificVocationsPage) => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token");
+  const searchParams = useSearchParams();
+  const q = searchParams.get("q") || "";
 
-  const { q = "" } = (await searchParams) || {};
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
-  const searchParamsForDataTable = { q };
+        const url = new URL(
+          `${process.env.NEXT_PUBLIC_API_URL}/vocacion_especifica/`
+        );
+        const params = new URLSearchParams();
+
+        if (q) params.append("q", q);
+
+        const response = await fetch(`${url}?${params.toString()}`, {
+          credentials: "include",
+        });
+        const specificVocationsData = await response.json();
+        setSpecificVocations(specificVocationsData);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [q]);
 
   return (
     <>
       <SearchBar />
-      <Suspense key={q} fallback={<DatatableSkeleton />}>
-        <DataFetch
-          token={token?.value}
-          searchParams={searchParamsForDataTable}
-        />
-      </Suspense>
+      {loading ? (
+        <DatatableSkeleton />
+      ) : (
+        <SpecificVocationsDataTable specificVocations={specificVocations} />
+      )}
     </>
   );
 };
 
-export default SpecificVocationsPage;
-
-interface IDataFetch {
-  token?: string;
-  searchParams: { q?: string };
-}
-
-const DataFetch = async ({ token, searchParams }: IDataFetch) => {
-  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/vocacion_especifica`);
-  const params = new URLSearchParams();
-
-  if (searchParams.q) params.append("q", searchParams.q);
-
-  const response = await fetch(`${url}?${params.toString()}`, {
-    headers: {
-      Authorization: `${token}`,
-    },
-  });
-  const specificVocationsData =
-    (await response.json()) as IVocacionEspecifica[];
-
+const SpecificVocationsPage = () => {
   return (
-    <SpecificVocationsDataTable specificVocations={specificVocationsData} />
+    <Suspense fallback={<DatatableSkeleton />}>
+      <SpecificVocationsContent />;
+    </Suspense>
   );
 };
+
+export default SpecificVocationsPage;
