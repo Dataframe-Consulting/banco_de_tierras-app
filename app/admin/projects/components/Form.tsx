@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import validateProjectsSchema from "../schemas";
 import { useCallback, useActionState } from "react";
 import {
@@ -42,6 +41,7 @@ interface IForm {
   vocacionesEspecificas: IVocacionEspecifica[];
   setOptimisticData: (data: IProyecto | null) => void;
   onClose: () => void;
+  refresh: () => void;
 }
 
 const Form = ({
@@ -53,9 +53,8 @@ const Form = ({
   vocacionesEspecificas,
   setOptimisticData,
   onClose,
+  refresh,
 }: IForm) => {
-  const router = useRouter();
-
   const initialState: IProyectoState = {
     errors: {},
     message: "",
@@ -190,11 +189,11 @@ const Form = ({
           message: "Error connecting to the server",
         };
       } finally {
-        router.refresh();
+        refresh();
         onClose();
       }
     },
-    [proyecto, router, action, onClose, setOptimisticData]
+    [proyecto, refresh, action, onClose, setOptimisticData]
   );
 
   const [state, handleSubmit, isPending] = useActionState(

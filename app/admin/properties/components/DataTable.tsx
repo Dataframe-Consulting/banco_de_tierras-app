@@ -59,95 +59,6 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-const ExpandedComponent: React.FC<ExpanderComponentProps<IPropiedad>> = ({
-  data,
-}) => {
-  const [tab, setTab] = useState<
-    "sociedades" | "ubicaciones" | "garantias" | "procesos_legales"
-  >("sociedades");
-
-  return (
-    <div className="pl-12 py-4">
-      <ul className="flex flex-row gap-4">
-        <li>
-          <button
-            onClick={() => setTab("sociedades")}
-            className={cn(
-              "px-4 py-2 rounded-md",
-              tab === "sociedades"
-                ? "bg-[#C23B2E] text-white"
-                : "bg-gray-200 text-gray-700"
-            )}
-          >
-            Sociedades
-          </button>
-        </li>
-        <li>
-          <button
-            onClick={() => setTab("ubicaciones")}
-            className={cn(
-              "px-4 py-2 rounded-md",
-              tab === "ubicaciones"
-                ? "bg-[#C23B2E] text-white"
-                : "bg-gray-200 text-gray-700"
-            )}
-          >
-            Ubicaciones
-          </button>
-        </li>
-        <li>
-          <button
-            onClick={() => setTab("garantias")}
-            className={cn(
-              "px-4 py-2 rounded-md",
-              tab === "garantias"
-                ? "bg-[#C23B2E] text-white"
-                : "bg-gray-200 text-gray-700"
-            )}
-          >
-            Garantías
-          </button>
-        </li>
-        <div>
-          <button
-            onClick={() => setTab("procesos_legales")}
-            className={cn(
-              "px-4 py-2 rounded-md",
-              tab === "procesos_legales"
-                ? "bg-[#C23B2E] text-white"
-                : "bg-gray-200 text-gray-700"
-            )}
-          >
-            Procesos Legales
-          </button>
-        </div>
-      </ul>
-      {tab === "sociedades" && (
-        <SociedadesDataTable
-          propiedadId={data.id}
-          sociedades={data.sociedades}
-          propiedadValorComercial={data.valor_comercial}
-        />
-      )}
-      {tab === "ubicaciones" && (
-        <UbicacionesDataTable
-          propiedadId={data.id}
-          ubicaciones={data.ubicaciones}
-        />
-      )}
-      {tab === "garantias" && (
-        <GarantiasDataTable propiedadId={data.id} garantias={data.garantias} />
-      )}
-      {tab === "procesos_legales" && (
-        <ProcesosLegalesDataTable
-          propiedadId={data.id}
-          procesosLegales={data.procesos_legales}
-        />
-      )}
-    </div>
-  );
-};
-
 interface IPropertiesDataTable {
   garantias: IGarantia[];
   proyectos: IProyecto[];
@@ -155,6 +66,7 @@ interface IPropertiesDataTable {
   ubicaciones: IUbicacion[];
   propiedades: IPropiedad[];
   procesosLegales: IProcesoLegal[];
+  refresh: () => void;
 }
 
 const PropertiesDataTable = ({
@@ -164,6 +76,7 @@ const PropertiesDataTable = ({
   ubicaciones,
   propiedades,
   procesosLegales,
+  refresh,
 }: IPropertiesDataTable) => {
   const { isOpen, onClose, onOpen } = useModal();
   const [isClient, setIsClient] = useState(false);
@@ -304,6 +217,102 @@ const PropertiesDataTable = ({
     },
   ];
 
+  const ExpandedComponent: React.FC<ExpanderComponentProps<IPropiedad>> = ({
+    data,
+  }) => {
+    const [tab, setTab] = useState<
+      "sociedades" | "ubicaciones" | "garantias" | "procesos_legales"
+    >("sociedades");
+
+    return (
+      <div className="pl-12 py-4">
+        <ul className="flex flex-row gap-4">
+          <li>
+            <button
+              onClick={() => setTab("sociedades")}
+              className={cn(
+                "px-4 py-2 rounded-md",
+                tab === "sociedades"
+                  ? "bg-[#C23B2E] text-white"
+                  : "bg-gray-200 text-gray-700"
+              )}
+            >
+              Sociedades
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => setTab("ubicaciones")}
+              className={cn(
+                "px-4 py-2 rounded-md",
+                tab === "ubicaciones"
+                  ? "bg-[#C23B2E] text-white"
+                  : "bg-gray-200 text-gray-700"
+              )}
+            >
+              Ubicaciones
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => setTab("garantias")}
+              className={cn(
+                "px-4 py-2 rounded-md",
+                tab === "garantias"
+                  ? "bg-[#C23B2E] text-white"
+                  : "bg-gray-200 text-gray-700"
+              )}
+            >
+              Garantías
+            </button>
+          </li>
+          <div>
+            <button
+              onClick={() => setTab("procesos_legales")}
+              className={cn(
+                "px-4 py-2 rounded-md",
+                tab === "procesos_legales"
+                  ? "bg-[#C23B2E] text-white"
+                  : "bg-gray-200 text-gray-700"
+              )}
+            >
+              Procesos Legales
+            </button>
+          </div>
+        </ul>
+        {tab === "sociedades" && (
+          <SociedadesDataTable
+            propiedadId={data.id}
+            sociedades={data.sociedades}
+            propiedadValorComercial={data.valor_comercial}
+            refresh={refresh}
+          />
+        )}
+        {tab === "ubicaciones" && (
+          <UbicacionesDataTable
+            propiedadId={data.id}
+            ubicaciones={data.ubicaciones}
+            refresh={refresh}
+          />
+        )}
+        {tab === "garantias" && (
+          <GarantiasDataTable
+            propiedadId={data.id}
+            garantias={data.garantias}
+            refresh={refresh}
+          />
+        )}
+        {tab === "procesos_legales" && (
+          <ProcesosLegalesDataTable
+            propiedadId={data.id}
+            procesosLegales={data.procesos_legales}
+            refresh={refresh}
+          />
+        )}
+      </div>
+    );
+  };
+
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -319,6 +328,7 @@ const PropertiesDataTable = ({
             ubicaciones={ubicaciones}
             procesosLegales={procesosLegales}
             onClose={onClose}
+            refresh={refresh}
           />
         </Modal>
       )}
@@ -337,6 +347,7 @@ const PropertiesDataTable = ({
             ubicaciones={ubicaciones}
             garantias={garantias}
             procesosLegales={procesosLegales}
+            refresh={refresh}
           />
         </Modal>
       )}
@@ -382,6 +393,7 @@ interface IAddMenu {
   ubicaciones: IUbicacion[];
   procesosLegales: IProcesoLegal[];
   onClose: () => void;
+  refresh: () => void;
 }
 
 const AddMenu = ({
@@ -391,6 +403,7 @@ const AddMenu = ({
   ubicaciones,
   procesosLegales,
   onClose,
+  refresh,
 }: IAddMenu) => {
   const [tab, setTab] = useState<
     "sociedades" | "ubicaciones" | "garantias" | "procesos_legales"
@@ -458,6 +471,7 @@ const AddMenu = ({
           propiedadId={propiedad.id}
           sociedad={sociedades}
           onCloseForm={onClose}
+          refresh={refresh}
         />
       )}
       {tab === "ubicaciones" && (
@@ -469,6 +483,7 @@ const AddMenu = ({
               !propiedad.ubicaciones.map((u) => u.id).includes(ubicacion.id)
           )}
           onCloseForm={onClose}
+          refresh={refresh}
         />
       )}
       {tab === "garantias" && (
@@ -480,6 +495,7 @@ const AddMenu = ({
               !propiedad.garantias.map((g) => g.id).includes(garantia.id)
           )}
           onCloseForm={onClose}
+          refresh={refresh}
         />
       )}
       {tab === "procesos_legales" && (
@@ -493,6 +509,7 @@ const AddMenu = ({
                 .includes(procesoLegal.id)
           )}
           onCloseForm={onClose}
+          refresh={refresh}
         />
       )}
     </div>

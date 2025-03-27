@@ -46,9 +46,10 @@ const reducer = (state: State, action: Action): State => {
 
 interface ILocationsDataTable {
   locations: IUbicacion[];
+  refresh: () => void;
 }
 
-const LocationsDataTable = ({ locations }: ILocationsDataTable) => {
+const LocationsDataTable = ({ locations, refresh }: ILocationsDataTable) => {
   const [isClient, setIsClient] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
     open: false,
@@ -135,6 +136,7 @@ const LocationsDataTable = ({ locations }: ILocationsDataTable) => {
             location={state.selectedData}
             setOptimisticData={setOptimisticData}
             onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+            refresh={refresh}
           />
         </Modal>
       )}

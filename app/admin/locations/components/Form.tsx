@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useCallback, useActionState } from "react";
 import validateLocationsSchema from "../schemas";
 import { GenericInput, SubmitButton } from "@/app/shared/components";
@@ -21,11 +20,16 @@ interface IForm {
   location: IUbicacion | null;
   action: "add" | "edit" | "delete";
   setOptimisticData: (data: IUbicacion | null) => void;
+  refresh: () => void;
 }
 
-const Form = ({ action, location, onClose, setOptimisticData }: IForm) => {
-  const router = useRouter();
-
+const Form = ({
+  action,
+  location,
+  onClose,
+  setOptimisticData,
+  refresh,
+}: IForm) => {
   const initialState: IRentaState = {
     errors: {},
     message: "",
@@ -101,11 +105,11 @@ const Form = ({ action, location, onClose, setOptimisticData }: IForm) => {
           message: "Error connecting to the server",
         };
       } finally {
-        router.refresh();
+        refresh();
         onClose();
       }
     },
-    [location, router, action, onClose, setOptimisticData]
+    [location, refresh, action, onClose, setOptimisticData]
   );
 
   const [state, handleSubmit, isPending] = useActionState(

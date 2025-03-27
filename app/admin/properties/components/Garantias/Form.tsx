@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useActionState, useCallback } from "react";
 import {
   SubmitButton,
@@ -21,6 +20,7 @@ interface IPropertiesGuaranteesForm {
   action: "add" | "delete";
   garantia: IGarantia | IGarantia[];
   onCloseForm?: () => void;
+  refresh: () => void;
 }
 
 const PropertiesGuaranteesForm = ({
@@ -28,9 +28,8 @@ const PropertiesGuaranteesForm = ({
   garantia,
   propiedadId,
   onCloseForm,
+  refresh,
 }: IPropertiesGuaranteesForm) => {
-  const router = useRouter();
-
   const initialState: IFormState = {
     errors: {},
     message: "",
@@ -96,11 +95,11 @@ const PropertiesGuaranteesForm = ({
           message: "Error connecting to the server",
         };
       } finally {
-        router.refresh();
+        refresh();
         onCloseForm?.();
       }
     },
-    [action, router, onCloseForm, garantia, propiedadId]
+    [action, refresh, onCloseForm, garantia, propiedadId]
   );
 
   const [state, handleSubmit, isPending] = useActionState(
@@ -117,8 +116,6 @@ const PropertiesGuaranteesForm = ({
         ...rest,
       }))
     : [];
-
-  console.log(transformedData);
 
   return (
     <form action={handleSubmit} className="flex flex-col gap-4">

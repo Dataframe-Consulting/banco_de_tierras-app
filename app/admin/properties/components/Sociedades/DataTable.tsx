@@ -18,12 +18,14 @@ interface ISociedadesDataTable {
   propiedadId: number;
   sociedades: ISociedadPropiedad[];
   propiedadValorComercial: number;
+  refresh: () => void;
 }
 
 const SociedadesDataTable = ({
   sociedades,
   propiedadId,
   propiedadValorComercial,
+  refresh,
 }: ISociedadesDataTable) => {
   const { isOpen, onClose, onOpen } = useModal();
   const [isClient, setIsClient] = useState(false);
@@ -86,6 +88,7 @@ const SociedadesDataTable = ({
             sociedad={sociedadSelected}
             propiedadId={propiedadId}
             onCloseForm={onClose}
+            refresh={refresh}
           />
         </Modal>
       )}

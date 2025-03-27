@@ -14,6 +14,7 @@ import type {
 } from "@/app/shared/interfaces";
 
 const PropertiesPageContent = () => {
+  const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [properties, setProperties] = useState<IPropiedad[]>([]);
   const [proyectos, setProyectos] = useState<IProyecto[]>([]);
@@ -93,6 +94,7 @@ const PropertiesPageContent = () => {
     sociedad_id,
     ubicacion_id,
     proceso_legal_id,
+    refresh,
   ]);
 
   return (
@@ -114,6 +116,7 @@ const PropertiesPageContent = () => {
           ubicaciones={ubicaciones}
           propiedades={properties}
           procesosLegales={procesosLegales}
+          refresh={() => setRefresh((prev) => !prev)}
         />
       )}
     </>

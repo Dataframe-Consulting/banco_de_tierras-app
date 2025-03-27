@@ -1,7 +1,6 @@
 "use client";
 
 import cn from "@/app/shared/utils/cn";
-import { useRouter } from "next/navigation";
 import { useModal } from "@/app/shared/hooks";
 import { useActionState, useCallback } from "react";
 import { PlusCircle, TrashIcon } from "@/app/shared/icons";
@@ -18,12 +17,14 @@ interface IProjectsOwnersForm {
   action: "add" | "delete";
   propietario: IPropietario | IPropietario[];
   onCloseForm?: () => void;
+  refresh: () => void;
 }
 
 const ProjectsOwnersForm = ({
   action,
   proyectoId,
   propietario,
+  refresh,
 }: IProjectsOwnersForm) => {
   const { onOpen, isOpen, onClose } = useModal();
 
@@ -35,6 +36,7 @@ const ProjectsOwnersForm = ({
           proyectoId={proyectoId}
           propietario={propietario}
           onCloseForm={onClose}
+          refresh={refresh}
         />
       </Modal>
       <button
@@ -65,9 +67,8 @@ const Form = ({
   proyectoId,
   propietario,
   onCloseForm,
+  refresh,
 }: IProjectsOwnersForm) => {
-  const router = useRouter();
-
   const initialState: IFormState = {
     errors: {},
     message: "",
@@ -135,11 +136,11 @@ const Form = ({
           message: "Error connecting to the server",
         };
       } finally {
-        router.refresh();
+        refresh();
         onCloseForm?.();
       }
     },
-    [action, router, onCloseForm, propietario, proyectoId]
+    [action, refresh, onCloseForm, propietario, proyectoId]
   );
 
   const [state, handleSubmit, isPending] = useActionState(

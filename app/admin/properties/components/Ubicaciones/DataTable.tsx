@@ -16,11 +16,13 @@ import { TrashIcon } from "@/app/shared/icons";
 interface IUbicacionesDataTable {
   propiedadId: number;
   ubicaciones: IUbicacion[];
+  refresh: () => void;
 }
 
 const UbicacionesDataTable = ({
   propiedadId,
   ubicaciones,
+  refresh,
 }: IUbicacionesDataTable) => {
   const { isOpen, onClose, onOpen } = useModal();
   const [isClient, setIsClient] = useState(false);
@@ -81,6 +83,7 @@ const UbicacionesDataTable = ({
             ubicacion={ubicacionSelected}
             propiedadId={propiedadId}
             onCloseForm={onClose}
+            refresh={refresh}
           />
         </Modal>
       )}
