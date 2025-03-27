@@ -44,25 +44,13 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-const ExpandedComponent: React.FC<ExpanderComponentProps<IRenta>> = ({
-  data,
-}) => {
-  return (
-    <div className="pl-12 py-4">
-      <h1 className="text-2xl">
-        Propiedades de la Renta: {`"${data.nombre_comercial}"`}
-      </h1>
-      <PropiedadesDataTable rentaId={data.id} propiedades={data.propiedades} />
-    </div>
-  );
-};
-
 interface IRentsDataTable {
   rents: IRenta[];
   propiedades: IPropiedad[];
+  refresh: () => void;
 }
 
-const RentsDataTable = ({ rents, propiedades }: IRentsDataTable) => {
+const RentsDataTable = ({ rents, propiedades, refresh }: IRentsDataTable) => {
   const [isClient, setIsClient] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
     open: false,
@@ -104,6 +92,7 @@ const RentsDataTable = ({ rents, propiedades }: IRentsDataTable) => {
               (propiedad) =>
                 !row.propiedades.map((p) => p.id).includes(propiedad.id)
             )}
+            refresh={refresh}
           />
           <button
             onClick={() => handleAction(row, "edit")}
@@ -297,6 +286,23 @@ const RentsDataTable = ({ rents, propiedades }: IRentsDataTable) => {
     },
   ];
 
+  const ExpandedComponent: React.FC<ExpanderComponentProps<IRenta>> = ({
+    data,
+  }) => {
+    return (
+      <div className="pl-12 py-4">
+        <h1 className="text-2xl">
+          Propiedades de la Renta: {`"${data.nombre_comercial}"`}
+        </h1>
+        <PropiedadesDataTable
+          rentaId={data.id}
+          propiedades={data.propiedades}
+          refresh={refresh}
+        />
+      </div>
+    );
+  };
+
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -312,6 +318,7 @@ const RentsDataTable = ({ rents, propiedades }: IRentsDataTable) => {
             action={state.action}
             propiedades={propiedades}
             renta={state.selectedRenta}
+            refresh={refresh}
             setOptimisticData={setOptimisticData}
             onClose={() => dispatch({ type: "CLOSE_MODAL" })}
           />

@@ -7,6 +7,7 @@ import { DatatableSkeleton } from "@/app/shared/components";
 import type { IPropiedad, IRenta } from "@/app/shared/interfaces";
 
 const RentsPageContent = () => {
+  const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [rentsData, setRentsData] = useState<IRenta[]>([]);
   const [propiedades, setPropiedades] = useState<IPropiedad[]>([]);
@@ -48,7 +49,7 @@ const RentsPageContent = () => {
     };
 
     fetchData();
-  }, [q, propiedad_id]);
+  }, [q, propiedad_id, refresh]);
 
   return (
     <>
@@ -56,7 +57,11 @@ const RentsPageContent = () => {
       {loading ? (
         <DatatableSkeleton />
       ) : (
-        <RentsDataTable rents={rentsData} propiedades={propiedades} />
+        <RentsDataTable
+          rents={rentsData}
+          propiedades={propiedades}
+          refresh={() => setRefresh((prev) => !prev)}
+        />
       )}
     </>
   );

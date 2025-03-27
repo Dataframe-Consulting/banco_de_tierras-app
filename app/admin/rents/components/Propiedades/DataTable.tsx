@@ -10,11 +10,13 @@ import type { IPropiedad } from "@/app/shared/interfaces";
 interface IPropiedadesDataTable {
   rentaId: number;
   propiedades: IPropiedad[];
+  refresh: () => void;
 }
 
 const PropiedadesDataTable = ({
   rentaId,
   propiedades,
+  refresh,
 }: IPropiedadesDataTable) => {
   const [isClient, setIsClient] = useState(false);
 
@@ -28,6 +30,7 @@ const PropiedadesDataTable = ({
             action="delete"
             propiedad={row}
             rentaId={rentaId}
+            refresh={refresh}
           />
         </div>
       ),
