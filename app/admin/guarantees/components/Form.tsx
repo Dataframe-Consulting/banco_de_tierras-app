@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import validateGuaranteesSchema from "../schemas";
 import { useCallback, useActionState } from "react";
 import formatdateInput from "@/app/shared/utils/formatdate-input";
@@ -25,11 +24,16 @@ interface IForm {
   garantia: IGarantia | null;
   action: "add" | "edit" | "delete";
   setOptimisticData: (data: IGarantia | null) => void;
+  refresh: () => void;
 }
 
-const Form = ({ garantia, action, onClose, setOptimisticData }: IForm) => {
-  const router = useRouter();
-
+const Form = ({
+  garantia,
+  action,
+  onClose,
+  setOptimisticData,
+  refresh,
+}: IForm) => {
   const initialState: IRentaState = {
     errors: {},
     message: "",
@@ -114,11 +118,11 @@ const Form = ({ garantia, action, onClose, setOptimisticData }: IForm) => {
           message: "Error connecting to the server",
         };
       } finally {
-        router.refresh();
+        refresh();
         onClose();
       }
     },
-    [garantia, router, action, onClose, setOptimisticData]
+    [garantia, refresh, action, onClose, setOptimisticData]
   );
 
   const [state, handleSubmit, isPending] = useActionState(

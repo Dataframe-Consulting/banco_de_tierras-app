@@ -7,6 +7,7 @@ import { DatatableSkeleton } from "@/app/shared/components";
 import type { ISocio } from "@/app/shared/interfaces";
 
 const PartnersPageContent = () => {
+  const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [partners, setPartners] = useState<ISocio[]>([]);
 
@@ -36,7 +37,7 @@ const PartnersPageContent = () => {
     };
 
     fetchData();
-  }, [q]);
+  }, [q, refresh]);
 
   return (
     <>
@@ -44,7 +45,10 @@ const PartnersPageContent = () => {
       {loading ? (
         <DatatableSkeleton />
       ) : (
-        <PartnersDataTable partners={partners} />
+        <PartnersDataTable
+          partners={partners}
+          refresh={() => setRefresh((prev) => !prev)}
+        />
       )}
     </>
   );

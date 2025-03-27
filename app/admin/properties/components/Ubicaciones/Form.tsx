@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useActionState, useCallback } from "react";
 import {
   SubmitButton,
@@ -21,6 +20,7 @@ interface IPropertiesLocationsForm {
   action: "add" | "delete";
   ubicacion: IUbicacion | IUbicacion[];
   onCloseForm?: () => void;
+  refresh: () => void;
 }
 
 const PropertiesLocationsForm = ({
@@ -28,9 +28,8 @@ const PropertiesLocationsForm = ({
   propiedadId,
   ubicacion,
   onCloseForm,
+  refresh,
 }: IPropertiesLocationsForm) => {
-  const router = useRouter();
-
   const initialState: IFormState = {
     errors: {},
     message: "",
@@ -98,11 +97,11 @@ const PropertiesLocationsForm = ({
           message: "Error connecting to the server",
         };
       } finally {
-        router.refresh();
+        refresh();
         onCloseForm?.();
       }
     },
-    [action, router, onCloseForm, ubicacion, propiedadId]
+    [action, refresh, onCloseForm, ubicacion, propiedadId]
   );
 
   const [state, handleSubmit, isPending] = useActionState(

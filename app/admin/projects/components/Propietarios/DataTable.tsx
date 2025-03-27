@@ -9,11 +9,13 @@ import ProjectsOwnersForm from "./Form";
 interface IPropietariosDataTable {
   proyectoId: number;
   propietarios: IPropietario[];
+  refresh: () => void;
 }
 
 const PropietariosDataTable = ({
   proyectoId,
   propietarios,
+  refresh,
 }: IPropietariosDataTable) => {
   const [isClient, setIsClient] = useState(false);
 
@@ -27,6 +29,7 @@ const PropietariosDataTable = ({
             action="delete"
             propietario={row}
             proyectoId={proyectoId}
+            refresh={refresh}
           />
         </div>
       ),

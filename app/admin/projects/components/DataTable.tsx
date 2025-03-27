@@ -52,30 +52,13 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-const ExpandedComponent: React.FC<ExpanderComponentProps<IProyecto>> = ({
-  data,
-}) => {
-  return (
-    <div className="pl-12 py-4">
-      {data.propietarios.length > 0 && (
-        <h1 className="text-2xl font-semibold mb-4">
-          Propietarios de {data.nombre} ({data.propietarios.length})
-        </h1>
-      )}
-      <PropietariosDataTable
-        proyectoId={data.id}
-        propietarios={data.propietarios}
-      />
-    </div>
-  );
-};
-
 interface IProjectsDataTable {
   projects: IProyecto[];
   vocaciones: IVocacion[];
   propietarios: IPropietario[];
   situacionesFisicas: ISituacionFisica[];
   vocacionesEspecificas: IVocacionEspecifica[];
+  refresh: () => void;
 }
 
 const ProjectsDataTable = ({
@@ -84,6 +67,7 @@ const ProjectsDataTable = ({
   propietarios,
   situacionesFisicas,
   vocacionesEspecificas,
+  refresh,
 }: IProjectsDataTable) => {
   const [isClient, setIsClient] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
@@ -126,6 +110,7 @@ const ProjectsDataTable = ({
               (propietario) =>
                 !row.propietarios.map(({ id }) => id).includes(propietario.id)
             )}
+            refresh={refresh}
           />
           <button
             onClick={() => handleAction(row, "edit")}
@@ -205,6 +190,25 @@ const ProjectsDataTable = ({
     },
   ];
 
+  const ExpandedComponent: React.FC<ExpanderComponentProps<IProyecto>> = ({
+    data,
+  }) => {
+    return (
+      <div className="pl-12 py-4">
+        {data.propietarios.length > 0 && (
+          <h1 className="text-2xl font-semibold mb-4">
+            Propietarios de {data.nombre} ({data.propietarios.length})
+          </h1>
+        )}
+        <PropietariosDataTable
+          proyectoId={data.id}
+          propietarios={data.propietarios}
+          refresh={refresh}
+        />
+      </div>
+    );
+  };
+
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -225,6 +229,7 @@ const ProjectsDataTable = ({
             vocacionesEspecificas={vocacionesEspecificas}
             setOptimisticData={setOptimisticData}
             onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+            refresh={refresh}
           />
         </Modal>
       )}

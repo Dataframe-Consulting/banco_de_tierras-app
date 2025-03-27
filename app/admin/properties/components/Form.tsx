@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import validatePropertiesSchema from "../schemas";
 import { useActionState, useCallback } from "react";
 import {
@@ -11,10 +10,10 @@ import {
 } from "@/app/shared/components";
 import type {
   IProyecto,
+  IGarantia,
+  ISociedad,
   IPropiedad,
   IUbicacion,
-  ISociedad,
-  IGarantia,
   IProcesoLegal,
 } from "@/app/shared/interfaces";
 
@@ -38,30 +37,30 @@ interface IPropertiesState {
 }
 
 interface IForm {
-  onClose: () => void;
-  propiedad: IPropiedad | null;
-  action: "add" | "edit" | "delete";
-  setOptimisticData: (data: IPropiedad | null) => void;
+  garantias: IGarantia[];
   proyectos: IProyecto[];
   sociedades: ISociedad[];
   ubicaciones: IUbicacion[];
-  garantias: IGarantia[];
+  propiedad: IPropiedad | null;
   procesosLegales: IProcesoLegal[];
+  action: "add" | "edit" | "delete";
+  onClose: () => void;
+  refresh: () => void;
+  setOptimisticData: (data: IPropiedad | null) => void;
 }
 
 const Form = ({
-  propiedad,
   action,
-  onClose,
-  setOptimisticData,
+  propiedad,
   proyectos,
+  garantias,
   sociedades,
   ubicaciones,
-  garantias,
   procesosLegales,
+  onClose,
+  refresh,
+  setOptimisticData,
 }: IForm) => {
-  const router = useRouter();
-
   const initialState: IPropertiesState = {
     errors: {},
     message: "",
@@ -304,11 +303,11 @@ const Form = ({
           message: "Error interno",
         };
       } finally {
-        router.refresh();
+        refresh();
         onClose();
       }
     },
-    [action, onClose, propiedad, setOptimisticData, router]
+    [action, propiedad, refresh, onClose, setOptimisticData]
   );
 
   const [state, handleSubmit, isPending] = useActionState(

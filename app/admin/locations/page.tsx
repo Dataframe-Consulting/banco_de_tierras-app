@@ -7,6 +7,7 @@ import { DatatableSkeleton } from "@/app/shared/components";
 import type { IUbicacion } from "@/app/shared/interfaces";
 
 const LocationsPageContent = () => {
+  const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [locations, setLocations] = useState<IUbicacion[]>([]);
 
@@ -36,7 +37,7 @@ const LocationsPageContent = () => {
     };
 
     fetchData();
-  }, [q]);
+  }, [q, refresh]);
 
   return (
     <>
@@ -44,7 +45,10 @@ const LocationsPageContent = () => {
       {loading ? (
         <DatatableSkeleton />
       ) : (
-        <LocationsDataTable locations={locations} />
+        <LocationsDataTable
+          locations={locations}
+          refresh={() => setRefresh((prev) => !prev)}
+        />
       )}
     </>
   );

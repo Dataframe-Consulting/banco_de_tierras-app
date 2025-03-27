@@ -7,6 +7,7 @@ import { DatatableSkeleton } from "@/app/shared/components";
 import type { IProcesoLegal } from "@/app/shared/interfaces";
 
 const LegalProcessesPageContent = () => {
+  const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [legalProcesses, setLegalProcesses] = useState<IProcesoLegal[]>([]);
 
@@ -37,7 +38,7 @@ const LegalProcessesPageContent = () => {
     };
 
     fetchData();
-  }, [q]);
+  }, [q, refresh]);
 
   return (
     <>
@@ -45,7 +46,10 @@ const LegalProcessesPageContent = () => {
       {loading ? (
         <DatatableSkeleton />
       ) : (
-        <LegalProcessesDataTable legalProcesses={legalProcesses} />
+        <LegalProcessesDataTable
+          legalProcesses={legalProcesses}
+          refresh={() => setRefresh((prev) => !prev)}
+        />
       )}
     </>
   );

@@ -44,9 +44,10 @@ const reducer = (state: State, action: Action): State => {
 
 interface IGuaranteesDataTable {
   guarantees: IGarantia[];
+  refresh: () => void;
 }
 
-const GuaranteesDataTable = ({ guarantees }: IGuaranteesDataTable) => {
+const GuaranteesDataTable = ({ guarantees, refresh }: IGuaranteesDataTable) => {
   const [isClient, setIsClient] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
     open: false,
@@ -154,6 +155,7 @@ const GuaranteesDataTable = ({ guarantees }: IGuaranteesDataTable) => {
             garantia={state.selectedData}
             setOptimisticData={setOptimisticData}
             onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+            refresh={refresh}
           />
         </Modal>
       )}

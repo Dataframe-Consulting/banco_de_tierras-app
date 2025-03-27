@@ -46,10 +46,12 @@ const reducer = (state: State, action: Action): State => {
 
 interface ILegalProcessesDataTable {
   legalProcesses: IProcesoLegal[];
+  refresh: () => void;
 }
 
 const LegalProcessesDataTable = ({
   legalProcesses,
+  refresh,
 }: ILegalProcessesDataTable) => {
   const [isClient, setIsClient] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
@@ -156,6 +158,7 @@ const LegalProcessesDataTable = ({
             procesoLegal={state.selectedData}
             setOptimisticData={setOptimisticData}
             onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+            refresh={refresh}
           />
         </Modal>
       )}

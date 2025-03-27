@@ -17,11 +17,13 @@ import type { IGarantia } from "@/app/shared/interfaces";
 interface IGarantiasDataTable {
   propiedadId: number;
   garantias: IGarantia[];
+  refresh: () => void;
 }
 
 const GarantiasDatatable = ({
   propiedadId,
   garantias,
+  refresh,
 }: IGarantiasDataTable) => {
   const { isOpen, onClose, onOpen } = useModal();
   const [isClient, setIsClient] = useState(false);
@@ -101,6 +103,7 @@ const GarantiasDatatable = ({
             garantia={garantiaSelected}
             propiedadId={propiedadId}
             onCloseForm={onClose}
+            refresh={refresh}
           />
         </Modal>
       )}

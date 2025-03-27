@@ -7,6 +7,7 @@ import { SearchBar, GuaranteesDataTable } from "./components";
 import type { IGarantia } from "@/app/shared/interfaces";
 
 const GuaranteesPageContent = () => {
+  const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [guarantees, setGuarantees] = useState<IGarantia[]>([]);
   const searchParams = useSearchParams();
@@ -32,7 +33,7 @@ const GuaranteesPageContent = () => {
     };
 
     fetchData();
-  }, [q]);
+  }, [q, refresh]);
 
   return (
     <>
@@ -40,7 +41,10 @@ const GuaranteesPageContent = () => {
       {loading ? (
         <DatatableSkeleton />
       ) : (
-        <GuaranteesDataTable guarantees={guarantees} />
+        <GuaranteesDataTable
+          guarantees={guarantees}
+          refresh={() => setRefresh((prev) => !prev)}
+        />
       )}
     </>
   );

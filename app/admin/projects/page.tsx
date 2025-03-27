@@ -13,6 +13,7 @@ import type {
 } from "@/app/shared/interfaces";
 
 const ProjectsPageContent = () => {
+  const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [projects, setProjects] = useState<IProyecto[]>([]);
   const [vocaciones, setVocaciones] = useState<IVocacion[]>([]);
@@ -92,6 +93,7 @@ const ProjectsPageContent = () => {
     propietario_id,
     situacion_fisica_id,
     vocacion_especifica_id,
+    refresh,
   ]);
 
   return (
@@ -111,6 +113,7 @@ const ProjectsPageContent = () => {
           propietarios={propietarios}
           situacionesFisicas={situacionesFisicas}
           vocacionesEspecificas={vocacionesEspecificas}
+          refresh={() => setRefresh((prev) => !prev)}
         />
       )}
     </>

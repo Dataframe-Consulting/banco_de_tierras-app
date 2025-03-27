@@ -16,11 +16,13 @@ import { TrashIcon } from "@/app/shared/icons";
 interface IProcesosLegalesDataTable {
   propiedadId: number;
   procesosLegales: IProcesoLegal[];
+  refresh: () => void;
 }
 
 const ProcesosLegalesDataTable = ({
   propiedadId,
   procesosLegales,
+  refresh,
 }: IProcesosLegalesDataTable) => {
   const { isOpen, onClose, onOpen } = useModal();
   const [isClient, setIsClient] = useState(false);
@@ -96,6 +98,7 @@ const ProcesosLegalesDataTable = ({
             procesoLegal={procesoLegalSelected}
             propiedadId={propiedadId}
             onCloseForm={onClose}
+            refresh={refresh}
           />
         </Modal>
       )}
