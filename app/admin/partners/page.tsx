@@ -1,53 +1,61 @@
-import { Suspense } from "react";
-import { cookies } from "next/headers";
-import { DatatableSkeleton } from "@/app/shared/components";
+"use client";
+
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { SearchBar, PartnersDataTable } from "./components";
+import { DatatableSkeleton } from "@/app/shared/components";
 import type { ISocio } from "@/app/shared/interfaces";
 
-interface ILocationsPage {
-  searchParams?: Promise<{ [key: string]: string }>;
-}
+const PartnersPageContent = () => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [partners, setPartners] = useState<ISocio[]>([]);
 
-const LocationsPage = async ({ searchParams }: ILocationsPage) => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token");
+  const searchParams = useSearchParams();
+  const q = searchParams.get("q") || "";
 
-  const { q = "" } = (await searchParams) || {};
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
-  const searchParamsForDataTable = { q };
+        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/socio/`);
+        const params = new URLSearchParams();
+
+        if (q) params.append("q", q);
+
+        const response = await fetch(`${url}?${params.toString()}`, {
+          credentials: "include",
+        });
+        const data = await response.json();
+        setPartners(data);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [q]);
 
   return (
     <>
       <SearchBar />
-      <Suspense key={q} fallback={<DatatableSkeleton />}>
-        <DataFetch
-          token={token?.value}
-          searchParams={searchParamsForDataTable}
-        />
-      </Suspense>
+      {loading ? (
+        <DatatableSkeleton />
+      ) : (
+        <PartnersDataTable partners={partners} />
+      )}
     </>
   );
 };
 
-export default LocationsPage;
-
-interface IDataFetch {
-  token?: string;
-  searchParams: { q?: string };
-}
-
-const DataFetch = async ({ token, searchParams }: IDataFetch) => {
-  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/socio`);
-  const params = new URLSearchParams();
-
-  if (searchParams.q) params.append("q", searchParams.q);
-
-  const response = await fetch(`${url}?${params.toString()}`, {
-    headers: {
-      Authorization: `${token}`,
-    },
-  });
-  const partnersData = (await response.json()) as ISocio[];
-
-  return <PartnersDataTable partners={partnersData} />;
+const PartnersPage = () => {
+  return (
+    <Suspense fallback={<DatatableSkeleton />}>
+      <PartnersPageContent />
+    </Suspense>
+  );
 };
+
+export default PartnersPage;

@@ -63,7 +63,7 @@ const Form = ({ action, societie, onClose, setOptimisticData }: IForm) => {
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/sociedad${
-            action === "edit" || action === "delete" ? `/${id}` : ""
+            action === "edit" || action === "delete" ? `/${id}` : "/"
           }`,
           {
             method:
