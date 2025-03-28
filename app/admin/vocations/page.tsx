@@ -7,6 +7,7 @@ import { DatatableSkeleton } from "@/app/shared/components";
 import type { IVocacion } from "@/app/shared/interfaces";
 
 const VocationsContent = () => {
+  const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [vocations, setVocations] = useState<IVocacion[]>([]);
 
@@ -36,7 +37,7 @@ const VocationsContent = () => {
     };
 
     fetchData();
-  }, [q]);
+  }, [q, refresh]);
 
   return (
     <>
@@ -44,7 +45,10 @@ const VocationsContent = () => {
       {loading ? (
         <DatatableSkeleton />
       ) : (
-        <VocationsDataTable vocations={vocations} />
+        <VocationsDataTable
+          vocations={vocations}
+          refresh={() => setRefresh((prev) => !prev)}
+        />
       )}
     </>
   );

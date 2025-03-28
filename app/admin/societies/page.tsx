@@ -7,6 +7,7 @@ import { DatatableSkeleton } from "@/app/shared/components";
 import type { ISociedad } from "@/app/shared/interfaces";
 
 const SocietiesPageContent = () => {
+  const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [societies, setSocieties] = useState<ISociedad[]>([]);
 
@@ -35,7 +36,7 @@ const SocietiesPageContent = () => {
     };
 
     fetchData();
-  }, [q]);
+  }, [q, refresh]);
 
   return (
     <>
@@ -43,7 +44,10 @@ const SocietiesPageContent = () => {
       {loading ? (
         <DatatableSkeleton />
       ) : (
-        <SocietiesDataTable societies={societies} />
+        <SocietiesDataTable
+          societies={societies}
+          refresh={() => setRefresh((prev) => !prev)}
+        />
       )}
     </>
   );

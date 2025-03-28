@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useCallback, useActionState } from "react";
 import validateSpecificVocationsSchema from "../schemas";
 import { GenericInput, SubmitButton } from "@/app/shared/components";
@@ -21,6 +20,7 @@ interface IForm {
   specificVocation: IVocacionEspecifica | null;
   action: "add" | "edit" | "delete";
   setOptimisticData: (data: IVocacionEspecifica | null) => void;
+  refresh: () => void;
 }
 
 const Form = ({
@@ -28,9 +28,8 @@ const Form = ({
   specificVocation,
   onClose,
   setOptimisticData,
+  refresh,
 }: IForm) => {
-  const router = useRouter();
-
   const initialState: IRentaState = {
     errors: {},
     message: "",
@@ -106,11 +105,11 @@ const Form = ({
           message: "Error connecting to the server",
         };
       } finally {
-        router.refresh();
+        refresh();
         onClose();
       }
     },
-    [specificVocation, router, action, onClose, setOptimisticData]
+    [specificVocation, refresh, action, onClose, setOptimisticData]
   );
 
   const [state, handleSubmit, isPending] = useActionState(

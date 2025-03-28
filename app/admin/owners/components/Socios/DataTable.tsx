@@ -9,9 +9,14 @@ import type { ISocio } from "@/app/shared/interfaces";
 interface ISociosDataTable {
   propietarioId: number;
   socios: ISocio[];
+  refresh: () => void;
 }
 
-const SociosDataTable = ({ propietarioId, socios }: ISociosDataTable) => {
+const SociosDataTable = ({
+  propietarioId,
+  socios,
+  refresh,
+}: ISociosDataTable) => {
   const [isClient, setIsClient] = useState(false);
 
   const columns = [
@@ -24,6 +29,7 @@ const SociosDataTable = ({ propietarioId, socios }: ISociosDataTable) => {
             action="delete"
             propietarioId={propietarioId}
             socio={row}
+            refresh={refresh}
           />
         </div>
       ),
