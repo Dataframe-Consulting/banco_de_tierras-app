@@ -7,6 +7,7 @@ import { DatatableSkeleton } from "@/app/shared/components";
 import type { ISocio, IPropietario } from "@/app/shared/interfaces";
 
 const OwnersPageContent = () => {
+  const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [socios, setSocios] = useState<ISocio[]>([]);
   const [propietarios, setPropietarios] = useState<IPropietario[]>([]);
@@ -49,7 +50,7 @@ const OwnersPageContent = () => {
     };
 
     fetchData();
-  }, [q, socio_id]);
+  }, [q, socio_id, refresh]);
 
   return (
     <>
@@ -57,7 +58,11 @@ const OwnersPageContent = () => {
       {loading ? (
         <DatatableSkeleton />
       ) : (
-        <OwnersDataTable socios={socios} propietarios={propietarios} />
+        <OwnersDataTable
+          socios={socios}
+          propietarios={propietarios}
+          refresh={() => setRefresh((prev) => !prev)}
+        />
       )}
     </>
   );

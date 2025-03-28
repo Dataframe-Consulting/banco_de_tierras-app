@@ -7,6 +7,7 @@ import { DatatableSkeleton } from "@/app/shared/components";
 import type { IVocacionEspecifica } from "@/app/shared/interfaces";
 
 const SpecificVocationsContent = () => {
+  const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [specificVocations, setSpecificVocations] = useState<
     IVocacionEspecifica[]
@@ -40,7 +41,7 @@ const SpecificVocationsContent = () => {
     };
 
     fetchData();
-  }, [q]);
+  }, [q, refresh]);
 
   return (
     <>
@@ -48,7 +49,10 @@ const SpecificVocationsContent = () => {
       {loading ? (
         <DatatableSkeleton />
       ) : (
-        <SpecificVocationsDataTable specificVocations={specificVocations} />
+        <SpecificVocationsDataTable
+          specificVocations={specificVocations}
+          refresh={() => setRefresh((prev) => !prev)}
+        />
       )}
     </>
   );

@@ -46,9 +46,10 @@ const reducer = (state: State, action: Action): State => {
 
 interface IVocationsDataTable {
   vocations: IVocacion[];
+  refresh: () => void;
 }
 
-const VocationsDataTable = ({ vocations }: IVocationsDataTable) => {
+const VocationsDataTable = ({ vocations, refresh }: IVocationsDataTable) => {
   const [isClient, setIsClient] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
     open: false,
@@ -135,6 +136,7 @@ const VocationsDataTable = ({ vocations }: IVocationsDataTable) => {
             vocacion={state.selectedData}
             setOptimisticData={setOptimisticData}
             onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+            refresh={refresh}
           />
         </Modal>
       )}

@@ -7,6 +7,7 @@ import { DatatableSkeleton } from "@/app/shared/components";
 import type { ISituacionFisica } from "@/app/shared/interfaces";
 
 const PhysicalSituationsContent = () => {
+  const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [physicalSituations, setPhysicalSituations] = useState<
     ISituacionFisica[]
@@ -40,7 +41,7 @@ const PhysicalSituationsContent = () => {
     };
 
     fetchData();
-  }, [q]);
+  }, [q, refresh]);
 
   return (
     <>
@@ -48,7 +49,10 @@ const PhysicalSituationsContent = () => {
       {loading ? (
         <DatatableSkeleton />
       ) : (
-        <PhysicalSituationsDataTable physicalSituations={physicalSituations} />
+        <PhysicalSituationsDataTable
+          physicalSituations={physicalSituations}
+          refresh={() => setRefresh((prev) => !prev)}
+        />
       )}
     </>
   );

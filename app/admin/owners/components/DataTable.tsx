@@ -46,22 +46,17 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-const ExpandedComponent: React.FC<ExpanderComponentProps<IPropietario>> = ({
-  data,
-}) => {
-  return (
-    <div className="pl-12 py-4">
-      <SociosDataTable propietarioId={data.id} socios={data.socios} />
-    </div>
-  );
-};
-
 interface IOwnersDataTable {
   socios: ISocio[];
   propietarios: IPropietario[];
+  refresh: () => void;
 }
 
-const OwnersDataTable = ({ socios, propietarios }: IOwnersDataTable) => {
+const OwnersDataTable = ({
+  socios,
+  propietarios,
+  refresh,
+}: IOwnersDataTable) => {
   const [isClient, setIsClient] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
     open: false,
@@ -103,6 +98,7 @@ const OwnersDataTable = ({ socios, propietarios }: IOwnersDataTable) => {
             socio={socios.filter(
               (socio) => !row.socios.map(({ id }) => id).includes(socio.id)
             )}
+            refresh={refresh}
           />
           <button
             onClick={() => handleAction(row, "edit")}
@@ -145,6 +141,20 @@ const OwnersDataTable = ({ socios, propietarios }: IOwnersDataTable) => {
     },
   ];
 
+  const ExpandedComponent: React.FC<ExpanderComponentProps<IPropietario>> = ({
+    data,
+  }) => {
+    return (
+      <div className="pl-12 py-4">
+        <SociosDataTable
+          propietarioId={data.id}
+          socios={data.socios}
+          refresh={refresh}
+        />
+      </div>
+    );
+  };
+
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -162,6 +172,7 @@ const OwnersDataTable = ({ socios, propietarios }: IOwnersDataTable) => {
             socios={socios}
             setOptimisticData={setOptimisticData}
             onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+            refresh={refresh}
           />
         </Modal>
       )}
