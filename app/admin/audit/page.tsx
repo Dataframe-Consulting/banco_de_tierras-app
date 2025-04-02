@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
 import { DatatableSkeleton } from "@/app/shared/components";
-import { SearchBar, VocationsDataTable } from "./components";
+import { AuditsDataTable } from "./components";
 import type { IAuditoria } from "@/app/shared/interfaces";
 
 const AuditsContent = () => {
@@ -39,10 +39,7 @@ const AuditsContent = () => {
   }, [q]);
 
   return (
-    <>
-      <SearchBar />
-      {loading ? <DatatableSkeleton /> : <VocationsDataTable audits={audits} />}
-    </>
+    <>{loading ? <DatatableSkeleton /> : <AuditsDataTable audits={audits} />}</>
   );
 };
 
