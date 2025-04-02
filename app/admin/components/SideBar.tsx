@@ -78,6 +78,13 @@ const SideBar = () => {
               isActive={pathname === "/admin/legal-processes"}
             />
           </li>
+          <li>
+            <LinkComp
+              text="Auditoría"
+              href="/admin/audit"
+              isActive={pathname === "/admin/audit"}
+            />
+          </li>
 
           <div className="border-t-2 border-white my-2" />
 

@@ -200,3 +200,14 @@ export interface IPropiedadRenta {
   renta_id: number;
   created_at: Date;
 }
+
+export interface IAuditoria {
+  id: number;
+  operacion: string;
+  tabla_afectada: string;
+  registro_tabla_id: number;
+  usuario_username: string;
+  valores_anteriores: object | null;
+  valores_nuevos: object | null;
+  created_at: Date;
+}
