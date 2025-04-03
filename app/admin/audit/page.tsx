@@ -2,8 +2,8 @@
 
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
+import { AuditsDataTable, SearchBar } from "./components";
 import { DatatableSkeleton } from "@/app/shared/components";
-import { AuditsDataTable } from "./components";
 import type { IAuditoria } from "@/app/shared/interfaces";
 
 const AuditsContent = () => {
@@ -11,7 +11,11 @@ const AuditsContent = () => {
   const [audits, setAudits] = useState<IAuditoria[]>([]);
 
   const searchParams = useSearchParams();
-  const q = searchParams.get("q") || "";
+  const operacion = searchParams.get("operacion") || "";
+  const tabla_afectada = searchParams.get("tabla_afectada") || "";
+  const usuario_username = searchParams.get("usuario_username") || "";
+  const registrado_desde = searchParams.get("registrado_desde") || "";
+  const registrado_hasta = searchParams.get("registrado_hasta") || "";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,7 +25,14 @@ const AuditsContent = () => {
         const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/auditoria/`);
         const params = new URLSearchParams();
 
-        if (q) params.append("q", q);
+        if (operacion) params.append("operacion", operacion);
+        if (tabla_afectada) params.append("tabla_afectada", tabla_afectada);
+        if (usuario_username)
+          params.append("usuario_username", usuario_username);
+        if (registrado_desde)
+          params.append("registrado_desde", registrado_desde);
+        if (registrado_hasta)
+          params.append("registrado_hasta", registrado_hasta);
 
         const response = await fetch(`${url}?${params.toString()}`, {
           credentials: "include",
@@ -36,10 +47,19 @@ const AuditsContent = () => {
     };
 
     fetchData();
-  }, [q]);
+  }, [
+    operacion,
+    tabla_afectada,
+    usuario_username,
+    registrado_desde,
+    registrado_hasta,
+  ]);
 
   return (
-    <>{loading ? <DatatableSkeleton /> : <AuditsDataTable audits={audits} />}</>
+    <>
+      <SearchBar />
+      {loading ? <DatatableSkeleton /> : <AuditsDataTable audits={audits} />}
+    </>
   );
 };
 

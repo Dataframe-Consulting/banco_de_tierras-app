@@ -3,7 +3,7 @@ import cn from "@/app/shared/utils/cn";
 interface IGenericSearchInputProps {
   id?: string;
   ariaLabel?: string;
-  type: "text" | "number" | "checkbox" | "select" | "date";
+  type: "text" | "number" | "checkbox" | "select" | "date" | "datetime-local";
   value: string;
   checked?: boolean;
   onChange: (value: string) => void;
