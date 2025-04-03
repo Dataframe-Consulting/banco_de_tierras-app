@@ -56,7 +56,9 @@ const AuditsDataTable = ({ audits }: IAuditsDataTable) => {
       selector: (row: { valores_anteriores: object | null }) =>
         row.valores_anteriores ? JSON.stringify(row.valores_anteriores) : "",
       format: (row: { operacion: string; valores_anteriores: object | null }) =>
-        row.operacion === "ELIMINAR" || row.operacion === "EDITAR" ? (
+        row.operacion === "ELIMINAR" ||
+        row.operacion === "QUITAR" ||
+        row.operacion === "EDITAR" ? (
           <pre className="max-w-[300px] max-h-[200px] p-2 overflow-x-auto">
             <code>{JSON.stringify(row.valores_anteriores, null, 2)}</code>
           </pre>
@@ -74,7 +76,7 @@ const AuditsDataTable = ({ audits }: IAuditsDataTable) => {
         valores_nuevos: object | null;
         valores_anteriores: object | null;
       }) =>
-        row.operacion === "CREAR" ? (
+        row.operacion === "CREAR" || row.operacion === "AGREGAR" ? (
           <pre className="max-w-[300px] max-h-[200px] p-2 overflow-x-auto">
             <code>{JSON.stringify(row.valores_nuevos, null, 2)}</code>
           </pre>
@@ -156,12 +158,14 @@ const formatJSONDiff = (
   return (
     <pre className="max-w-[300px] max-h-[200px] p-2 overflow-x-auto">
       <code>
+        <span>{"{"}</span>
         {Object.keys(newObj).map((key) => (
-          <div key={key}>
-            <strong>{key}:</strong>{" "}
+          <div key={key} className="ml-4">
+            <span>{`"${key}"`}:</span>{" "}
             {highlightDifferences(oldObj[key], newObj[key])}
           </div>
         ))}
+        <span>{"}"}</span>
       </code>
     </pre>
   );
