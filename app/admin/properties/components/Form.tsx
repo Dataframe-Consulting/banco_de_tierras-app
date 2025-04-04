@@ -134,33 +134,33 @@ const Form = ({
             };
           }
 
-          const garantiasIds = formData.getAll("garantia") as string[];
-          if (
-            garantiasIds.length === 0 ||
-            garantiasIds.some((id) => id === null || id === "")
-          ) {
-            return {
-              data: dataToValidate,
-              errors: {
-                garantia: "Debes seleccionar al menos una garantía",
-              },
-            };
-          }
+          // const garantiasIds = formData.getAll("garantia") as string[];
+          // if (
+          //   garantiasIds.length === 0 ||
+          //   garantiasIds.some((id) => id === null || id === "")
+          // ) {
+          //   return {
+          //     data: dataToValidate,
+          //     errors: {
+          //       garantia: "Debes seleccionar al menos una garantía",
+          //     },
+          //   };
+          // }
 
-          const procesosLegalesIds = formData.getAll(
-            "proceso_legal"
-          ) as string[];
-          if (
-            procesosLegalesIds.length === 0 ||
-            procesosLegalesIds.some((id) => id === null || id === "")
-          ) {
-            return {
-              data: dataToValidate,
-              errors: {
-                proceso_legal: "Debes seleccionar al menos un proceso legal",
-              },
-            };
-          }
+          // const procesosLegalesIds = formData.getAll(
+          //   "proceso_legal"
+          // ) as string[];
+          // if (
+          //   procesosLegalesIds.length === 0 ||
+          //   procesosLegalesIds.some((id) => id === null || id === "")
+          // ) {
+          //   return {
+          //     data: dataToValidate,
+          //     errors: {
+          //       proceso_legal: "Debes seleccionar al menos un proceso legal",
+          //     },
+          //   };
+          // }
         }
       }
 
@@ -258,42 +258,52 @@ const Form = ({
             };
           }
 
-          const addGarantias = await Promise.all(
-            garantiasIds.map(async (id) => {
-              const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${newPropiedad.id}/garantia/${id}`,
-                {
-                  method: "POST",
-                  credentials: "include",
-                }
-              );
-              return res.ok;
-            })
-          );
-          if (addGarantias.includes(false)) {
-            return {
-              data: dataToValidate,
-              message: "Error adding garantias",
-            };
+          if (
+            garantiasIds.length !== 0 &&
+            garantiasIds.every((id) => id !== null && id !== "")
+          ) {
+            const addGarantias = await Promise.all(
+              garantiasIds.map(async (id) => {
+                const res = await fetch(
+                  `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${newPropiedad.id}/garantia/${id}`,
+                  {
+                    method: "POST",
+                    credentials: "include",
+                  }
+                );
+                return res.ok;
+              })
+            );
+            if (addGarantias.includes(false)) {
+              return {
+                data: dataToValidate,
+                message: "Error adding garantias",
+              };
+            }
           }
 
-          const addProcesosLegales = await Promise.all(
-            procesosLegalesIds.map(async (id) => {
-              const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${newPropiedad.id}/proceso_legal/${id}`,
-                {
-                  method: "POST",
-                  credentials: "include",
-                }
-              );
-              return res.ok;
-            })
-          );
-          if (addProcesosLegales.includes(false)) {
-            return {
-              data: dataToValidate,
-              message: "Error adding procesos legales",
-            };
+          if (
+            procesosLegalesIds.length !== 0 &&
+            procesosLegalesIds.every((id) => id !== null && id !== "")
+          ) {
+            const addProcesosLegales = await Promise.all(
+              procesosLegalesIds.map(async (id) => {
+                const res = await fetch(
+                  `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${newPropiedad.id}/proceso_legal/${id}`,
+                  {
+                    method: "POST",
+                    credentials: "include",
+                  }
+                );
+                return res.ok;
+              })
+            );
+            if (addProcesosLegales.includes(false)) {
+              return {
+                data: dataToValidate,
+                message: "Error adding procesos legales",
+              };
+            }
           }
         }
       } catch (error) {
@@ -369,6 +379,7 @@ const Form = ({
               <GenericDiv>
                 <GenericInput
                   type="number"
+                  step="0.01"
                   id="superficie"
                   ariaLabel="Superficie"
                   placeholder="47.92"
@@ -379,6 +390,7 @@ const Form = ({
               <GenericDiv>
                 <GenericInput
                   type="number"
+                  step="0.01"
                   id="valor_comercial"
                   ariaLabel="Valor Comercial"
                   placeholder="1980677.36"
@@ -427,6 +439,7 @@ const Form = ({
               <GenericDiv>
                 <GenericInput
                   type="number"
+                  step="0.01"
                   id="base_predial"
                   ariaLabel="Base Predial"
                   placeholder="916.0"
@@ -437,6 +450,7 @@ const Form = ({
               <GenericDiv>
                 <GenericInput
                   type="number"
+                  step="0.01"
                   id="adeudo_predial"
                   ariaLabel="Adeudo Predial"
                   placeholder="200.0"
