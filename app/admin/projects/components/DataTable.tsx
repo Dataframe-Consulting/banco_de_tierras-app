@@ -1,6 +1,8 @@
 "use client";
 
 import Form from "./Form";
+import cn from "@/app/shared/utils/cn";
+import { PropertiesDataTable } from "./Propiedades";
 import { ProjectsOwnersForm, PropietariosDataTable } from "./Propietarios";
 import { ExpanderComponentProps } from "react-data-table-component";
 import { PencilIcon, PlusCircle, TrashIcon } from "@/app/shared/icons";
@@ -193,18 +195,50 @@ const ProjectsDataTable = ({
   const ExpandedComponent: React.FC<ExpanderComponentProps<IProyecto>> = ({
     data,
   }) => {
+    const [tab, setTab] = useState<"propiedades" | "propietarios">(
+      "propiedades"
+    );
+
     return (
       <div className="pl-12 py-4">
-        {data.propietarios.length > 0 && (
-          <h1 className="text-2xl font-semibold mb-4">
-            Propietarios de {data.nombre} ({data.propietarios.length})
-          </h1>
+        <ul className="flex flex-row gap-4">
+          <li>
+            <button
+              onClick={() => setTab("propiedades")}
+              className={cn(
+                "px-4 py-2 rounded-md",
+                tab === "propiedades"
+                  ? "bg-[#C23B2E] text-white"
+                  : "bg-gray-200 text-gray-700"
+              )}
+            >
+              Propiedades
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => setTab("propietarios")}
+              className={cn(
+                "px-4 py-2 rounded-md",
+                tab === "propietarios"
+                  ? "bg-[#C23B2E] text-white"
+                  : "bg-gray-200 text-gray-700"
+              )}
+            >
+              Propietarios
+            </button>
+          </li>
+        </ul>
+        {tab === "propiedades" && (
+          <PropertiesDataTable propiedades={data.propiedades} />
         )}
-        <PropietariosDataTable
-          proyectoId={data.id}
-          propietarios={data.propietarios}
-          refresh={refresh}
-        />
+        {tab === "propietarios" && (
+          <PropietariosDataTable
+            proyectoId={data.id}
+            propietarios={data.propietarios}
+            refresh={refresh}
+          />
+        )}
       </div>
     );
   };
