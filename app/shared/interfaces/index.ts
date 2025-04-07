@@ -80,6 +80,7 @@ export interface IProyecto {
   vocacion_especifica: IVocacionEspecifica;
 
   propietarios: IPropietario[];
+  propiedades: IPropiedad[];
 }
 
 export interface IPropietarioProyecto {
@@ -143,6 +144,7 @@ export interface IPropiedad {
   ubicaciones: IUbicacion[];
   garantias: IGarantia[];
   procesos_legales: IProcesoLegal[];
+  rentas: IRenta[];
 }
 
 export interface ISociedadPropiedad {

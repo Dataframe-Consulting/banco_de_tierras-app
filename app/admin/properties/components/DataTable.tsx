@@ -2,6 +2,7 @@
 
 import Form from "./Form";
 import cn from "@/app/shared/utils/cn";
+import { RentsDataTable } from "./Rentas";
 import formatCurrency from "@/app/shared/utils/format-currency";
 import { ExpanderComponentProps } from "react-data-table-component";
 import { PencilIcon, PlusCircle, TrashIcon } from "@/app/shared/icons";
@@ -221,12 +222,25 @@ const PropertiesDataTable = ({
     data,
   }) => {
     const [tab, setTab] = useState<
-      "sociedades" | "ubicaciones" | "garantias" | "procesos_legales"
-    >("sociedades");
+      "rentas" | "sociedades" | "ubicaciones" | "garantias" | "procesos_legales"
+    >("rentas");
 
     return (
       <div className="pl-12 py-4">
         <ul className="flex flex-row gap-4">
+          <li>
+            <button
+              onClick={() => setTab("rentas")}
+              className={cn(
+                "px-4 py-2 rounded-md",
+                tab === "rentas"
+                  ? "bg-[#C23B2E] text-white"
+                  : "bg-gray-200 text-gray-700"
+              )}
+            >
+              Rentas
+            </button>
+          </li>
           <li>
             <button
               onClick={() => setTab("sociedades")}
@@ -280,6 +294,7 @@ const PropertiesDataTable = ({
             </button>
           </div>
         </ul>
+        {tab === "rentas" && <RentsDataTable rents={data.rentas} />}
         {tab === "sociedades" && (
           <SociedadesDataTable
             propiedadId={data.id}
