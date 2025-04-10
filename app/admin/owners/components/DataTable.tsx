@@ -10,9 +10,7 @@ import {
   Datatable,
   DatatableSkeleton,
 } from "@/app/shared/components";
-import type { ISocio, IPropietario } from "@/app/shared/interfaces";
-import { OwnersPartnersForm, SociosDataTable } from "./Socios";
-import { ExpanderComponentProps } from "react-data-table-component";
+import type { IPropietario } from "@/app/shared/interfaces";
 
 interface State {
   open: boolean;
@@ -47,16 +45,11 @@ const reducer = (state: State, action: Action): State => {
 };
 
 interface IOwnersDataTable {
-  socios: ISocio[];
   propietarios: IPropietario[];
   refresh: () => void;
 }
 
-const OwnersDataTable = ({
-  socios,
-  propietarios,
-  refresh,
-}: IOwnersDataTable) => {
+const OwnersDataTable = ({ propietarios, refresh }: IOwnersDataTable) => {
   const [isClient, setIsClient] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
     open: false,
@@ -89,17 +82,9 @@ const OwnersDataTable = ({
   const columns = [
     {
       name: "Acciones",
-      width: "220px",
+      width: "150px",
       cell: (row: IPropietario) => (
         <div className="flex justify-center gap-2">
-          <OwnersPartnersForm
-            action="add"
-            propietarioId={row.id}
-            socio={socios.filter(
-              (socio) => !row.socios.map(({ id }) => id).includes(socio.id)
-            )}
-            refresh={refresh}
-          />
           <button
             onClick={() => handleAction(row, "edit")}
             className="px-4 py-2 text-white bg-blue-400 rounded-md"
@@ -141,20 +126,6 @@ const OwnersDataTable = ({
     },
   ];
 
-  const ExpandedComponent: React.FC<ExpanderComponentProps<IPropietario>> = ({
-    data,
-  }) => {
-    return (
-      <div className="pl-12 py-4">
-        <SociosDataTable
-          propietarioId={data.id}
-          socios={data.socios}
-          refresh={refresh}
-        />
-      </div>
-    );
-  };
-
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -169,7 +140,6 @@ const OwnersDataTable = ({
           <Form
             action={state.action}
             propietario={state.selectedData}
-            socios={socios}
             setOptimisticData={setOptimisticData}
             onClose={() => dispatch({ type: "CLOSE_MODAL" })}
             refresh={refresh}
@@ -187,14 +157,7 @@ const OwnersDataTable = ({
       {propietarios.length > 0 ? (
         <>
           {isClient ? (
-            <Datatable
-              columns={columns}
-              data={optimisticData}
-              isExpandable
-              expandableRowsComponent={(props) => (
-                <ExpandedComponent {...props} />
-              )}
-            />
+            <Datatable columns={columns} data={optimisticData} />
           ) : (
             <DatatableSkeleton />
           )}

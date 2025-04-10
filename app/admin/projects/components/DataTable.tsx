@@ -1,9 +1,7 @@
 "use client";
 
 import Form from "./Form";
-import cn from "@/app/shared/utils/cn";
 import { PropertiesDataTable } from "./Propiedades";
-import { ProjectsOwnersForm, PropietariosDataTable } from "./Propietarios";
 import { ExpanderComponentProps } from "react-data-table-component";
 import { PencilIcon, PlusCircle, TrashIcon } from "@/app/shared/icons";
 import { useEffect, useOptimistic, useReducer, useState } from "react";
@@ -17,7 +15,6 @@ import {
 import type {
   IProyecto,
   IVocacion,
-  IPropietario,
   ISituacionFisica,
   IVocacionEspecifica,
 } from "@/app/shared/interfaces";
@@ -57,7 +54,6 @@ const reducer = (state: State, action: Action): State => {
 interface IProjectsDataTable {
   projects: IProyecto[];
   vocaciones: IVocacion[];
-  propietarios: IPropietario[];
   situacionesFisicas: ISituacionFisica[];
   vocacionesEspecificas: IVocacionEspecifica[];
   refresh: () => void;
@@ -66,7 +62,6 @@ interface IProjectsDataTable {
 const ProjectsDataTable = ({
   projects,
   vocaciones,
-  propietarios,
   situacionesFisicas,
   vocacionesEspecificas,
   refresh,
@@ -102,18 +97,9 @@ const ProjectsDataTable = ({
   const columns = [
     {
       name: "Acciones",
-      width: "220px",
+      width: "150px",
       cell: (row: IProyecto) => (
         <div className="flex justify-center gap-2">
-          <ProjectsOwnersForm
-            action="add"
-            proyectoId={row.id}
-            propietario={propietarios.filter(
-              (propietario) =>
-                !row.propietarios.map(({ id }) => id).includes(propietario.id)
-            )}
-            refresh={refresh}
-          />
           <button
             onClick={() => handleAction(row, "edit")}
             className="px-4 py-2 text-white bg-blue-400 rounded-md"
@@ -195,50 +181,10 @@ const ProjectsDataTable = ({
   const ExpandedComponent: React.FC<ExpanderComponentProps<IProyecto>> = ({
     data,
   }) => {
-    const [tab, setTab] = useState<"propiedades" | "propietarios">(
-      "propiedades"
-    );
-
     return (
       <div className="pl-12 py-4">
-        <ul className="flex flex-row gap-4">
-          <li>
-            <button
-              onClick={() => setTab("propiedades")}
-              className={cn(
-                "px-4 py-2 rounded-md",
-                tab === "propiedades"
-                  ? "bg-[#C23B2E] text-white"
-                  : "bg-gray-200 text-gray-700"
-              )}
-            >
-              Propiedades
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => setTab("propietarios")}
-              className={cn(
-                "px-4 py-2 rounded-md",
-                tab === "propietarios"
-                  ? "bg-[#C23B2E] text-white"
-                  : "bg-gray-200 text-gray-700"
-              )}
-            >
-              Propietarios
-            </button>
-          </li>
-        </ul>
-        {tab === "propiedades" && (
-          <PropertiesDataTable propiedades={data.propiedades} />
-        )}
-        {tab === "propietarios" && (
-          <PropietariosDataTable
-            proyectoId={data.id}
-            propietarios={data.propietarios}
-            refresh={refresh}
-          />
-        )}
+        <h2 className="text-lg font-bold">Propiedades</h2>
+        <PropertiesDataTable propiedades={data.propiedades} />
       </div>
     );
   };
@@ -258,7 +204,6 @@ const ProjectsDataTable = ({
             action={state.action}
             proyecto={state.selectedData}
             vocaciones={vocaciones}
-            propietarios={propietarios}
             situacionesFisicas={situacionesFisicas}
             vocacionesEspecificas={vocacionesEspecificas}
             setOptimisticData={setOptimisticData}

@@ -2,16 +2,10 @@
 
 import validateProjectsSchema from "../schemas";
 import { useCallback, useActionState } from "react";
-import {
-  GenericInput,
-  SubmitButton,
-  AutocompleteInput,
-  DynamicItemManager,
-} from "@/app/shared/components";
+import { GenericInput, SubmitButton } from "@/app/shared/components";
 import type {
   IProyecto,
   IVocacion,
-  IPropietario,
   ISituacionFisica,
   IVocacionEspecifica,
 } from "@/app/shared/interfaces";
@@ -36,7 +30,6 @@ interface IForm {
   action: "add" | "edit" | "delete";
   proyecto: IProyecto | null;
   vocaciones: IVocacion[];
-  propietarios: IPropietario[];
   situacionesFisicas: ISituacionFisica[];
   vocacionesEspecificas: IVocacionEspecifica[];
   setOptimisticData: (data: IProyecto | null) => void;
@@ -48,7 +41,6 @@ const Form = ({
   action,
   proyecto,
   vocaciones,
-  propietarios,
   situacionesFisicas,
   vocacionesEspecificas,
   setOptimisticData,
@@ -92,20 +84,6 @@ const Form = ({
             errors,
             data: dataToValidate,
           };
-        }
-        if (action === "add") {
-          const propietariosIds = formData.getAll("propietario") as string[];
-          if (
-            propietariosIds.length === 0 ||
-            propietariosIds.some((id) => id === null || id === "")
-          ) {
-            return {
-              data: dataToValidate,
-              errors: {
-                propietario: "Debe seleccionar al menos un propietario",
-              },
-            };
-          }
         }
       }
 
@@ -153,35 +131,6 @@ const Form = ({
             } proyecto`,
           };
         }
-
-        if (action === "add") {
-          const propietariosIds = formData.getAll("propietario") as string[];
-          const responseData = await res.json();
-
-          const newProyecto = responseData as IProyecto;
-
-          const addPropietarios = await Promise.all(
-            propietariosIds.map(async (id) => {
-              const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/proyecto/${newProyecto.id}/propietario/${id}`,
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  credentials: "include",
-                }
-              );
-              return res.ok;
-            })
-          );
-          if (addPropietarios.includes(false)) {
-            return {
-              data: dataToValidate,
-              message: "Error adding propietarios",
-            };
-          }
-        }
       } catch (error) {
         console.error(error);
         return {
@@ -202,11 +151,6 @@ const Form = ({
   );
 
   const { errors, data, message } = state ?? {};
-
-  const transformedPropietarios = propietarios.map(({ id, nombre }) => ({
-    key: id.toString(),
-    name: nombre,
-  }));
 
   const transformedSituacionesFisicas = situacionesFisicas.map(
     ({ id, nombre }) => ({
@@ -314,28 +258,6 @@ const Form = ({
                 error={errors?.comentarios}
               />
             </div>
-            {action === "add" && (
-              <>
-                <DynamicItemManager
-                  items={transformedPropietarios ?? []}
-                  renderForm={(index, items, onSelect) => (
-                    <AutocompleteInput
-                      key={index}
-                      id="propietario"
-                      customClassName="mt-2"
-                      ariaLabel="Propietario"
-                      error={errors?.propietario}
-                      placeholder="Busca un propietario..."
-                      additionOnChange={(e) => onSelect(index, e.target.value)}
-                      suggestions={items.map((i) => ({
-                        value: i.key,
-                        label: i.name,
-                      }))}
-                    />
-                  )}
-                />
-              </>
-            )}
             <div className="flex gap-2 items-center justify-end">
               <GenericInput
                 type="checkbox"

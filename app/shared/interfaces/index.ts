@@ -14,32 +14,8 @@ export interface IGenericIcon {
 }
 
 export interface IUser {
-  // id: number;
   username: string;
   email: string;
-}
-
-export interface IPropietario {
-  id: number;
-  nombre: string;
-  rfc: string;
-  created_at: Date;
-  updated_at: Date;
-
-  socios: ISocio[];
-}
-
-export interface ISocio {
-  id: number;
-  nombre: string;
-  created_at: Date;
-  updated_at: Date;
-}
-
-export interface IPropietarioSocio {
-  propietario_id: number;
-  socio_id: number;
-  created_at: Date;
 }
 
 export interface ISituacionFisica {
@@ -79,14 +55,15 @@ export interface IProyecto {
   vocacion: IVocacion;
   vocacion_especifica: IVocacionEspecifica;
 
-  propietarios: IPropietario[];
   propiedades: IPropiedad[];
 }
 
-export interface IPropietarioProyecto {
-  propietario_id: number;
-  proyecto_id: number;
+export interface IPropietario {
+  id: number;
+  nombre: string;
+  rfc: string;
   created_at: Date;
+  updated_at: Date;
 }
 
 export interface ISociedad {
@@ -140,15 +117,17 @@ export interface IPropiedad {
 
   proyecto: IProyecto;
 
-  sociedades: ISociedadPropiedad[];
+  propietarios_sociedades: IPropietarioSociedad[];
   ubicaciones: IUbicacion[];
   garantias: IGarantia[];
   procesos_legales: IProcesoLegal[];
   rentas: IRenta[];
 }
 
-export interface ISociedadPropiedad {
-  id: number;
+export interface IPropietarioSociedad {
+  es_socio: boolean;
+  propietario_id: number;
+  propietario: IPropietario;
   sociedad_id: number;
   sociedad: ISociedad;
   propiedad_id: number;
