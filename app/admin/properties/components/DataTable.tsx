@@ -6,7 +6,7 @@ import { RentsDataTable } from "./Rentas";
 import { useModal } from "@/app/shared/hooks";
 import formatCurrency from "@/app/shared/utils/format-currency";
 import { ExpanderComponentProps } from "react-data-table-component";
-import { PencilIcon, PlusCircle, TrashIcon } from "@/app/shared/icons";
+import { EyeIcon, PencilIcon, PlusCircle, TrashIcon } from "@/app/shared/icons";
 import { useEffect, useOptimistic, useReducer, useState } from "react";
 import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
 import { PropertiesGuaranteesForm, GarantiasDataTable } from "./Garantias";
@@ -37,14 +37,17 @@ import type {
 
 interface State {
   open: boolean;
-  action: "add" | "edit" | "delete";
+  action: "view" | "add" | "edit" | "delete";
   selectedData: IPropiedad | null;
 }
 
 type Action =
   | {
       type: "OPEN_MODAL";
-      payload: { action: "add" | "edit" | "delete"; data: IPropiedad | null };
+      payload: {
+        action: "view" | "add" | "edit" | "delete";
+        data: IPropiedad | null;
+      };
     }
   | { type: "CLOSE_MODAL" };
 
@@ -98,7 +101,7 @@ const PropertiesDataTable = ({
 
   const handleAction = (
     data: IPropiedad | null,
-    action: "add" | "edit" | "delete"
+    action: "view" | "add" | "edit" | "delete"
   ) => {
     dispatch({ type: "OPEN_MODAL", payload: { action, data } });
   };
@@ -120,9 +123,15 @@ const PropertiesDataTable = ({
   const columns = [
     {
       name: "Acciones",
-      width: "220px",
+      width: "265px",
       cell: (row: IPropiedad) => (
         <div className="flex justify-center gap-2">
+          <button
+            onClick={() => handleAction(row, "view")}
+            className="px-4 py-2 text-white bg-gray-400 rounded-md"
+          >
+            <EyeIcon />
+          </button>
           <button
             onClick={() => {
               setPropiedadSelected(row);
@@ -362,19 +371,25 @@ const PropertiesDataTable = ({
           isOpen={state.open}
           onClose={() => dispatch({ type: "CLOSE_MODAL" })}
         >
-          <Form
-            action={state.action}
-            propiedad={state.selectedData}
-            setOptimisticData={setOptimisticData}
-            onClose={() => dispatch({ type: "CLOSE_MODAL" })}
-            proyectos={proyectos}
-            propietarios={propietarios}
-            sociedades={sociedades}
-            ubicaciones={ubicaciones}
-            garantias={garantias}
-            procesosLegales={procesosLegales}
-            refresh={refresh}
-          />
+          <>
+            {state.action !== "view" ? (
+              <Form
+                action={state.action}
+                propiedad={state.selectedData}
+                setOptimisticData={setOptimisticData}
+                onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+                proyectos={proyectos}
+                propietarios={propietarios}
+                sociedades={sociedades}
+                ubicaciones={ubicaciones}
+                garantias={garantias}
+                procesosLegales={procesosLegales}
+                refresh={refresh}
+              />
+            ) : (
+              <FullDetails data={state.selectedData!} />
+            )}
+          </>
         </Modal>
       )}
       <div className="w-full text-right">
@@ -546,6 +561,116 @@ const AddMenu = ({
           refresh={refresh}
         />
       )}
+    </div>
+  );
+};
+
+interface IFullDetails {
+  data: IPropiedad;
+}
+
+const FullDetails = ({ data }: IFullDetails) => {
+  return (
+    <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col gap-4 w-full md:w-1/2">
+        <h2 className="text-lg font-bold">Detalles de la propiedad</h2>
+        <p>Nombre: {data.nombre}</p>
+        <p>Superficie: {data.superficie} m²</p>
+        <p>Valor Comercial: {formatCurrency(data.valor_comercial, "MXN")}</p>
+        <p>Año Valor Comercial: {data.anio_valor_comercial}</p>
+        <p>Clave Catastral: {data.clave_catastral}</p>
+        <p>Base Predial: {formatCurrency(data.base_predial, "MXN")}</p>
+        <p>
+          Adeudo Predial:{" "}
+          {data.adeudo_predial
+            ? formatCurrency(data.adeudo_predial, "MXN")
+            : "N/A"}
+        </p>
+        <p>Años Pend. Predial: {data.anios_pend_predial}</p>
+        <p>Comentarios: {data.comentarios ?? "Sin comentarios"}</p>
+      </div>
+      <div className="flex flex-col gap-4 w-full md:w-1/2">
+        <div>
+          <h2 className="text-lg font-bold">Proyecto</h2>
+          <p>Nombre: {data.proyecto.nombre}</p>
+        </div>
+        <div>
+          <h2 className="text-lg font-bold">
+            Propietarios/Socios - Sociedades
+          </h2>
+          {data.propietarios_sociedades.length > 0 ? (
+            <ul className="list-disc pl-4">
+              {data.propietarios_sociedades.map((propietarioSociedad) => (
+                <li key={propietarioSociedad.propietario_id}>
+                  <p>
+                    {propietarioSociedad.es_socio ? "Socio: " : "Propietario: "}
+                    {propietarioSociedad.propietario.nombre}
+                    {` - ${propietarioSociedad.sociedad.porcentaje_participacion}%`}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No hay propietarios/socios registrados.</p>
+          )}
+        </div>
+        <div>
+          <h2 className="text-lg font-bold">Rentas</h2>
+          {data.rentas.length > 0 ? (
+            <ul className="list-disc pl-4">
+              {data.rentas.map((renta) => (
+                <li key={renta.id}>
+                  <p>Nombre: {renta.nombre_comercial}</p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No hay rentas registradas.</p>
+          )}
+        </div>
+        <div>
+          <h2 className="text-lg font-bold">Ubicaciones</h2>
+          {data.ubicaciones.length > 0 ? (
+            <ul className="list-disc pl-4">
+              {data.ubicaciones.map((ubicacion) => (
+                <li key={ubicacion.id}>
+                  <p>Nombre: {ubicacion.nombre}</p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No hay ubicaciones registradas.</p>
+          )}
+        </div>
+        <div>
+          <h2 className="text-lg font-bold">Garantías</h2>
+          {data.garantias.length > 0 ? (
+            <ul className="list-disc pl-4">
+              {data.garantias.map((garantia) => (
+                <li key={garantia.id}>
+                  <p>Monto: {garantia.monto}</p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No hay garantías registradas.</p>
+          )}
+        </div>
+        <div>
+          <h2 className="text-lg font-bold">Procesos Legales</h2>
+          {data.procesos_legales.length > 0 ? (
+            <ul className="list-disc pl-4">
+              {data.procesos_legales.map((procesoLegal) => (
+                <li key={procesoLegal.id}>
+                  <p>Tipo de Proceso: {procesoLegal.tipo_proceso}</p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No hay procesos legales registrados.</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

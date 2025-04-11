@@ -1,4 +1,5 @@
 import XMark from "./XMark";
+import EyeIcon from "./Eye";
 import Upload from "./Upload";
 import Spinner from "./Spinner";
 import TrashIcon from "./Trash";
@@ -14,6 +15,7 @@ export {
   XMark,
   Upload,
   Spinner,
+  EyeIcon,
   TrashIcon,
   PencilIcon,
   PlusCircle,
