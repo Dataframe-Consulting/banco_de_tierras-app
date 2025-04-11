@@ -2,10 +2,9 @@
 
 import { useSearchFilter } from "@/app/shared/hooks";
 import { GenericSearchInput } from "@/app/shared/components";
-import type { ISocio } from "@/app/shared/interfaces";
 
-const SearchBar = ({ socios }: { socios: ISocio[] }) => {
-  const defaultFilters = { q: "", socio_id: "" };
+const SearchBar = () => {
+  const defaultFilters = { q: "" };
 
   const { filters, handleSearch } = useSearchFilter(defaultFilters);
 
@@ -17,22 +16,8 @@ const SearchBar = ({ socios }: { socios: ISocio[] }) => {
           inputClassName="h-full"
           value={filters.q}
           onChange={(value: string) => handleSearch("q", value)}
-          placeholder="Busca por abogado..."
+          placeholder="Busca por nombre..."
         />
-        <div>
-          <GenericSearchInput
-            type="select"
-            id="socio_id"
-            placeholder="Todos"
-            ariaLabel="Socio"
-            value={filters.socio_id}
-            options={socios.map((socio) => ({
-              value: socio.id.toString(),
-              label: socio.nombre,
-            }))}
-            onChange={(value: string) => handleSearch("socio_id", value)}
-          />
-        </div>
       </div>
     </search>
   );

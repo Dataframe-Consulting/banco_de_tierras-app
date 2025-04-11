@@ -1,14 +1,9 @@
 "use client";
 
-import { useCallback, useActionState } from "react";
 import validateOwnerSchema from "../schemas";
-import {
-  AutocompleteInput,
-  DynamicItemManager,
-  GenericInput,
-  SubmitButton,
-} from "@/app/shared/components";
-import type { ISocio, IPropietario } from "@/app/shared/interfaces";
+import { useCallback, useActionState } from "react";
+import { SubmitButton, GenericInput } from "@/app/shared/components";
+import type { IPropietario } from "@/app/shared/interfaces";
 
 interface IRentaState {
   message?: string;
@@ -24,7 +19,6 @@ interface IRentaState {
 interface IForm {
   onClose: () => void;
   propietario: IPropietario | null;
-  socios: ISocio[];
   action: "add" | "edit" | "delete";
   setOptimisticData: (data: IPropietario | null) => void;
   refresh: () => void;
@@ -34,7 +28,6 @@ const Form = ({
   propietario,
   action,
   onClose,
-  socios,
   setOptimisticData,
   refresh,
 }: IForm) => {
@@ -107,39 +100,6 @@ const Form = ({
             } renta`,
           };
         }
-
-        const sociosIds = formData.getAll("socio") as string[];
-        if (
-          action === "add" &&
-          (sociosIds.length !== 0 ||
-            sociosIds.some((id) => id !== null || id !== ""))
-        ) {
-          const responseData = await res.json();
-
-          const newPropietario = responseData as IPropietario;
-
-          const addSocios = await Promise.all(
-            sociosIds.map(async (id) => {
-              const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/propietario/${newPropietario.id}/socio/${id}`,
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  credentials: "include",
-                }
-              );
-              return res.ok;
-            })
-          );
-          if (addSocios.includes(false)) {
-            return {
-              data: dataToValidate,
-              message: "Error adding data",
-            };
-          }
-        }
       } catch (error) {
         console.error(error);
         return {
@@ -160,11 +120,6 @@ const Form = ({
   );
 
   const { errors, data, message } = state ?? {};
-
-  const transformedData = socios.map(({ id, nombre }) => ({
-    key: id.toString(),
-    name: nombre,
-  }));
 
   return (
     <form action={handleSubmit} className="flex flex-col gap-4">
@@ -198,26 +153,6 @@ const Form = ({
                 />
               </GenericDiv>
             </GenericPairDiv>
-            {action === "add" && (
-              <DynamicItemManager
-                items={transformedData ?? []}
-                renderForm={(index, items, onSelect) => (
-                  <AutocompleteInput
-                    key={index}
-                    id="socio"
-                    customClassName="mt-2"
-                    ariaLabel="Socio"
-                    error={errors?.socio}
-                    placeholder="Busca un socio..."
-                    additionOnChange={(e) => onSelect(index, e.target.value)}
-                    suggestions={items.map((i) => ({
-                      value: i.key,
-                      label: i.name,
-                    }))}
-                  />
-                )}
-              />
-            )}
           </>
         ) : (
           <div className="text-center">

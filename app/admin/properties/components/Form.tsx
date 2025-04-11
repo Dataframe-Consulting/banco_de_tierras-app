@@ -15,6 +15,7 @@ import type {
   IPropiedad,
   IUbicacion,
   IProcesoLegal,
+  IPropietario,
 } from "@/app/shared/interfaces";
 
 interface IPropertiesState {
@@ -39,6 +40,7 @@ interface IPropertiesState {
 interface IForm {
   garantias: IGarantia[];
   proyectos: IProyecto[];
+  propietarios: IPropietario[];
   sociedades: ISociedad[];
   ubicaciones: IUbicacion[];
   propiedad: IPropiedad | null;
@@ -54,6 +56,7 @@ const Form = ({
   propiedad,
   proyectos,
   garantias,
+  propietarios,
   sociedades,
   ubicaciones,
   procesosLegales,
@@ -108,6 +111,21 @@ const Form = ({
           return { errors, data: dataToValidate };
         }
         if (action === "add") {
+          const propietariosIds = formData.getAll(
+            "propietario_socio"
+          ) as string[];
+          if (
+            propietariosIds.length === 0 ||
+            propietariosIds.some((id) => id === null || id === "")
+          ) {
+            return {
+              data: dataToValidate,
+              errors: {
+                propietario_socio:
+                  "Debes seleccionar al menos un propietario/socio ",
+              },
+            };
+          }
           const sociedadesIds = formData.getAll("sociedad") as string[];
           if (
             sociedadesIds.length === 0 ||
@@ -117,6 +135,17 @@ const Form = ({
               data: dataToValidate,
               errors: {
                 sociedad: "Debes seleccionar al menos una sociedad",
+              },
+            };
+          }
+          if (propietariosIds.length !== sociedadesIds.length) {
+            return {
+              data: dataToValidate,
+              errors: {
+                propietario_socio:
+                  "El número de propietarios/socios y sociedades no coincide",
+                sociedad:
+                  "El número de propietarios/socios y sociedades no coincide",
               },
             };
           }
@@ -133,34 +162,6 @@ const Form = ({
               },
             };
           }
-
-          // const garantiasIds = formData.getAll("garantia") as string[];
-          // if (
-          //   garantiasIds.length === 0 ||
-          //   garantiasIds.some((id) => id === null || id === "")
-          // ) {
-          //   return {
-          //     data: dataToValidate,
-          //     errors: {
-          //       garantia: "Debes seleccionar al menos una garantía",
-          //     },
-          //   };
-          // }
-
-          // const procesosLegalesIds = formData.getAll(
-          //   "proceso_legal"
-          // ) as string[];
-          // if (
-          //   procesosLegalesIds.length === 0 ||
-          //   procesosLegalesIds.some((id) => id === null || id === "")
-          // ) {
-          //   return {
-          //     data: dataToValidate,
-          //     errors: {
-          //       proceso_legal: "Debes seleccionar al menos un proceso legal",
-          //     },
-          //   };
-          // }
         }
       }
 
@@ -210,6 +211,13 @@ const Form = ({
         }
 
         if (action === "add") {
+          const propietariosIds = formData.getAll(
+            "propietario_socio"
+          ) as string[];
+          const esSociosValues: boolean[] = propietariosIds.map((_, index) => {
+            const checkbox = formData.get(`propietario_${index}_es_socio`);
+            return checkbox === "on" ? true : false;
+          });
           const sociedadIds = formData.getAll("sociedad") as string[];
           const ubicacionesIds = formData.getAll("ubicacion") as string[];
           const garantiasIds = formData.getAll("garantia") as string[];
@@ -220,10 +228,10 @@ const Form = ({
           const responseData = await res.json();
           const newPropiedad = responseData as IPropiedad;
 
-          const addSociedades = await Promise.all(
-            sociedadIds.map(async (id) => {
+          const addPropietarioSociedad = await Promise.all(
+            propietariosIds.map(async (id, index) => {
               const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${newPropiedad.id}/sociedad/${id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${newPropiedad.id}/propietario/${id}/sociedad/${sociedadIds[index]}/es_socio/${esSociosValues[index]}`,
                 {
                   method: "POST",
                   credentials: "include",
@@ -232,10 +240,10 @@ const Form = ({
               return res.ok;
             })
           );
-          if (addSociedades.includes(false)) {
+          if (addPropietarioSociedad.includes(false)) {
             return {
               data: dataToValidate,
-              message: "Error adding sociedades",
+              message: "Error adding propietario_sociedad",
             };
           }
 
@@ -326,6 +334,14 @@ const Form = ({
   );
 
   const { errors, data, message } = state ?? {};
+
+  const transformedPropietarios = propietarios.map(
+    ({ id, nombre, ...rest }) => ({
+      key: id.toString(),
+      name: nombre,
+      ...rest,
+    })
+  );
 
   const transformedSociedades = sociedades.map(
     ({ id, porcentaje_participacion, ...rest }) => ({
@@ -482,21 +498,51 @@ const Form = ({
             {action === "add" && (
               <>
                 <DynamicItemManager
-                  items={transformedSociedades ?? []}
+                  items={transformedPropietarios ?? []}
                   renderForm={(index, items, onSelect) => (
-                    <AutocompleteInput
+                    <div
                       key={index}
-                      id="sociedad"
-                      ariaLabel="Sociedad"
-                      customClassName="mt-2"
-                      error={errors?.sociedad}
-                      placeholder="Busca una sociedad..."
-                      additionOnChange={(e) => onSelect(index, e.target.value)}
-                      suggestions={items.map((i) => ({
-                        value: i.key,
-                        label: i.name,
-                      }))}
-                    />
+                      className="flex flex-col md:flex-row gap-2"
+                    >
+                      <div className="w-full md:w-2/3">
+                        <AutocompleteInput
+                          id="propietario_socio"
+                          ariaLabel="Propietario/Socio"
+                          customClassName="mt-2"
+                          error={errors?.propietario_socio}
+                          placeholder="Busca un propietario/socio..."
+                          additionOnChange={(e) =>
+                            onSelect(index, e.target.value)
+                          }
+                          suggestions={items.map((i) => ({
+                            value: i.key,
+                            label: i.name,
+                          }))}
+                        />
+                        <GenericInput
+                          id={`propietario_${index}_es_socio`}
+                          type="checkbox"
+                          ariaLabel="¿Es socio?"
+                          labelClassName="mr-2"
+                        />
+                      </div>
+                      <div className=" w-full md:w-1/3">
+                        <AutocompleteInput
+                          id="sociedad"
+                          ariaLabel="Sociedad"
+                          customClassName="mt-2"
+                          error={errors?.sociedad}
+                          placeholder="Busca un porcentaje..."
+                          additionOnChange={(e) =>
+                            onSelect(index, e.target.value)
+                          }
+                          suggestions={transformedSociedades.map((i) => ({
+                            value: i.key,
+                            label: i.name,
+                          }))}
+                        />
+                      </div>
+                    </div>
                   )}
                 />
                 <DynamicItemManager

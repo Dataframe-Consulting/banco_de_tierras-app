@@ -5,6 +5,7 @@ import { GenericSearchInput } from "@/app/shared/components";
 import type {
   IGarantia,
   IProyecto,
+  IPropietario,
   ISociedad,
   IUbicacion,
   IProcesoLegal,
@@ -13,6 +14,7 @@ import type {
 interface ISearchBar {
   proyectos: IProyecto[];
   garantias: IGarantia[];
+  propietarios: IPropietario[];
   sociedades: ISociedad[];
   ubicaciones: IUbicacion[];
   procesosLegales: IProcesoLegal[];
@@ -21,6 +23,7 @@ interface ISearchBar {
 const SearchBar = ({
   proyectos,
   garantias,
+  propietarios,
   sociedades,
   ubicaciones,
   procesosLegales,
@@ -29,6 +32,7 @@ const SearchBar = ({
     q: "",
     proyecto_id: "",
     garantia_id: "",
+    propietario_id: "",
     sociedad_id: "",
     ubicacion_id: "",
     proceso_legal_id: "",
@@ -51,6 +55,20 @@ const SearchBar = ({
               label: proyecto.nombre,
             }))}
             onChange={(value: string) => handleSearch("proyecto_id", value)}
+          />
+        </div>
+        <div>
+          <GenericSearchInput
+            type="select"
+            id="propietario_id"
+            placeholder="Todos"
+            ariaLabel="Propietario"
+            value={filters.propietario_id}
+            options={propietarios.map((propietario) => ({
+              value: propietario.id.toString(),
+              label: propietario.nombre,
+            }))}
+            onChange={(value: string) => handleSearch("propietario_id", value)}
           />
         </div>
         <div>

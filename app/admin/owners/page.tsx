@@ -4,12 +4,11 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { SearchBar, OwnersDataTable } from "./components";
 import { DatatableSkeleton } from "@/app/shared/components";
-import type { ISocio, IPropietario } from "@/app/shared/interfaces";
+import type { IPropietario } from "@/app/shared/interfaces";
 
 const OwnersPageContent = () => {
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
-  const [socios, setSocios] = useState<ISocio[]>([]);
   const [propietarios, setPropietarios] = useState<IPropietario[]>([]);
 
   const searchParams = useSearchParams();
@@ -21,18 +20,10 @@ const OwnersPageContent = () => {
       try {
         setLoading(true);
 
-        const sociosResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/socio/`,
-          { credentials: "include" }
-        );
-        const sociosData = await sociosResponse.json();
-        setSocios(sociosData);
-
         const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/propietario/`);
         const params = new URLSearchParams();
 
         if (q) params.append("q", q);
-        if (socio_id) params.append("socio_id", socio_id);
 
         const propietariosResponse = await fetch(
           `${url}?${params.toString()}`,
@@ -54,12 +45,11 @@ const OwnersPageContent = () => {
 
   return (
     <>
-      <SearchBar socios={socios} />
+      <SearchBar />
       {loading ? (
         <DatatableSkeleton />
       ) : (
         <OwnersDataTable
-          socios={socios}
           propietarios={propietarios}
           refresh={() => setRefresh((prev) => !prev)}
         />

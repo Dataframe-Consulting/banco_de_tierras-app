@@ -3,33 +3,37 @@
 import Form from "./Form";
 import cn from "@/app/shared/utils/cn";
 import { RentsDataTable } from "./Rentas";
+import { useModal } from "@/app/shared/hooks";
 import formatCurrency from "@/app/shared/utils/format-currency";
 import { ExpanderComponentProps } from "react-data-table-component";
 import { PencilIcon, PlusCircle, TrashIcon } from "@/app/shared/icons";
 import { useEffect, useOptimistic, useReducer, useState } from "react";
 import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
-import { PropertiesSocietiesForm, SociedadesDataTable } from "./Sociedades";
-import { PropertiesLocationsForm, UbicacionesDataTable } from "./Ubicaciones";
 import { PropertiesGuaranteesForm, GarantiasDataTable } from "./Garantias";
-import {
-  PropertiesLegalProcessesForm,
-  ProcesosLegalesDataTable,
-} from "./ProcesosLegales";
+import { PropertiesLocationsForm, UbicacionesDataTable } from "./Ubicaciones";
 import {
   Modal,
   Card404,
   Datatable,
   DatatableSkeleton,
 } from "@/app/shared/components";
+import {
+  PropietariosSociedadesDataTable,
+  PropiedadPropietarioSociedadForm,
+} from "./Propietarios_Sociedades";
+import {
+  PropertiesLegalProcessesForm,
+  ProcesosLegalesDataTable,
+} from "./ProcesosLegales";
 import type {
   IProyecto,
   IGarantia,
   ISociedad,
   IUbicacion,
   IPropiedad,
+  IPropietario,
   IProcesoLegal,
 } from "@/app/shared/interfaces";
-import { useModal } from "@/app/shared/hooks";
 
 interface State {
   open: boolean;
@@ -63,6 +67,7 @@ const reducer = (state: State, action: Action): State => {
 interface IPropertiesDataTable {
   garantias: IGarantia[];
   proyectos: IProyecto[];
+  propietarios: IPropietario[];
   sociedades: ISociedad[];
   ubicaciones: IUbicacion[];
   propiedades: IPropiedad[];
@@ -73,6 +78,7 @@ interface IPropertiesDataTable {
 const PropertiesDataTable = ({
   proyectos,
   garantias,
+  propietarios,
   sociedades,
   ubicaciones,
   propiedades,
@@ -222,7 +228,11 @@ const PropertiesDataTable = ({
     data,
   }) => {
     const [tab, setTab] = useState<
-      "rentas" | "sociedades" | "ubicaciones" | "garantias" | "procesos_legales"
+      | "rentas"
+      | "propietarios_sociedades"
+      | "ubicaciones"
+      | "garantias"
+      | "procesos_legales"
     >("rentas");
 
     return (
@@ -243,15 +253,15 @@ const PropertiesDataTable = ({
           </li>
           <li>
             <button
-              onClick={() => setTab("sociedades")}
+              onClick={() => setTab("propietarios_sociedades")}
               className={cn(
                 "px-4 py-2 rounded-md",
-                tab === "sociedades"
+                tab === "propietarios_sociedades"
                   ? "bg-[#C23B2E] text-white"
                   : "bg-gray-200 text-gray-700"
               )}
             >
-              Sociedades
+              Propietarios/Socios - Sociedades
             </button>
           </li>
           <li>
@@ -295,10 +305,9 @@ const PropertiesDataTable = ({
           </div>
         </ul>
         {tab === "rentas" && <RentsDataTable rents={data.rentas} />}
-        {tab === "sociedades" && (
-          <SociedadesDataTable
-            propiedadId={data.id}
-            sociedades={data.sociedades}
+        {tab === "propietarios_sociedades" && (
+          <PropietariosSociedadesDataTable
+            propietario_sociedad={data.propietarios_sociedades}
             propiedadValorComercial={data.valor_comercial}
             refresh={refresh}
           />
@@ -339,6 +348,7 @@ const PropertiesDataTable = ({
           <AddMenu
             propiedad={propiedadSelected}
             garantias={garantias}
+            propietarios={propietarios}
             sociedades={sociedades}
             ubicaciones={ubicaciones}
             procesosLegales={procesosLegales}
@@ -358,6 +368,7 @@ const PropertiesDataTable = ({
             setOptimisticData={setOptimisticData}
             onClose={() => dispatch({ type: "CLOSE_MODAL" })}
             proyectos={proyectos}
+            propietarios={propietarios}
             sociedades={sociedades}
             ubicaciones={ubicaciones}
             garantias={garantias}
@@ -404,6 +415,7 @@ export default PropertiesDataTable;
 interface IAddMenu {
   propiedad: IPropiedad;
   garantias: IGarantia[];
+  propietarios: IPropietario[];
   sociedades: ISociedad[];
   ubicaciones: IUbicacion[];
   procesosLegales: IProcesoLegal[];
@@ -414,6 +426,7 @@ interface IAddMenu {
 const AddMenu = ({
   propiedad,
   garantias,
+  propietarios,
   sociedades,
   ubicaciones,
   procesosLegales,
@@ -421,23 +434,23 @@ const AddMenu = ({
   refresh,
 }: IAddMenu) => {
   const [tab, setTab] = useState<
-    "sociedades" | "ubicaciones" | "garantias" | "procesos_legales"
-  >("sociedades");
+    "propietarios_sociedades" | "ubicaciones" | "garantias" | "procesos_legales"
+  >("propietarios_sociedades");
 
   return (
     <div className="py-4 overflow-x-auto">
       <ul className="flex flex-row gap-4 mb-4">
         <li>
           <button
-            onClick={() => setTab("sociedades")}
+            onClick={() => setTab("propietarios_sociedades")}
             className={cn(
               "px-4 py-2 rounded-md",
-              tab === "sociedades"
+              tab === "propietarios_sociedades"
                 ? "bg-[#C23B2E] text-white"
                 : "bg-gray-200 text-gray-700"
             )}
           >
-            Sociedades
+            Propietarios/Socios - Sociedades
           </button>
         </li>
         <li>
@@ -480,11 +493,17 @@ const AddMenu = ({
           </button>
         </div>
       </ul>
-      {tab === "sociedades" && (
-        <PropertiesSocietiesForm
+      {tab === "propietarios_sociedades" && (
+        <PropiedadPropietarioSociedadForm
           action="add"
           propiedadId={propiedad.id}
-          sociedad={sociedades}
+          propietarios={propietarios.filter(
+            (propietario) =>
+              !propiedad.propietarios_sociedades
+                .map((p) => p.propietario_id)
+                .includes(propietario.id)
+          )}
+          sociedades={sociedades}
           onCloseForm={onClose}
           refresh={refresh}
         />

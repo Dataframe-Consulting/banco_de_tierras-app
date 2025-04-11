@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import PropertiesSocietiesForm from "./Form";
 import { useModal } from "@/app/shared/hooks";
 import { TrashIcon } from "@/app/shared/icons";
+import PropiedadPropietarioSociedadForm from "./Form";
 import formatCurrency from "@/app/shared/utils/format-currency";
 import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
 import {
@@ -12,35 +12,37 @@ import {
   Datatable,
   DatatableSkeleton,
 } from "@/app/shared/components";
-import type { ISociedad, ISociedadPropiedad } from "@/app/shared/interfaces";
+import type {
+  IPropietario,
+  ISociedad,
+  IPropietarioSociedad,
+} from "@/app/shared/interfaces";
 
-interface ISociedadesDataTable {
-  propiedadId: number;
-  sociedades: ISociedadPropiedad[];
+interface IPropietariosSociedadesDataTable {
+  propietario_sociedad: IPropietarioSociedad[];
   propiedadValorComercial: number;
   refresh: () => void;
 }
 
-const SociedadesDataTable = ({
-  sociedades,
-  propiedadId,
+const PropietariosSociedadesDataTable = ({
+  propietario_sociedad,
   propiedadValorComercial,
   refresh,
-}: ISociedadesDataTable) => {
+}: IPropietariosSociedadesDataTable) => {
   const { isOpen, onClose, onOpen } = useModal();
   const [isClient, setIsClient] = useState(false);
-  const [sociedadSelected, setSociedadSelected] =
-    useState<ISociedadPropiedad | null>(null);
+  const [propietarioSociedad, setPropietarioSociedad] =
+    useState<IPropietarioSociedad | null>(null);
 
   const columns = [
     {
       name: "Acciones",
       width: "90px",
-      cell: (row: ISociedadPropiedad) => (
+      cell: (row: IPropietarioSociedad) => (
         <div className="flex justify-center gap-2">
           <button
             onClick={() => {
-              setSociedadSelected(row);
+              setPropietarioSociedad(row);
               onOpen();
             }}
             className="px-4 py-2 text-white bg-red-400 rounded-md"
@@ -49,6 +51,22 @@ const SociedadesDataTable = ({
           </button>
         </div>
       ),
+    },
+    {
+      name: "Titulo",
+      selector: (row: { es_socio: boolean }) =>
+        row.es_socio ? "Socio" : "Propietario",
+      sortable: true,
+    },
+    {
+      name: "Nombre",
+      selector: (row: { propietario: IPropietario }) => row.propietario.nombre,
+      sortable: true,
+    },
+    {
+      name: "RFC",
+      selector: (row: { propietario: IPropietario }) => row.propietario.rfc,
+      sortable: true,
     },
     {
       name: "Porcentaje de Participación",
@@ -81,33 +99,32 @@ const SociedadesDataTable = ({
 
   return (
     <>
-      {isOpen && sociedadSelected && (
+      {isOpen && propietarioSociedad && (
         <Modal isOpen={isOpen} onClose={onClose}>
-          <PropertiesSocietiesForm
+          <PropiedadPropietarioSociedadForm
             action="delete"
-            sociedad={sociedadSelected}
-            propiedadId={propiedadId}
+            propietario_sociedad={propietarioSociedad}
             onCloseForm={onClose}
             refresh={refresh}
           />
         </Modal>
       )}
-      {sociedades.length > 0 ? (
+      {propietario_sociedad.length > 0 ? (
         <>
           {isClient ? (
-            <Datatable columns={columns} data={sociedades} />
+            <Datatable columns={columns} data={propietario_sociedad} />
           ) : (
             <DatatableSkeleton />
           )}
         </>
       ) : (
         <Card404
-          title="No se encontraron sociedades"
-          description="No hay sociedades asociadas a esta propiedad."
+          title="No se encontraron propietarios/socios"
+          description="No hay propietarios/socios registrados para esta propiedad."
         />
       )}
     </>
   );
 };
 
-export default SociedadesDataTable;
+export default PropietariosSociedadesDataTable;
