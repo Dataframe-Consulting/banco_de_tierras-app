@@ -387,7 +387,7 @@ const PropertiesDataTable = ({
                 refresh={refresh}
               />
             ) : (
-              <FullDetails data={state.selectedData!} />
+              <FullDetails propiedad={state.selectedData!} />
             )}
           </>
         </Modal>
@@ -566,111 +566,165 @@ const AddMenu = ({
 };
 
 interface IFullDetails {
-  data: IPropiedad;
+  propiedad: IPropiedad;
 }
 
-const FullDetails = ({ data }: IFullDetails) => {
+const FullDetails = ({ propiedad }: IFullDetails) => {
   return (
-    <div className="flex flex-col md:flex-row gap-4">
-      <div className="flex flex-col gap-4 w-full md:w-1/2">
-        <h2 className="text-lg font-bold">Detalles de la propiedad</h2>
-        <p>Nombre: {data.nombre}</p>
-        <p>Superficie: {data.superficie} m²</p>
-        <p>Valor Comercial: {formatCurrency(data.valor_comercial, "MXN")}</p>
-        <p>Año Valor Comercial: {data.anio_valor_comercial}</p>
-        <p>Clave Catastral: {data.clave_catastral}</p>
-        <p>Base Predial: {formatCurrency(data.base_predial, "MXN")}</p>
-        <p>
-          Adeudo Predial:{" "}
-          {data.adeudo_predial
-            ? formatCurrency(data.adeudo_predial, "MXN")
-            : "N/A"}
-        </p>
-        <p>Años Pend. Predial: {data.anios_pend_predial}</p>
-        <p>Comentarios: {data.comentarios ?? "Sin comentarios"}</p>
-      </div>
-      <div className="flex flex-col gap-4 w-full md:w-1/2">
+    <>
+      <h2 className="text-2xl font-bold text-gray-800 mb-2">
+        {propiedad.nombre}
+      </h2>
+      <p className="text-sm text-gray-500 mb-4">
+        Proyecto: {propiedad.proyecto?.nombre}
+      </p>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
         <div>
-          <h2 className="text-lg font-bold">Proyecto</h2>
-          <p>Nombre: {data.proyecto.nombre}</p>
+          <p className="text-gray-500 text-sm">Superficie</p>
+          <p className="font-semibold">{propiedad.superficie} m²</p>
         </div>
         <div>
-          <h2 className="text-lg font-bold">
-            Propietarios/Socios - Sociedades
-          </h2>
-          {data.propietarios_sociedades.length > 0 ? (
-            <ul className="list-disc pl-4">
-              {data.propietarios_sociedades.map((propietarioSociedad) => (
-                <li key={propietarioSociedad.propietario_id}>
-                  <p>
-                    {propietarioSociedad.es_socio ? "Socio: " : "Propietario: "}
-                    {propietarioSociedad.propietario.nombre}
-                    {` - ${propietarioSociedad.sociedad.porcentaje_participacion}%`}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No hay propietarios/socios registrados.</p>
-          )}
+          <p className="text-gray-500 text-sm">Valor comercial</p>
+          <p className="font-semibold">
+            {formatCurrency(propiedad.valor_comercial, "MXN")}
+          </p>
         </div>
         <div>
-          <h2 className="text-lg font-bold">Rentas</h2>
-          {data.rentas.length > 0 ? (
-            <ul className="list-disc pl-4">
-              {data.rentas.map((renta) => (
-                <li key={renta.id}>
-                  <p>Nombre: {renta.nombre_comercial}</p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No hay rentas registradas.</p>
-          )}
+          <p className="text-gray-500 text-sm">Clave catastral</p>
+          <p className="font-semibold">{propiedad.clave_catastral}</p>
         </div>
         <div>
-          <h2 className="text-lg font-bold">Ubicaciones</h2>
-          {data.ubicaciones.length > 0 ? (
-            <ul className="list-disc pl-4">
-              {data.ubicaciones.map((ubicacion) => (
-                <li key={ubicacion.id}>
-                  <p>Nombre: {ubicacion.nombre}</p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No hay ubicaciones registradas.</p>
-          )}
+          <p className="text-gray-500 text-sm">Base predial</p>
+          <p className="font-semibold">
+            {formatCurrency(propiedad.base_predial, "MXN")}
+          </p>
         </div>
         <div>
-          <h2 className="text-lg font-bold">Garantías</h2>
-          {data.garantias.length > 0 ? (
-            <ul className="list-disc pl-4">
-              {data.garantias.map((garantia) => (
-                <li key={garantia.id}>
-                  <p>Monto: {garantia.monto}</p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No hay garantías registradas.</p>
-          )}
+          <p className="text-gray-500 text-sm">Situación física</p>
+          <p className="font-semibold">
+            {propiedad.proyecto?.situacion_fisica?.nombre}
+          </p>
         </div>
         <div>
-          <h2 className="text-lg font-bold">Procesos Legales</h2>
-          {data.procesos_legales.length > 0 ? (
-            <ul className="list-disc pl-4">
-              {data.procesos_legales.map((procesoLegal) => (
-                <li key={procesoLegal.id}>
-                  <p>Tipo de Proceso: {procesoLegal.tipo_proceso}</p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No hay procesos legales registrados.</p>
-          )}
+          <p className="text-gray-500 text-sm">Vocación</p>
+          <p className="font-semibold">
+            {propiedad.proyecto?.vocacion?.valor} /{" "}
+            {propiedad.proyecto?.vocacion_especifica?.valor}
+          </p>
+        </div>
+        <div className="col-span-2 md:col-span-3">
+          <p className="text-gray-500 text-sm">Comentarios</p>
+          <p className="font-semibold">
+            {propiedad.comentarios || "Sin comentarios"}
+          </p>
         </div>
       </div>
-    </div>
+
+      {/* Propietarios */}
+      {propiedad.propietarios_sociedades.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            Propietarios / Sociedades
+          </h3>
+          <ul className="space-y-1 text-sm text-gray-700">
+            {propiedad.propietarios_sociedades.map((ps, idx) => (
+              <li
+                key={idx}
+                className="flex flex-col md:flex-row md:items-center justify-between"
+              >
+                <span>
+                  {ps.propietario.nombre} {ps.es_socio && "(Socio)"}
+                </span>
+                <span className="text-gray-500 text-xs">
+                  Participación: {ps.sociedad?.porcentaje_participacion}%
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Ubicaciones */}
+      {propiedad.ubicaciones.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            Ubicaciones
+          </h3>
+          <p className="text-sm text-gray-700">
+            {propiedad.ubicaciones.map((u) => u.nombre).join(", ")}
+          </p>
+        </div>
+      )}
+
+      {/* Rentas */}
+      {propiedad.rentas.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">Rentas</h3>
+          {propiedad.rentas.map((renta) => (
+            <div key={renta.id} className="bg-gray-50 p-3 rounded-lg mb-2">
+              <p className="text-sm">
+                <span className="font-semibold">Nombre comercial:</span>{" "}
+                {renta.nombre_comercial}
+              </p>
+              <p className="text-sm">
+                <span className="font-semibold">Razón social:</span>{" "}
+                {renta.razon_social}
+              </p>
+              <p className="text-sm">
+                <span className="font-semibold">Renta mensual:</span>{" "}
+                {formatCurrency(renta.renta_sin_iva, "MXN")}
+              </p>
+              <p className="text-sm">
+                <span className="font-semibold">Vigencia:</span>{" "}
+                {new Date(renta.inicio_vigencia).toLocaleDateString()} -{" "}
+                {new Date(
+                  renta.fin_vigencia_no_forzosa ?? ""
+                ).toLocaleDateString()}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Garantías */}
+      {propiedad.garantias.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            Garantías
+          </h3>
+          {propiedad.garantias.map((g) => (
+            <div key={g.id} className="text-sm text-gray-700 mb-1">
+              <p>
+                Beneficiario: {g.beneficiario} - Monto:{" "}
+                {formatCurrency(g.monto, "MXN")}
+              </p>
+              <p>
+                Vigencia: {new Date(g.fecha_inicio).toLocaleDateString()} -{" "}
+                {new Date(g.fecha_fin).toLocaleDateString()}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Procesos legales */}
+      {propiedad.procesos_legales.length > 0 && (
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            Procesos legales
+          </h3>
+          {propiedad.procesos_legales.map((p) => (
+            <div key={p.id} className="text-sm text-gray-700 mb-1">
+              <p>Abogado: {p.abogado}</p>
+              <p>
+                Tipo: {p.tipo_proceso} - Estatus: {p.estatus}
+              </p>
+              {p.comentarios && <p>Comentarios: {p.comentarios}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+    </>
   );
 };

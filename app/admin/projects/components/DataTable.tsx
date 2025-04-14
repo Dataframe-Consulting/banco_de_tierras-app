@@ -3,7 +3,7 @@
 import Form from "./Form";
 import { PropertiesDataTable } from "./Propiedades";
 import { ExpanderComponentProps } from "react-data-table-component";
-import { PencilIcon, PlusCircle, TrashIcon } from "@/app/shared/icons";
+import { EyeIcon, PencilIcon, PlusCircle, TrashIcon } from "@/app/shared/icons";
 import { useEffect, useOptimistic, useReducer, useState } from "react";
 import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
 import {
@@ -18,10 +18,11 @@ import type {
   ISituacionFisica,
   IVocacionEspecifica,
 } from "@/app/shared/interfaces";
+import formatCurrency from "@/app/shared/utils/format-currency";
 
 interface State {
   open: boolean;
-  action: "add" | "edit" | "delete";
+  action: "view" | "add" | "edit" | "delete";
   selectedData: IProyecto | null;
 }
 
@@ -29,7 +30,7 @@ type Action =
   | {
       type: "OPEN_MODAL";
       payload: {
-        action: "add" | "edit" | "delete";
+        action: "view" | "add" | "edit" | "delete";
         data: IProyecto | null;
       };
     }
@@ -75,7 +76,7 @@ const ProjectsDataTable = ({
 
   const handleAction = (
     data: IProyecto | null,
-    action: "add" | "edit" | "delete"
+    action: "view" | "add" | "edit" | "delete"
   ) => {
     dispatch({ type: "OPEN_MODAL", payload: { action, data } });
   };
@@ -97,9 +98,15 @@ const ProjectsDataTable = ({
   const columns = [
     {
       name: "Acciones",
-      width: "150px",
+      width: "200px",
       cell: (row: IProyecto) => (
         <div className="flex justify-center gap-2">
+          <button
+            onClick={() => handleAction(row, "view")}
+            className="px-4 py-2 text-white bg-gray-400 rounded-md"
+          >
+            <EyeIcon />
+          </button>
           <button
             onClick={() => handleAction(row, "edit")}
             className="px-4 py-2 text-white bg-blue-400 rounded-md"
@@ -200,16 +207,20 @@ const ProjectsDataTable = ({
           isOpen={state.open}
           onClose={() => dispatch({ type: "CLOSE_MODAL" })}
         >
-          <Form
-            action={state.action}
-            proyecto={state.selectedData}
-            vocaciones={vocaciones}
-            situacionesFisicas={situacionesFisicas}
-            vocacionesEspecificas={vocacionesEspecificas}
-            setOptimisticData={setOptimisticData}
-            onClose={() => dispatch({ type: "CLOSE_MODAL" })}
-            refresh={refresh}
-          />
+          {state.action !== "view" ? (
+            <Form
+              action={state.action}
+              proyecto={state.selectedData}
+              vocaciones={vocaciones}
+              situacionesFisicas={situacionesFisicas}
+              vocacionesEspecificas={vocacionesEspecificas}
+              setOptimisticData={setOptimisticData}
+              onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+              refresh={refresh}
+            />
+          ) : (
+            <FullDetails proyecto={state.selectedData!} />
+          )}
         </Modal>
       )}
       <div className="w-full text-right">
@@ -246,3 +257,86 @@ const ProjectsDataTable = ({
 };
 
 export default ProjectsDataTable;
+
+interface IFullDetails {
+  proyecto: IProyecto;
+}
+
+const FullDetails = ({ proyecto }: IFullDetails) => {
+  return (
+    <>
+      <h2 className="text-2xl font-bold text-gray-800">{proyecto.nombre}</h2>
+      <p className="text-sm text-gray-500">{proyecto.comentarios}</p>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm text-gray-700 mt-4">
+        <div>
+          <span className="font-semibold">Superficie total:</span>{" "}
+          {proyecto.superficie_total.toLocaleString()} m²
+        </div>
+        <div>
+          <span className="font-semibold">Situación física:</span>{" "}
+          {proyecto.situacion_fisica?.nombre}
+        </div>
+        <div>
+          <span className="font-semibold">Vocación:</span>{" "}
+          {proyecto.vocacion?.valor}
+        </div>
+        <div>
+          <span className="font-semibold">Vocación específica:</span>{" "}
+          {proyecto.vocacion_especifica?.valor}
+        </div>
+        <div>
+          <span className="font-semibold">Estado:</span>{" "}
+          {proyecto.esta_activo ? "Activo" : "Inactivo"}
+        </div>
+        <div>
+          <span className="font-semibold">ID:</span> {proyecto.id}
+        </div>
+      </div>
+
+      {proyecto.propiedades?.length > 0 && (
+        <div className="pt-4">
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+            Propiedades
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="min-w-full border border-gray-200 text-sm">
+              <thead className="bg-gray-100 text-gray-600">
+                <tr>
+                  <th className="px-4 py-2 text-left">Nombre</th>
+                  <th className="px-4 py-2 text-left">Superficie</th>
+                  <th className="px-4 py-2 text-left">Valor Comercial</th>
+                  <th className="px-4 py-2 text-left">Clave Catastral</th>
+                  <th className="px-4 py-2 text-left">Base Predial</th>
+                  <th className="px-4 py-2 text-left">Adeudo</th>
+                  <th className="px-4 py-2 text-left">Comentarios</th>
+                </tr>
+              </thead>
+              <tbody>
+                {proyecto.propiedades.map((prop) => (
+                  <tr key={prop.id} className="border-t">
+                    <td className="px-4 py-2">{prop.nombre}</td>
+                    <td className="px-4 py-2">{prop.superficie} m²</td>
+                    <td className="px-4 py-2">
+                      ${prop.valor_comercial?.toLocaleString()}
+                    </td>
+                    <td className="px-4 py-2">{prop.clave_catastral}</td>
+                    <td className="px-4 py-2">
+                      {formatCurrency(prop.base_predial, "MXN")}
+                    </td>
+                    <td className="px-4 py-2">
+                      {prop.adeudo_predial
+                        ? `${formatCurrency(prop.adeudo_predial, "MXN")}`
+                        : "—"}
+                    </td>
+                    <td className="px-4 py-2">{prop.comentarios}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
