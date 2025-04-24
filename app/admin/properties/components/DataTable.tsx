@@ -28,7 +28,6 @@ import {
 import type {
   IProyecto,
   IGarantia,
-  ISociedad,
   IUbicacion,
   IPropiedad,
   IPropietario,
@@ -71,7 +70,6 @@ interface IPropertiesDataTable {
   garantias: IGarantia[];
   proyectos: IProyecto[];
   propietarios: IPropietario[];
-  sociedades: ISociedad[];
   ubicaciones: IUbicacion[];
   propiedades: IPropiedad[];
   procesosLegales: IProcesoLegal[];
@@ -82,7 +80,6 @@ const PropertiesDataTable = ({
   proyectos,
   garantias,
   propietarios,
-  sociedades,
   ubicaciones,
   propiedades,
   procesosLegales,
@@ -238,7 +235,7 @@ const PropertiesDataTable = ({
   }) => {
     const [tab, setTab] = useState<
       | "rentas"
-      | "propietarios_sociedades"
+      | "propietarios"
       | "ubicaciones"
       | "garantias"
       | "procesos_legales"
@@ -262,15 +259,15 @@ const PropertiesDataTable = ({
           </li>
           <li>
             <button
-              onClick={() => setTab("propietarios_sociedades")}
+              onClick={() => setTab("propietarios")}
               className={cn(
                 "px-4 py-2 rounded-md",
-                tab === "propietarios_sociedades"
+                tab === "propietarios"
                   ? "bg-[#C23B2E] text-white"
                   : "bg-gray-200 text-gray-700"
               )}
             >
-              Propietarios/Socios - Sociedades
+              Propietarios/Socios
             </button>
           </li>
           <li>
@@ -314,9 +311,9 @@ const PropertiesDataTable = ({
           </div>
         </ul>
         {tab === "rentas" && <RentsDataTable rents={data.rentas} />}
-        {tab === "propietarios_sociedades" && (
+        {tab === "propietarios" && (
           <PropietariosSociedadesDataTable
-            propietario_sociedad={data.propietarios_sociedades}
+            propietario_sociedad={data.propietarios}
             propiedadValorComercial={data.valor_comercial}
             refresh={refresh}
           />
@@ -358,7 +355,6 @@ const PropertiesDataTable = ({
             propiedad={propiedadSelected}
             garantias={garantias}
             propietarios={propietarios}
-            sociedades={sociedades}
             ubicaciones={ubicaciones}
             procesosLegales={procesosLegales}
             onClose={onClose}
@@ -380,7 +376,6 @@ const PropertiesDataTable = ({
                 onClose={() => dispatch({ type: "CLOSE_MODAL" })}
                 proyectos={proyectos}
                 propietarios={propietarios}
-                sociedades={sociedades}
                 ubicaciones={ubicaciones}
                 garantias={garantias}
                 procesosLegales={procesosLegales}
@@ -431,7 +426,6 @@ interface IAddMenu {
   propiedad: IPropiedad;
   garantias: IGarantia[];
   propietarios: IPropietario[];
-  sociedades: ISociedad[];
   ubicaciones: IUbicacion[];
   procesosLegales: IProcesoLegal[];
   onClose: () => void;
@@ -442,30 +436,29 @@ const AddMenu = ({
   propiedad,
   garantias,
   propietarios,
-  sociedades,
   ubicaciones,
   procesosLegales,
   onClose,
   refresh,
 }: IAddMenu) => {
   const [tab, setTab] = useState<
-    "propietarios_sociedades" | "ubicaciones" | "garantias" | "procesos_legales"
-  >("propietarios_sociedades");
+    "propietarios" | "ubicaciones" | "garantias" | "procesos_legales"
+  >("propietarios");
 
   return (
     <div className="py-4 overflow-x-auto">
       <ul className="flex flex-row gap-4 mb-4">
         <li>
           <button
-            onClick={() => setTab("propietarios_sociedades")}
+            onClick={() => setTab("propietarios")}
             className={cn(
               "px-4 py-2 rounded-md",
-              tab === "propietarios_sociedades"
+              tab === "propietarios"
                 ? "bg-[#C23B2E] text-white"
                 : "bg-gray-200 text-gray-700"
             )}
           >
-            Propietarios/Socios - Sociedades
+            Propietarios/Socios
           </button>
         </li>
         <li>
@@ -508,17 +501,16 @@ const AddMenu = ({
           </button>
         </div>
       </ul>
-      {tab === "propietarios_sociedades" && (
+      {tab === "propietarios" && (
         <PropiedadPropietarioSociedadForm
           action="add"
           propiedadId={propiedad.id}
           propietarios={propietarios.filter(
             (propietario) =>
-              !propiedad.propietarios_sociedades
+              !propiedad.propietarios
                 .map((p) => p.propietario_id)
                 .includes(propietario.id)
           )}
-          sociedades={sociedades}
           onCloseForm={onClose}
           refresh={refresh}
         />
@@ -622,13 +614,13 @@ const FullDetails = ({ propiedad }: IFullDetails) => {
       </div>
 
       {/* Propietarios */}
-      {propiedad.propietarios_sociedades.length > 0 && (
+      {propiedad.propietarios.length > 0 && (
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-700 mb-2">
-            Propietarios / Sociedades
+            Propietarios
           </h3>
           <ul className="space-y-1 text-sm text-gray-700">
-            {propiedad.propietarios_sociedades.map((ps, idx) => (
+            {propiedad.propietarios.map((ps, idx) => (
               <li
                 key={idx}
                 className="flex flex-col md:flex-row md:items-center justify-between"
@@ -637,7 +629,7 @@ const FullDetails = ({ propiedad }: IFullDetails) => {
                   {ps.propietario.nombre} {ps.es_socio && "(Socio)"}
                 </span>
                 <span className="text-gray-500 text-xs">
-                  Participación: {ps.sociedad?.porcentaje_participacion}%
+                  Participación: {ps.sociedad_porcentaje_participacion}%
                 </span>
               </li>
             ))}
@@ -673,14 +665,19 @@ const FullDetails = ({ propiedad }: IFullDetails) => {
               </p>
               <p className="text-sm">
                 <span className="font-semibold">Renta mensual:</span>{" "}
-                {formatCurrency(renta.renta_sin_iva, "MXN")}
+                {renta.renta_sin_iva
+                  ? formatCurrency(renta.renta_sin_iva, "MXN")
+                  : "N/A"}
               </p>
               <p className="text-sm">
                 <span className="font-semibold">Vigencia:</span>{" "}
-                {new Date(renta.inicio_vigencia).toLocaleDateString()} -{" "}
-                {new Date(
-                  renta.fin_vigencia_no_forzosa ?? ""
-                ).toLocaleDateString()}
+                {renta.inicio_vigencia
+                  ? new Date(renta.inicio_vigencia).toLocaleDateString()
+                  : "N/A"}{" "}
+                -{" "}
+                {renta.fin_vigencia_no_forzosa
+                  ? new Date(renta.fin_vigencia_no_forzosa).toLocaleDateString()
+                  : "N/A"}
               </p>
             </div>
           ))}

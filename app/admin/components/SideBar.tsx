@@ -110,7 +110,6 @@ const SideBar = () => {
                 otrosMenu ||
                   pathname === "/admin/locations" ||
                   pathname === "/admin/owners" ||
-                  pathname === "/admin/societies" ||
                   pathname === "/admin/physical-situations" ||
                   pathname === "/admin/vocations" ||
                   pathname === "/admin/specific-vocations"
@@ -130,13 +129,6 @@ const SideBar = () => {
                   text="Propietarios"
                   href="/admin/owners"
                   isActive={pathname === "/admin/owners"}
-                />
-              </li>
-              <li className="border-l-2 border-white pl-2">
-                <LinkComp
-                  text="Sociedades"
-                  href="/admin/societies"
-                  isActive={pathname === "/admin/societies"}
                 />
               </li>
               <li className="border-l-2 border-white pl-2">

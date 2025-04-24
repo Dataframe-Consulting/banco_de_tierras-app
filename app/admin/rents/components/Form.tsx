@@ -1,7 +1,7 @@
 "use client";
 
 import validateRentsSchema from "../schemas";
-import { useCallback, useActionState } from "react";
+import { useCallback, useActionState, useState } from "react";
 import formatdateInput from "@/app/shared/utils/formatdate-input";
 import {
   GenericInput,
@@ -30,6 +30,8 @@ interface IRentaState {
     fin_vigencia_forzosa?: Date;
     fin_vigencia_no_forzosa?: Date;
     vigencia_nota?: string;
+    metros_cuadrados_rentados?: number;
+    esta_disponible: boolean;
   } | null;
   errors?: {
     [key: string]: string;
@@ -53,6 +55,8 @@ const Form = ({
   refresh,
   setOptimisticData,
 }: IForm) => {
+  const [disponible, setDisponible] = useState(false);
+
   const initialState: IRentaState = {
     errors: {},
     message: "",
@@ -112,10 +116,17 @@ const Form = ({
         vigencia_nota: formData.get("vigencia_nota")
           ? (formData.get("vigencia_nota") as string)
           : undefined,
+        metros_cuadrados_rentados: formData.get("metros_cuadrados_rentados")
+          ? Number(formData.get("metros_cuadrados_rentados"))
+          : undefined,
+        esta_disponible: formData.get("esta_disponible") === "on",
       };
 
       if (action !== "delete") {
-        const errors = validateRentsSchema(action, dataToValidate);
+        const errors = validateRentsSchema(
+          action === "add" && disponible ? "addDisponible" : action,
+          dataToValidate
+        );
         if (Object.keys(errors).length > 0) {
           return {
             errors,
@@ -223,7 +234,7 @@ const Form = ({
         onClose();
       }
     },
-    [renta, action, refresh, onClose, setOptimisticData]
+    [renta, action, disponible, refresh, onClose, setOptimisticData]
   );
 
   const [state, handleSubmit, isPending] = useActionState(
@@ -249,259 +260,295 @@ const Form = ({
         )}
         {action !== "delete" ? (
           <>
-            <GenericPairDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="text"
-                  id="nombre_comercial"
-                  ariaLabel="Nombre Comercial"
-                  placeholder="MOVISTAR"
-                  defaultValue={data?.nombre_comercial}
-                  error={errors?.nombre_comercial}
-                />
-              </GenericDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="text"
-                  id="razon_social"
-                  ariaLabel="Razón Social"
-                  placeholder="Pegaso PCS"
-                  defaultValue={data?.razon_social}
-                  error={errors?.razon_social}
-                />
-              </GenericDiv>
-            </GenericPairDiv>
-            <GenericPairDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="number"
-                  id="renta_sin_iva"
-                  ariaLabel="Renta sin IVA"
-                  placeholder="1000"
-                  defaultValue={data?.renta_sin_iva?.toString()}
-                  error={errors?.renta_sin_iva}
-                />
-              </GenericDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="select"
-                  id="meses_deposito_garantia"
-                  ariaLabel="Meses depósito de Garantía"
-                  placeholder="Selecciona un número de meses"
-                  defaultValue={data?.meses_deposito_garantia?.toString()}
-                  options={Array.from({ length: 10 }, (_, i) => ({
-                    value: (i + 1).toString(),
-                    label: (i + 1).toString(),
-                  }))}
-                  error={errors?.meses_deposito_garantia}
-                />
-              </GenericDiv>
-            </GenericPairDiv>
-            <GenericPairDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="select"
-                  id="meses_gracia"
-                  ariaLabel="Meses de Gracia"
-                  placeholder="Selecciona un número de meses"
-                  defaultValue={data?.meses_gracia?.toString()}
-                  options={Array.from({ length: 10 }, (_, i) => ({
-                    value: (i + 1).toString(),
-                    label: (i + 1).toString(),
-                  }))}
-                  error={errors?.meses_gracia}
-                />
-              </GenericDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="date"
-                  id="meses_gracia_fecha_inicio"
-                  ariaLabel="Meses Gracia Inicio"
-                  placeholder="2025-02-02"
-                  defaultValue={
-                    data?.meses_gracia_fecha_inicio
-                      ? formatdateInput(
-                          data.meses_gracia_fecha_inicio.toString()
-                        )
-                      : ""
-                  }
-                  error={errors?.meses_gracia_fecha_inicio}
-                />
-              </GenericDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="date"
-                  id="meses_gracia_fecha_fin"
-                  ariaLabel="Meses Gracia Fin"
-                  placeholder="2025-02-02"
-                  defaultValue={
-                    data?.meses_gracia_fecha_fin
-                      ? formatdateInput(data.meses_gracia_fecha_fin.toString())
-                      : ""
-                  }
-                  error={errors?.meses_gracia_fecha_fin}
-                />
-              </GenericDiv>
-            </GenericPairDiv>
-            <GenericPairDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="select"
-                  id="meses_renta_anticipada"
-                  ariaLabel="Meses Renta Anticipada"
-                  placeholder="Selecciona un número de meses"
-                  defaultValue={data?.meses_renta_anticipada?.toString()}
-                  options={Array.from({ length: 10 }, (_, i) => ({
-                    value: (i + 1).toString(),
-                    label: (i + 1).toString(),
-                  }))}
-                  error={errors?.meses_renta_anticipada}
-                />
-              </GenericDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="date"
-                  id="renta_anticipada_fecha_inicio"
-                  ariaLabel="Renta Anticipada Inicio"
-                  placeholder="2025-02-02"
-                  defaultValue={
-                    data?.renta_anticipada_fecha_inicio
-                      ? formatdateInput(
-                          data.renta_anticipada_fecha_inicio.toString()
-                        )
-                      : ""
-                  }
-                  error={errors?.renta_anticipada_fecha_inicio}
-                />
-              </GenericDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="date"
-                  id="renta_anticipada_fecha_fin"
-                  ariaLabel="Renta Anticipada Fin"
-                  placeholder="2025-02-02"
-                  defaultValue={
-                    data?.renta_anticipada_fecha_fin
-                      ? formatdateInput(
-                          data.renta_anticipada_fecha_fin.toString()
-                        )
-                      : ""
-                  }
-                  error={errors?.renta_anticipada_fecha_fin}
-                />
-              </GenericDiv>
-            </GenericPairDiv>
-            <GenericPairDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="select"
-                  id="incremento_mes"
-                  ariaLabel="Incremento Mes"
-                  placeholder="Selecciona un mes"
-                  defaultValue={data?.incremento_mes}
-                  options={[
-                    { value: "Enero", label: "Enero" },
-                    { value: "Febrero", label: "Febrero" },
-                    { value: "Marzo", label: "Marzo" },
-                    { value: "Abril", label: "Abril" },
-                    { value: "Mayo", label: "Mayo" },
-                    { value: "Junio", label: "Junio" },
-                    { value: "Julio", label: "Julio" },
-                    { value: "Agosto", label: "Agosto" },
-                    { value: "Septiembre", label: "Septiembre" },
-                    { value: "Octubre", label: "Octubre" },
-                    { value: "Noviembre", label: "Noviembre" },
-                    { value: "Diciembre", label: "Diciembre" },
-                  ]}
-                  error={errors?.incremento_mes}
-                />
-              </GenericDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="textarea"
-                  id="incremento_nota"
-                  ariaLabel="Incremento Nota"
-                  placeholder="Incremento"
-                  defaultValue={data?.incremento_nota}
-                  error={errors?.incremento_nota}
-                />
-              </GenericDiv>
-            </GenericPairDiv>
-            <GenericPairDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="date"
-                  id="inicio_vigencia"
-                  ariaLabel="Inicio Vigencia"
-                  placeholder="2025-02-02"
-                  defaultValue={
-                    data?.inicio_vigencia
-                      ? formatdateInput(data.inicio_vigencia.toString())
-                      : ""
-                  }
-                  error={errors?.inicio_vigencia}
-                />
-              </GenericDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="date"
-                  id="fin_vigencia_forzosa"
-                  ariaLabel="Fin Vigencia Forzosa"
-                  placeholder="2025-02-02"
-                  defaultValue={
-                    data?.fin_vigencia_forzosa
-                      ? formatdateInput(data.fin_vigencia_forzosa.toString())
-                      : ""
-                  }
-                  error={errors?.fin_vigencia_forzosa}
-                />
-              </GenericDiv>
-            </GenericPairDiv>
-            <GenericPairDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="date"
-                  id="fin_vigencia_no_forzosa"
-                  ariaLabel="Fin Vigencia No Forzosa"
-                  placeholder="2025-02-02"
-                  defaultValue={
-                    data?.fin_vigencia_no_forzosa
-                      ? formatdateInput(data.fin_vigencia_no_forzosa.toString())
-                      : ""
-                  }
-                  error={errors?.fin_vigencia_no_forzosa}
-                />
-              </GenericDiv>
-              <GenericDiv>
-                <GenericInput
-                  type="textarea"
-                  id="vigencia_nota"
-                  ariaLabel="Vigencia Nota"
-                  placeholder="Vigencia"
-                  defaultValue={data?.vigencia_nota}
-                  error={errors?.vigencia_nota}
-                />
-              </GenericDiv>
-            </GenericPairDiv>
             {action === "add" && (
-              <DynamicItemManager
-                items={transformedPropiedades ?? []}
-                renderForm={(index, items, onSelect) => (
-                  <AutocompleteInput
-                    key={index}
-                    id="propiedad"
-                    ariaLabel="Propiedad"
-                    customClassName="mt-2"
-                    error={errors?.propiedad}
-                    placeholder="Busca un propiedad..."
-                    additionOnChange={(e) => onSelect(index, e.target.value)}
-                    suggestions={items.map((i) => ({
-                      value: i.key,
-                      label: i.name,
-                    }))}
-                  />
-                )}
-              />
+              <>
+                <GenericDiv>
+                  <div className="flex items-center gap-2">
+                    <GenericInput
+                      type="checkbox"
+                      id="esta_disponible"
+                      ariaLabel="¿Está disponible?"
+                      defaultChecked={data?.esta_disponible}
+                      onChange={(e) =>
+                        setDisponible((e.target as HTMLInputElement).checked)
+                      }
+                      error={errors?.esta_disponible}
+                    />
+                  </div>
+                </GenericDiv>
+                <DynamicItemManager
+                  items={transformedPropiedades ?? []}
+                  renderForm={(index, items, onSelect) => (
+                    <AutocompleteInput
+                      key={index}
+                      id="propiedad"
+                      ariaLabel="Propiedad"
+                      customClassName="mt-2"
+                      error={errors?.propiedad}
+                      placeholder="Busca un propiedad..."
+                      additionOnChange={(e) => onSelect(index, e.target.value)}
+                      suggestions={items.map((i) => ({
+                        value: i.key,
+                        label: i.name,
+                      }))}
+                    />
+                  )}
+                />
+              </>
+            )}
+            {!disponible && (
+              <>
+                <GenericPairDiv>
+                  <GenericDiv>
+                    <GenericInput
+                      type="text"
+                      id="nombre_comercial"
+                      ariaLabel="Nombre Comercial"
+                      placeholder="MOVISTAR"
+                      defaultValue={data?.nombre_comercial}
+                      error={errors?.nombre_comercial}
+                    />
+                  </GenericDiv>
+                  <GenericDiv>
+                    <GenericInput
+                      type="text"
+                      id="razon_social"
+                      ariaLabel="Razón Social"
+                      placeholder="Pegaso PCS"
+                      defaultValue={data?.razon_social}
+                      error={errors?.razon_social}
+                    />
+                  </GenericDiv>
+                  <GenericDiv>
+                    <GenericInput
+                      type="number"
+                      id="metros_cuadrados_rentados"
+                      ariaLabel="Metros Cuadrados Rentados"
+                      placeholder="1000"
+                      defaultValue={data?.metros_cuadrados_rentados?.toString()}
+                      error={errors?.metros_cuadrados_rentados}
+                    />
+                  </GenericDiv>
+                </GenericPairDiv>
+                <GenericPairDiv>
+                  <GenericDiv>
+                    <GenericInput
+                      type="number"
+                      id="renta_sin_iva"
+                      ariaLabel="Renta sin IVA"
+                      placeholder="1000"
+                      defaultValue={data?.renta_sin_iva?.toString()}
+                      error={errors?.renta_sin_iva}
+                    />
+                  </GenericDiv>
+                  <GenericDiv>
+                    <GenericInput
+                      type="select"
+                      id="meses_deposito_garantia"
+                      ariaLabel="Meses depósito de Garantía"
+                      placeholder="Selecciona un número de meses"
+                      defaultValue={data?.meses_deposito_garantia?.toString()}
+                      options={Array.from({ length: 10 }, (_, i) => ({
+                        value: (i + 1).toString(),
+                        label: (i + 1).toString(),
+                      }))}
+                      error={errors?.meses_deposito_garantia}
+                    />
+                  </GenericDiv>
+                </GenericPairDiv>
+                <GenericPairDiv>
+                  <GenericDiv>
+                    <GenericInput
+                      type="select"
+                      id="meses_gracia"
+                      ariaLabel="Meses de Gracia"
+                      placeholder="Selecciona un número de meses"
+                      defaultValue={data?.meses_gracia?.toString()}
+                      options={Array.from({ length: 10 }, (_, i) => ({
+                        value: (i + 1).toString(),
+                        label: (i + 1).toString(),
+                      }))}
+                      error={errors?.meses_gracia}
+                    />
+                  </GenericDiv>
+                  <GenericDiv>
+                    <GenericInput
+                      type="date"
+                      id="meses_gracia_fecha_inicio"
+                      ariaLabel="Meses Gracia Inicio"
+                      placeholder="2025-02-02"
+                      defaultValue={
+                        data?.meses_gracia_fecha_inicio
+                          ? formatdateInput(
+                              data.meses_gracia_fecha_inicio.toString()
+                            )
+                          : ""
+                      }
+                      error={errors?.meses_gracia_fecha_inicio}
+                    />
+                  </GenericDiv>
+                  <GenericDiv>
+                    <GenericInput
+                      type="date"
+                      id="meses_gracia_fecha_fin"
+                      ariaLabel="Meses Gracia Fin"
+                      placeholder="2025-02-02"
+                      defaultValue={
+                        data?.meses_gracia_fecha_fin
+                          ? formatdateInput(
+                              data.meses_gracia_fecha_fin.toString()
+                            )
+                          : ""
+                      }
+                      error={errors?.meses_gracia_fecha_fin}
+                    />
+                  </GenericDiv>
+                </GenericPairDiv>
+                <GenericPairDiv>
+                  <GenericDiv>
+                    <GenericInput
+                      type="select"
+                      id="meses_renta_anticipada"
+                      ariaLabel="Meses Renta Anticipada"
+                      placeholder="Selecciona un número de meses"
+                      defaultValue={data?.meses_renta_anticipada?.toString()}
+                      options={Array.from({ length: 10 }, (_, i) => ({
+                        value: (i + 1).toString(),
+                        label: (i + 1).toString(),
+                      }))}
+                      error={errors?.meses_renta_anticipada}
+                    />
+                  </GenericDiv>
+                  <GenericDiv>
+                    <GenericInput
+                      type="date"
+                      id="renta_anticipada_fecha_inicio"
+                      ariaLabel="Renta Anticipada Inicio"
+                      placeholder="2025-02-02"
+                      defaultValue={
+                        data?.renta_anticipada_fecha_inicio
+                          ? formatdateInput(
+                              data.renta_anticipada_fecha_inicio.toString()
+                            )
+                          : ""
+                      }
+                      error={errors?.renta_anticipada_fecha_inicio}
+                    />
+                  </GenericDiv>
+                  <GenericDiv>
+                    <GenericInput
+                      type="date"
+                      id="renta_anticipada_fecha_fin"
+                      ariaLabel="Renta Anticipada Fin"
+                      placeholder="2025-02-02"
+                      defaultValue={
+                        data?.renta_anticipada_fecha_fin
+                          ? formatdateInput(
+                              data.renta_anticipada_fecha_fin.toString()
+                            )
+                          : ""
+                      }
+                      error={errors?.renta_anticipada_fecha_fin}
+                    />
+                  </GenericDiv>
+                </GenericPairDiv>
+                <GenericPairDiv>
+                  <GenericDiv>
+                    <GenericInput
+                      type="select"
+                      id="incremento_mes"
+                      ariaLabel="Incremento Mes"
+                      placeholder="Selecciona un mes"
+                      defaultValue={data?.incremento_mes}
+                      options={[
+                        { value: "Enero", label: "Enero" },
+                        { value: "Febrero", label: "Febrero" },
+                        { value: "Marzo", label: "Marzo" },
+                        { value: "Abril", label: "Abril" },
+                        { value: "Mayo", label: "Mayo" },
+                        { value: "Junio", label: "Junio" },
+                        { value: "Julio", label: "Julio" },
+                        { value: "Agosto", label: "Agosto" },
+                        { value: "Septiembre", label: "Septiembre" },
+                        { value: "Octubre", label: "Octubre" },
+                        { value: "Noviembre", label: "Noviembre" },
+                        { value: "Diciembre", label: "Diciembre" },
+                      ]}
+                      error={errors?.incremento_mes}
+                    />
+                  </GenericDiv>
+                  <GenericDiv>
+                    <GenericInput
+                      type="textarea"
+                      id="incremento_nota"
+                      ariaLabel="Incremento Nota"
+                      placeholder="Incremento"
+                      defaultValue={data?.incremento_nota}
+                      error={errors?.incremento_nota}
+                    />
+                  </GenericDiv>
+                </GenericPairDiv>
+                <GenericPairDiv>
+                  <GenericDiv>
+                    <GenericInput
+                      type="date"
+                      id="inicio_vigencia"
+                      ariaLabel="Inicio Vigencia"
+                      placeholder="2025-02-02"
+                      defaultValue={
+                        data?.inicio_vigencia
+                          ? formatdateInput(data.inicio_vigencia.toString())
+                          : ""
+                      }
+                      error={errors?.inicio_vigencia}
+                    />
+                  </GenericDiv>
+                  <GenericDiv>
+                    <GenericInput
+                      type="date"
+                      id="fin_vigencia_forzosa"
+                      ariaLabel="Fin Vigencia Forzosa"
+                      placeholder="2025-02-02"
+                      defaultValue={
+                        data?.fin_vigencia_forzosa
+                          ? formatdateInput(
+                              data.fin_vigencia_forzosa.toString()
+                            )
+                          : ""
+                      }
+                      error={errors?.fin_vigencia_forzosa}
+                    />
+                  </GenericDiv>
+                </GenericPairDiv>
+                <GenericPairDiv>
+                  <GenericDiv>
+                    <GenericInput
+                      type="date"
+                      id="fin_vigencia_no_forzosa"
+                      ariaLabel="Fin Vigencia No Forzosa"
+                      placeholder="2025-02-02"
+                      defaultValue={
+                        data?.fin_vigencia_no_forzosa
+                          ? formatdateInput(
+                              data.fin_vigencia_no_forzosa.toString()
+                            )
+                          : ""
+                      }
+                      error={errors?.fin_vigencia_no_forzosa}
+                    />
+                  </GenericDiv>
+                  <GenericDiv>
+                    <GenericInput
+                      type="textarea"
+                      id="vigencia_nota"
+                      ariaLabel="Vigencia Nota"
+                      placeholder="Vigencia"
+                      defaultValue={data?.vigencia_nota}
+                      error={errors?.vigencia_nota}
+                    />
+                  </GenericDiv>
+                </GenericPairDiv>
+              </>
             )}
           </>
         ) : (

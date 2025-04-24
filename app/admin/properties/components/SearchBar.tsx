@@ -6,7 +6,6 @@ import type {
   IGarantia,
   IProyecto,
   IPropietario,
-  ISociedad,
   IUbicacion,
   IProcesoLegal,
 } from "@/app/shared/interfaces";
@@ -15,7 +14,6 @@ interface ISearchBar {
   proyectos: IProyecto[];
   garantias: IGarantia[];
   propietarios: IPropietario[];
-  sociedades: ISociedad[];
   ubicaciones: IUbicacion[];
   procesosLegales: IProcesoLegal[];
 }
@@ -24,7 +22,6 @@ const SearchBar = ({
   proyectos,
   garantias,
   propietarios,
-  sociedades,
   ubicaciones,
   procesosLegales,
 }: ISearchBar) => {
@@ -33,7 +30,6 @@ const SearchBar = ({
     proyecto_id: "",
     garantia_id: "",
     propietario_id: "",
-    sociedad_id: "",
     ubicacion_id: "",
     proceso_legal_id: "",
   };
@@ -69,20 +65,6 @@ const SearchBar = ({
               label: propietario.nombre,
             }))}
             onChange={(value: string) => handleSearch("propietario_id", value)}
-          />
-        </div>
-        <div>
-          <GenericSearchInput
-            type="select"
-            id="sociedad_id"
-            placeholder="Todas"
-            ariaLabel="Sociedad"
-            value={filters.sociedad_id}
-            options={sociedades.map((sociedad) => ({
-              value: sociedad.id.toString(),
-              label: sociedad.porcentaje_participacion.toString(),
-            }))}
-            onChange={(value: string) => handleSearch("sociedad_id", value)}
           />
         </div>
         <div>

@@ -15,22 +15,36 @@ const RentsDataTable = ({ rents }: IRentsDataTable) => {
 
   const columns = [
     {
+      name: "¿Está disponible?",
+      selector: (row: { esta_disponible: boolean }) =>
+        row.esta_disponible ? "Sí" : "No",
+      sortable: true,
+    },
+    {
+      name: "m2 rentados",
+      selector: (row: { metros_cuadrados_rentados?: number }) =>
+        row.metros_cuadrados_rentados || "Es local",
+      sortable: true,
+    },
+    {
       name: "Nombre Comercial",
       maxwidth: "200px",
-      selector: (row: { nombre_comercial: string }) => row.nombre_comercial,
+      selector: (row: { nombre_comercial?: string }) =>
+        row.nombre_comercial || "Aún sin asignar",
       sortable: true,
     },
     {
       name: "Razón Social",
-      selector: (row: { razon_social: string }) => row.razon_social,
+      selector: (row: { razon_social?: string }) =>
+        row.razon_social || "Aún sin asignar",
       sortable: true,
     },
     {
       name: "Renta sin IVA",
-      selector: (row: { renta_sin_iva: number }) => row.renta_sin_iva,
+      selector: (row: { renta_sin_iva?: number }) => row.renta_sin_iva || 0,
       sortable: true,
-      format: (row: { renta_sin_iva: number }) =>
-        formatCurrency(row.renta_sin_iva, "MXN"),
+      format: (row: { renta_sin_iva?: number }) =>
+        row.renta_sin_iva ? formatCurrency(row.renta_sin_iva, "MXN") : 0,
     },
     {
       name: "Meses de Depósito Garantía",
@@ -41,18 +55,18 @@ const RentsDataTable = ({ rents }: IRentsDataTable) => {
     {
       name: "Monto de Depósito Garantía",
       selector: (row: {
-        renta_sin_iva: number;
+        renta_sin_iva?: number;
         meses_deposito_garantia?: number;
       }) =>
-        row.meses_deposito_garantia
+        row.renta_sin_iva && row.meses_deposito_garantia
           ? row.renta_sin_iva * row.meses_deposito_garantia
           : 0,
       sortable: true,
       format: (row: {
-        renta_sin_iva: number;
+        renta_sin_iva?: number;
         meses_deposito_garantia?: number;
       }) =>
-        row.meses_deposito_garantia
+        row.renta_sin_iva && row.meses_deposito_garantia
           ? formatCurrency(
               row.renta_sin_iva * row.meses_deposito_garantia,
               "MXN"
@@ -114,18 +128,18 @@ const RentsDataTable = ({ rents }: IRentsDataTable) => {
     {
       name: "Monto Renta Anticipada",
       selector: (row: {
-        renta_sin_iva: number;
+        renta_sin_iva?: number;
         meses_renta_anticipada?: number;
       }) =>
-        row.meses_renta_anticipada
+        row.renta_sin_iva && row.meses_renta_anticipada
           ? row.renta_sin_iva * row.meses_renta_anticipada
           : 0,
       sortable: true,
       format: (row: {
-        renta_sin_iva: number;
+        renta_sin_iva?: number;
         meses_renta_anticipada?: number;
       }) =>
-        row.meses_renta_anticipada
+        row.renta_sin_iva && row.meses_renta_anticipada
           ? formatCurrency(
               row.renta_sin_iva * row.meses_renta_anticipada,
               "MXN"
@@ -134,7 +148,8 @@ const RentsDataTable = ({ rents }: IRentsDataTable) => {
     },
     {
       name: "Incremento Mes",
-      selector: (row: { incremento_mes: string }) => row.incremento_mes,
+      selector: (row: { incremento_mes?: string }) =>
+        row.incremento_mes || "Aún sin asignar",
       sortable: true,
     },
     {
@@ -145,19 +160,27 @@ const RentsDataTable = ({ rents }: IRentsDataTable) => {
     },
     {
       name: "Inicio Vigencia",
-      selector: (row: { inicio_vigencia: Date }) =>
-        row.inicio_vigencia.toString(),
+      selector: (row: { inicio_vigencia?: Date }) =>
+        row.inicio_vigencia
+          ? row.inicio_vigencia.toString()
+          : "Aún sin asignar",
       sortable: true,
-      format: (row: { inicio_vigencia: Date }) =>
-        formatDateLatinAmerican(row.inicio_vigencia),
+      format: (row: { inicio_vigencia?: Date }) =>
+        row.inicio_vigencia
+          ? formatDateLatinAmerican(row.inicio_vigencia)
+          : "Aún sin asignar",
     },
     {
       name: "Fin Vigencia Forzosa",
-      selector: (row: { fin_vigencia_forzosa: Date }) =>
-        row.fin_vigencia_forzosa.toString(),
+      selector: (row: { fin_vigencia_forzosa?: Date }) =>
+        row.fin_vigencia_forzosa
+          ? row.fin_vigencia_forzosa.toString()
+          : "Aún sin asignar",
       sortable: true,
-      format: (row: { fin_vigencia_forzosa: Date }) =>
-        formatDateLatinAmerican(row.fin_vigencia_forzosa),
+      format: (row: { fin_vigencia_forzosa?: Date }) =>
+        row.fin_vigencia_forzosa
+          ? formatDateLatinAmerican(row.fin_vigencia_forzosa)
+          : "Aún sin asignar",
     },
     {
       name: "Fin Vigencia No Forzosa",

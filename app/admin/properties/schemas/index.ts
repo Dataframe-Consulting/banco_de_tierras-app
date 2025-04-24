@@ -90,19 +90,3 @@ export default function validatePropertiesSchema(
 ) {
   return validateSchema(schemas, action, data);
 }
-
-// CREATE TABLE IF NOT EXISTS propiedad (
-//     id SERIAL PRIMARY KEY,
-//     nombre VARCHAR(255) NOT NULL UNIQUE,
-//     superficie FLOAT NOT NULL,
-//     valor_comercial FLOAT NOT NULL,
-//     anio_valor_comercial SMALLINT,
-//     clave_catastral VARCHAR(255) NOT NULL UNIQUE,
-//     base_predial DECIMAL(10, 2) NOT NULL,
-//     adeudo_predial DECIMAL(10, 2),
-//     anios_pend_predial INT,
-//     comentarios TEXT,
-//     proyecto_id INT NOT NULL REFERENCES proyecto(id) ON DELETE CASCADE,
-//     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-// );
