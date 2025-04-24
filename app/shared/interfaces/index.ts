@@ -66,13 +66,6 @@ export interface IPropietario {
   updated_at: Date;
 }
 
-export interface ISociedad {
-  id: number;
-  porcentaje_participacion: number;
-  created_at: Date;
-  updated_at: Date;
-}
-
 export interface IUbicacion {
   id: number;
   nombre: string;
@@ -117,7 +110,7 @@ export interface IPropiedad {
 
   proyecto: IProyecto;
 
-  propietarios_sociedades: IPropietarioSociedad[];
+  propietarios: IPropietarioSociedad[];
   ubicaciones: IUbicacion[];
   garantias: IGarantia[];
   procesos_legales: IProcesoLegal[];
@@ -126,10 +119,9 @@ export interface IPropiedad {
 
 export interface IPropietarioSociedad {
   es_socio: boolean;
+  sociedad_porcentaje_participacion: number;
   propietario_id: number;
   propietario: IPropietario;
-  sociedad_id: number;
-  sociedad: ISociedad;
   propiedad_id: number;
   created_at: Date;
 }
@@ -154,9 +146,9 @@ export interface IProcesoLegalPropiedad {
 
 export interface IRenta {
   id: number;
-  nombre_comercial: string;
-  razon_social: string;
-  renta_sin_iva: number;
+  nombre_comercial?: string;
+  razon_social?: string;
+  renta_sin_iva?: number;
   meses_deposito_garantia?: number;
   meses_gracia?: number;
   meses_gracia_fecha_inicio?: Date;
@@ -164,12 +156,14 @@ export interface IRenta {
   meses_renta_anticipada?: number;
   renta_anticipada_fecha_inicio?: Date;
   renta_anticipada_fecha_fin?: Date;
-  incremento_mes: string;
+  incremento_mes?: string;
   incremento_nota?: string;
-  inicio_vigencia: Date;
-  fin_vigencia_forzosa: Date;
+  inicio_vigencia?: Date;
+  fin_vigencia_forzosa?: Date;
   fin_vigencia_no_forzosa?: Date;
   vigencia_nota?: string;
+  metros_cuadrados_rentados?: number;
+  esta_disponible: boolean;
   created_at: Date;
   updated_at: Date;
 

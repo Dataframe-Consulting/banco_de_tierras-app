@@ -7,7 +7,6 @@ import { PropertiesDataTable, SearchBar } from "./components";
 import type {
   IGarantia,
   IProyecto,
-  ISociedad,
   IUbicacion,
   IPropiedad,
   IPropietario,
@@ -20,7 +19,6 @@ const PropertiesPageContent = () => {
   const [properties, setProperties] = useState<IPropiedad[]>([]);
   const [proyectos, setProyectos] = useState<IProyecto[]>([]);
   const [propietarios, setPropietarios] = useState<IPropietario[]>([]);
-  const [sociedades, setSociedades] = useState<ISociedad[]>([]);
   const [ubicaciones, setUbicaciones] = useState<IUbicacion[]>([]);
   const [garantias, setGarantias] = useState<IGarantia[]>([]);
   const [procesosLegales, setProcesosLegales] = useState<IProcesoLegal[]>([]);
@@ -30,7 +28,6 @@ const PropertiesPageContent = () => {
   const garantia_id = searchParams.get("garantia_id") || "";
   const proyecto_id = searchParams.get("proyecto_id") || "";
   const propietario_id = searchParams.get("propietario_id") || "";
-  const sociedad_id = searchParams.get("sociedad_id") || "";
   const ubicacion_id = searchParams.get("ubicacion_id") || "";
   const proceso_legal_id = searchParams.get("proceso_legal_id") || "";
 
@@ -50,21 +47,18 @@ const PropertiesPageContent = () => {
         const [
           proyectosData,
           propietariosData,
-          sociedadesData,
           ubicacionesData,
           garantiasData,
           procesosLegalesData,
         ] = await Promise.all([
           fetchWithAuth("proyecto/"),
           fetchWithAuth("propietario/"),
-          fetchWithAuth("sociedad/"),
           fetchWithAuth("ubicacion/"),
           fetchWithAuth("garantia/"),
           fetchWithAuth("proceso_legal/"),
         ]);
         setProyectos(proyectosData);
         setPropietarios(propietariosData);
-        setSociedades(sociedadesData);
         setUbicaciones(ubicacionesData);
         setGarantias(garantiasData);
         setProcesosLegales(procesosLegalesData);
@@ -76,7 +70,6 @@ const PropertiesPageContent = () => {
         if (garantia_id) params.append("garantia_id", garantia_id);
         if (proyecto_id) params.append("proyecto_id", proyecto_id);
         if (propietario_id) params.append("propietario_id", propietario_id);
-        if (sociedad_id) params.append("sociedad_id", sociedad_id);
         if (ubicacion_id) params.append("ubicacion_id", ubicacion_id);
         if (proceso_legal_id)
           params.append("proceso_legal_id", proceso_legal_id);
@@ -99,7 +92,6 @@ const PropertiesPageContent = () => {
     garantia_id,
     proyecto_id,
     propietario_id,
-    sociedad_id,
     ubicacion_id,
     proceso_legal_id,
     refresh,
@@ -111,7 +103,6 @@ const PropertiesPageContent = () => {
         proyectos={proyectos}
         garantias={garantias}
         propietarios={propietarios}
-        sociedades={sociedades}
         ubicaciones={ubicaciones}
         procesosLegales={procesosLegales}
       />
@@ -122,7 +113,6 @@ const PropertiesPageContent = () => {
           garantias={garantias}
           proyectos={proyectos}
           propietarios={propietarios}
-          sociedades={sociedades}
           ubicaciones={ubicaciones}
           propiedades={properties}
           procesosLegales={procesosLegales}

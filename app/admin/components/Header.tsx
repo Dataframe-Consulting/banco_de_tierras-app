@@ -16,7 +16,7 @@ const Header = () => {
       <nav className="h-full flex flex-col items-center p-2 mx-auto bg-[#C23B2E]">
         <ul className="w-full flex justify-between items-center gap-4">
           <li>
-            <div className="w-full mt-2">
+            <div className="w-full mt-2 h-10">
               <Image
                 priority
                 width={100}

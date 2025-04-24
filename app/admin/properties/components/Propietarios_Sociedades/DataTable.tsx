@@ -14,7 +14,6 @@ import {
 } from "@/app/shared/components";
 import type {
   IPropietario,
-  ISociedad,
   IPropietarioSociedad,
 } from "@/app/shared/interfaces";
 
@@ -70,15 +69,15 @@ const PropietariosSociedadesDataTable = ({
     },
     {
       name: "Porcentaje de Participación",
-      selector: (row: { sociedad: ISociedad }) =>
-        row.sociedad.porcentaje_participacion,
+      selector: (row: { sociedad_porcentaje_participacion: number }) =>
+        row.sociedad_porcentaje_participacion,
       sortable: true,
     },
     {
       name: "Valor de Participación",
-      selector: (row: { sociedad: ISociedad }) =>
+      selector: (row: { sociedad_porcentaje_participacion: number }) =>
         formatCurrency(
-          (row.sociedad.porcentaje_participacion * propiedadValorComercial) /
+          (row.sociedad_porcentaje_participacion * propiedadValorComercial) /
             100,
           "MXN"
         ),

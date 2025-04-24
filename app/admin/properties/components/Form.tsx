@@ -11,7 +11,6 @@ import {
 import type {
   IProyecto,
   IGarantia,
-  ISociedad,
   IPropiedad,
   IUbicacion,
   IProcesoLegal,
@@ -41,7 +40,6 @@ interface IForm {
   garantias: IGarantia[];
   proyectos: IProyecto[];
   propietarios: IPropietario[];
-  sociedades: ISociedad[];
   ubicaciones: IUbicacion[];
   propiedad: IPropiedad | null;
   procesosLegales: IProcesoLegal[];
@@ -57,7 +55,6 @@ const Form = ({
   proyectos,
   garantias,
   propietarios,
-  sociedades,
   ubicaciones,
   procesosLegales,
   onClose,
@@ -126,19 +123,20 @@ const Form = ({
               },
             };
           }
-          const sociedadesIds = formData.getAll("sociedad") as string[];
+          const sociedadesValues = formData.getAll("sociedad") as string[];
           if (
-            sociedadesIds.length === 0 ||
-            sociedadesIds.some((id) => id === null || id === "")
+            sociedadesValues.length === 0 ||
+            sociedadesValues.some((val) => val === null || val === "")
           ) {
             return {
               data: dataToValidate,
               errors: {
-                sociedad: "Debes seleccionar al menos una sociedad",
+                sociedad:
+                  "Debes escribir al menos un porcentaje de participación",
               },
             };
           }
-          if (propietariosIds.length !== sociedadesIds.length) {
+          if (propietariosIds.length !== sociedadesValues.length) {
             return {
               data: dataToValidate,
               errors: {
@@ -146,6 +144,48 @@ const Form = ({
                   "El número de propietarios/socios y sociedades no coincide",
                 sociedad:
                   "El número de propietarios/socios y sociedades no coincide",
+              },
+            };
+          }
+          const esSociosValues: boolean[] = propietariosIds.map((_, index) => {
+            const checkbox = formData.get(`propietario_${index}_es_socio`);
+            return checkbox === "on" ? true : false;
+          });
+          let propietariosSuma = 0;
+          let sociosSuma = 0;
+          let hayPropietarios = false;
+          let haySocios = false;
+          for (let i = 0; i < propietariosIds.length; i++) {
+            const val = parseFloat(sociedadesValues[i]);
+            if (isNaN(val)) {
+              return {
+                data: dataToValidate,
+                errors: {
+                  sociedad: "El porcentaje de participación debe ser un número",
+                },
+              };
+            }
+            if (esSociosValues[i]) {
+              haySocios = true;
+              sociosSuma += val;
+            } else {
+              hayPropietarios = true;
+              propietariosSuma += val;
+            }
+          }
+          if (hayPropietarios && propietariosSuma !== 100) {
+            return {
+              data: dataToValidate,
+              errors: {
+                propietario_socio: `La suma de participación de propietarios debe ser exactamente 100%. Actualmente es ${propietariosSuma}%.`,
+              },
+            };
+          }
+          if (haySocios && sociosSuma !== 100) {
+            return {
+              data: dataToValidate,
+              errors: {
+                propietario_socio: `La suma de participación de socios debe ser exactamente 100%. Actualmente es ${sociosSuma}%.`,
               },
             };
           }
@@ -218,7 +258,7 @@ const Form = ({
             const checkbox = formData.get(`propietario_${index}_es_socio`);
             return checkbox === "on" ? true : false;
           });
-          const sociedadIds = formData.getAll("sociedad") as string[];
+          const sociedadesValues = formData.getAll("sociedad") as string[];
           const ubicacionesIds = formData.getAll("ubicacion") as string[];
           const garantiasIds = formData.getAll("garantia") as string[];
           const procesosLegalesIds = formData.getAll(
@@ -231,7 +271,7 @@ const Form = ({
           const addPropietarioSociedad = await Promise.all(
             propietariosIds.map(async (id, index) => {
               const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${newPropiedad.id}/propietario/${id}/sociedad/${sociedadIds[index]}/es_socio/${esSociosValues[index]}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/propiedad/${newPropiedad.id}/propietario/${id}/sociedad/${sociedadesValues[index]}/es_socio/${esSociosValues[index]}`,
                 {
                   method: "POST",
                   credentials: "include",
@@ -339,14 +379,6 @@ const Form = ({
     ({ id, nombre, ...rest }) => ({
       key: id.toString(),
       name: nombre,
-      ...rest,
-    })
-  );
-
-  const transformedSociedades = sociedades.map(
-    ({ id, porcentaje_participacion, ...rest }) => ({
-      key: id.toString(),
-      name: porcentaje_participacion.toString(),
       ...rest,
     })
   );
@@ -527,19 +559,15 @@ const Form = ({
                         />
                       </div>
                       <div className=" w-full md:w-1/3">
-                        <AutocompleteInput
+                        <GenericInput
                           id="sociedad"
-                          ariaLabel="Sociedad"
-                          customClassName="mt-2"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          ariaLabel="Porcentaje de participación"
+                          placeholder="45"
                           error={errors?.sociedad}
-                          placeholder="Busca un porcentaje..."
-                          additionOnChange={(e) =>
-                            onSelect(index, e.target.value)
-                          }
-                          suggestions={transformedSociedades.map((i) => ({
-                            value: i.key,
-                            label: i.name,
-                          }))}
                         />
                       </div>
                     </div>

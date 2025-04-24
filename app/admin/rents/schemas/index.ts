@@ -95,40 +95,26 @@ const baseSchema = z.object({
       message: "La nota de la vigencia no puede tener más de 255 caracteres",
     })
     .optional(),
+  metros_cuadrados_rentados: z
+    .number({
+      message: "Los metros cuadrados rentados son requeridos",
+    })
+    .positive({
+      message: "Los metros cuadrados rentados deben ser mayores a 0",
+    })
+    .optional(),
 });
 
 const createSchema = baseSchema.extend({});
 const updateSchema = baseSchema.extend({});
+const createDisponibleSchema = z.object({ esta_disponible: z.boolean() });
 
 const schemas = {
   add: createSchema,
   edit: updateSchema,
+  addDisponible: createDisponibleSchema,
 };
 
 export default function validateRentsSchema(action: string, data: unknown) {
   return validateSchema(schemas, action, data);
 }
-
-// CREATE TABLE IF NOT EXISTS renta(
-//     id SERIAL PRIMARY KEY,
-//     nombre_comercial VARCHAR(255) NOT NULL,
-//     razon_social VARCHAR(255) NOT NULL,
-//     renta_sin_iva DECIMAL(10, 2) NOT NULL,
-//     deposito_garantia_concepto VARCHAR(255),
-//     deposito_garantia_monto DECIMAL(10, 2),
-//     meses_gracia_concepto VARCHAR(255),
-//     meses_gracia_fecha_inicio DATE,
-//     meses_gracia_fecha_fin DATE,
-//     renta_anticipada_concepto VARCHAR(255),
-//     renta_anticipada_fecha_inicio DATE,
-//     renta_anticipada_fecha_fin DATE,
-//     renta_anticipada_renta_sin_iva FLOAT,
-//     incremento_mes VARCHAR(255) NOT NULL,
-//     incremento_nota VARCHAR(255),
-//     inicio_vigencia DATE NOT NULL,
-//     fin_vigencia_forzosa DATE NOT NULL,
-//     fin_vigencia_no_forzosa DATE,
-//     vigencia_nota VARCHAR(255),
-//     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-// );

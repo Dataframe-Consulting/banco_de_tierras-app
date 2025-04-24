@@ -1,6 +1,6 @@
 "use client";
 
-import validateSocietiesSchema from "../schemas";
+import validatePhysicalSituationsSchema from "../schemas";
 import { useCallback, useActionState } from "react";
 import { GenericInput, SubmitButton } from "@/app/shared/components";
 import type { ISituacionFisica } from "@/app/shared/interfaces";
@@ -45,7 +45,7 @@ const Form = ({
       };
 
       if (action !== "delete") {
-        const errors = validateSocietiesSchema(action, dataToValidate);
+        const errors = validatePhysicalSituationsSchema(action, dataToValidate);
         if (Object.keys(errors).length > 0) {
           return {
             errors,
