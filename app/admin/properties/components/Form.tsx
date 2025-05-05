@@ -1,7 +1,7 @@
 "use client";
 
 import validatePropertiesSchema from "../schemas";
-import { useActionState, useCallback } from "react";
+import { useActionState, useCallback, useState } from "react";
 import {
   GenericInput,
   SubmitButton,
@@ -16,6 +16,9 @@ import type {
   IProcesoLegal,
   IPropietario,
 } from "@/app/shared/interfaces";
+import { generateFileKey } from "@/app/shared/utils/generateFileKey";
+import { deleteBlob, generateSignedUploadUrl } from "@/app/shared/utils/azure";
+import { extractBlobName } from "@/app/shared/utils/extractBlobName";
 
 interface IPropertiesState {
   message?: string;
@@ -61,6 +64,8 @@ const Form = ({
   refresh,
   setOptimisticData,
 }: IForm) => {
+  const [files, setFiles] = useState<FileList | null>(null);
+
   const initialState: IPropertiesState = {
     errors: {},
     message: "",
@@ -200,6 +205,19 @@ const Form = ({
               errors: {
                 ubicacion: "Debes seleccionar al menos una ubicación",
               },
+            };
+          }
+
+          if (
+            !files ||
+            files.length === 0 ||
+            Array.from(files).some((file) => file.size === 0)
+          ) {
+            return {
+              errors: {
+                files: "No se han seleccionado archivos",
+              },
+              data: dataToValidate,
             };
           }
         }
@@ -353,6 +371,70 @@ const Form = ({
               };
             }
           }
+
+          const fileKeys = Array.from(files!).map((file) =>
+            generateFileKey(file)
+          );
+          const uploadResults = await Promise.all(
+            fileKeys.map(async (fileKey, index) => {
+              const { url, publicUrl } = await generateSignedUploadUrl(
+                fileKey,
+                files![index].type
+              );
+
+              const res = await fetch(url, {
+                method: "PUT",
+                headers: {
+                  "x-ms-blob-type": "BlockBlob",
+                  "Content-Type": files![index].type,
+                },
+                body: files![index],
+              });
+
+              if (!res.ok) {
+                throw new Error("Error uploading file to blob storage");
+              }
+
+              return publicUrl;
+            })
+          );
+
+          const uploadFiles = await Promise.all(
+            uploadResults.map(async (url) => {
+              const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/archivo/tabla/propiedad/id/${newPropiedad.id}`,
+                {
+                  method: "POST",
+                  credentials: "include",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ url }),
+                }
+              );
+              return res.ok;
+            })
+          );
+          if (uploadFiles.includes(false)) {
+            return {
+              data: dataToValidate,
+              message: "Error uploading files",
+            };
+          }
+        }
+
+        if (action === "delete") {
+          const deleteResp = await Promise.all(
+            propiedad?.archivos.map(async (archivo) => {
+              return await deleteBlob(extractBlobName(archivo.url, "my-files"));
+            }) ?? []
+          );
+          if (deleteResp.includes(false)) {
+            return {
+              data: dataToValidate,
+              message: "Error deleting files",
+            };
+          }
         }
       } catch (error) {
         console.error(error);
@@ -365,7 +447,7 @@ const Form = ({
         onClose();
       }
     },
-    [action, propiedad, refresh, onClose, setOptimisticData]
+    [action, files, propiedad, refresh, onClose, setOptimisticData]
   );
 
   const [state, handleSubmit, isPending] = useActionState(
@@ -626,6 +708,17 @@ const Form = ({
                       }))}
                     />
                   )}
+                />
+                <GenericInput
+                  type="file"
+                  id="files"
+                  multiple
+                  ariaLabel="Archivos"
+                  file={files?.length ? files[0] : undefined}
+                  onChange={(event) =>
+                    setFiles((event.target as HTMLInputElement).files)
+                  }
+                  error={errors?.files}
                 />
               </>
             )}

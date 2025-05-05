@@ -1,7 +1,7 @@
 "use client";
 
 import validateProjectsSchema from "../schemas";
-import { useCallback, useActionState } from "react";
+import { useCallback, useActionState, useState } from "react";
 import { GenericInput, SubmitButton } from "@/app/shared/components";
 import type {
   IProyecto,
@@ -9,6 +9,9 @@ import type {
   ISituacionFisica,
   IVocacionEspecifica,
 } from "@/app/shared/interfaces";
+import { generateFileKey } from "@/app/shared/utils/generateFileKey";
+import { deleteBlob, generateSignedUploadUrl } from "@/app/shared/utils/azure";
+import { extractBlobName } from "@/app/shared/utils/extractBlobName";
 
 interface IProyectoState {
   message?: string;
@@ -47,6 +50,8 @@ const Form = ({
   onClose,
   refresh,
 }: IForm) => {
+  const [files, setFiles] = useState<FileList | null>(null);
+
   const initialState: IProyectoState = {
     errors: {},
     message: "",
@@ -82,6 +87,20 @@ const Form = ({
         if (Object.keys(errors).length > 0) {
           return {
             errors,
+            data: dataToValidate,
+          };
+        }
+
+        if (
+          action === "add" &&
+          (!files ||
+            files.length === 0 ||
+            Array.from(files).some((file) => file.size === 0))
+        ) {
+          return {
+            errors: {
+              files: "No se han seleccionado archivos",
+            },
             data: dataToValidate,
           };
         }
@@ -131,6 +150,71 @@ const Form = ({
             } proyecto`,
           };
         }
+
+        if (action === "add") {
+          const responseData = await res.json();
+          const newProyecto = responseData as IProyecto;
+
+          const fileKeys = Array.from(files!).map((file) =>
+            generateFileKey(file)
+          );
+          const uploadResults = await Promise.all(
+            fileKeys.map(async (fileKey, index) => {
+              const { url, publicUrl } = await generateSignedUploadUrl(
+                fileKey,
+                files![index].type
+              );
+
+              const res = await fetch(url, {
+                method: "PUT",
+                headers: {
+                  "x-ms-blob-type": "BlockBlob",
+                  "Content-Type": files![index].type,
+                },
+                body: files![index],
+              });
+
+              if (!res.ok) {
+                throw new Error("Error uploading file to blob storage");
+              }
+
+              return publicUrl;
+            })
+          );
+
+          await Promise.all(
+            uploadResults.map(async (url) => {
+              const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/archivo/tabla/proyecto/id/${newProyecto.id}`,
+                {
+                  method: "POST",
+                  credentials: "include",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    url,
+                  }),
+                }
+              );
+
+              if (!res.ok) {
+                throw new Error("Error uploading file to blob storage");
+              }
+            })
+          );
+        }
+
+        if (action === "delete") {
+          const deleteResp = await Promise.all(
+            proyecto?.archivos.map(async (archivo) => {
+              return await deleteBlob(extractBlobName(archivo.url, "my-files"));
+            }) ?? []
+          );
+          if (deleteResp.includes(false)) {
+            throw new Error("Error deleting files from blob storage");
+          }
+        }
       } catch (error) {
         console.error(error);
         return {
@@ -142,7 +226,7 @@ const Form = ({
         onClose();
       }
     },
-    [proyecto, refresh, action, onClose, setOptimisticData]
+    [proyecto, refresh, action, files, onClose, setOptimisticData]
   );
 
   const [state, handleSubmit, isPending] = useActionState(
@@ -258,6 +342,19 @@ const Form = ({
                 error={errors?.comentarios}
               />
             </div>
+            {action === "add" && (
+              <GenericInput
+                type="file"
+                id="files"
+                multiple
+                ariaLabel="Archivos"
+                file={files?.length ? files[0] : undefined}
+                onChange={(event) =>
+                  setFiles((event.target as HTMLInputElement).files)
+                }
+                error={errors?.files}
+              />
+            )}
             <div className="flex gap-2 items-center justify-end">
               <GenericInput
                 type="checkbox"

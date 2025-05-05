@@ -12,6 +12,9 @@ import {
   DatatableSkeleton,
 } from "@/app/shared/components";
 import type { IGarantia } from "@/app/shared/interfaces";
+import { useModal } from "@/app/shared/hooks";
+import { ExpanderComponentProps } from "react-data-table-component";
+import { ArchivoForm, ArchivosDataTable } from "../../components/Archivos";
 
 interface State {
   open: boolean;
@@ -48,12 +51,14 @@ interface IGuaranteesDataTable {
 }
 
 const GuaranteesDataTable = ({ guarantees, refresh }: IGuaranteesDataTable) => {
+  const { isOpen, onClose, onOpen } = useModal();
   const [isClient, setIsClient] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
     open: false,
     action: "add",
     selectedData: null,
   });
+  const [dataSelected, setDataSelected] = useState<IGarantia | null>(null);
 
   const handleAction = (
     data: IGarantia | null,
@@ -79,9 +84,18 @@ const GuaranteesDataTable = ({ guarantees, refresh }: IGuaranteesDataTable) => {
   const columns = [
     {
       name: "Acciones",
-      width: "150px",
+      width: "200px",
       cell: (row: IGarantia) => (
         <div className="flex justify-center gap-2">
+          <button
+            onClick={() => {
+              setDataSelected(row);
+              onOpen();
+            }}
+            className="px-4 py-2 text-white bg-green-400 rounded-md"
+          >
+            <PlusCircle />
+          </button>
           <button
             onClick={() => handleAction(row, "edit")}
             className="px-4 py-2 text-white bg-blue-400 rounded-md"
@@ -139,12 +153,33 @@ const GuaranteesDataTable = ({ guarantees, refresh }: IGuaranteesDataTable) => {
     },
   ];
 
+  const ExpandedComponent: React.FC<ExpanderComponentProps<IGarantia>> = ({
+    data,
+  }) => {
+    return (
+      <div className="pl-12 py-4">
+        <h2 className="text-lg font-bold">Archivos</h2>
+        <ArchivosDataTable refresh={refresh} archivos={data.archivos} />
+      </div>
+    );
+  };
+
   useEffect(() => {
     setIsClient(true);
   }, []);
 
   return (
     <>
+      {isOpen && dataSelected && (
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <p className="text-lg font-bold text-center mb-4">Agregar archivos</p>
+          <ArchivoForm
+            refresh={refresh}
+            tabla="garantia"
+            tablaId={dataSelected.id}
+          />
+        </Modal>
+      )}
       {state.open && (
         <Modal
           isOpen={state.open}
@@ -170,7 +205,14 @@ const GuaranteesDataTable = ({ guarantees, refresh }: IGuaranteesDataTable) => {
       {guarantees.length > 0 ? (
         <>
           {isClient ? (
-            <Datatable columns={columns} data={optimisticData} />
+            <Datatable
+              columns={columns}
+              data={optimisticData}
+              isExpandable
+              expandableRowsComponent={(props) => (
+                <ExpandedComponent {...props} />
+              )}
+            />
           ) : (
             <DatatableSkeleton />
           )}
