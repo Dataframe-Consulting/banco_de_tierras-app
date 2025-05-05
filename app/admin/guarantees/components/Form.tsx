@@ -1,9 +1,12 @@
 "use client";
 
 import validateGuaranteesSchema from "../schemas";
-import { useCallback, useActionState } from "react";
+import { useCallback, useActionState, useState } from "react";
 import formatdateInput from "@/app/shared/utils/formatdate-input";
 import { GenericInput, SubmitButton } from "@/app/shared/components";
+import { generateFileKey } from "@/app/shared/utils/generateFileKey";
+import { deleteBlob, generateSignedUploadUrl } from "@/app/shared/utils/azure";
+import { extractBlobName } from "@/app/shared/utils/extractBlobName";
 import type { IGarantia } from "@/app/shared/interfaces";
 
 interface IRentaState {
@@ -34,6 +37,7 @@ const Form = ({
   setOptimisticData,
   refresh,
 }: IForm) => {
+  const [files, setFiles] = useState<FileList | null>(null);
   const initialState: IRentaState = {
     errors: {},
     message: "",
@@ -62,6 +66,20 @@ const Form = ({
         if (Object.keys(errors).length > 0) {
           return {
             errors,
+            data: dataToValidate,
+          };
+        }
+
+        if (
+          action === "add" &&
+          (!files ||
+            files.length === 0 ||
+            Array.from(files).some((file) => file.size === 0))
+        ) {
+          return {
+            errors: {
+              files: "No se han seleccionado archivos",
+            },
             data: dataToValidate,
           };
         }
@@ -111,6 +129,68 @@ const Form = ({
             } renta`,
           };
         }
+
+        if (action === "add") {
+          const responseData = await res.json();
+          const newGarantia = responseData as IGarantia;
+
+          const fileKeys = Array.from(files!).map((file) =>
+            generateFileKey(file)
+          );
+          const uploadResults = await Promise.all(
+            fileKeys.map(async (fileKey, index) => {
+              const { url, publicUrl } = await generateSignedUploadUrl(
+                fileKey,
+                files![index].type
+              );
+              const res = await fetch(url, {
+                method: "PUT",
+                headers: {
+                  "x-ms-blob-type": "BlockBlob",
+                  "Content-Type": files![index].type,
+                },
+                body: files![index],
+              });
+
+              if (!res.ok) {
+                throw new Error("Error uploading file to blob storage");
+              }
+
+              return publicUrl;
+            })
+          );
+          await Promise.all(
+            uploadResults.map(async (url) => {
+              const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/archivo/tabla/garantia/id/${newGarantia.id}`,
+                {
+                  method: "POST",
+                  credentials: "include",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    url,
+                  }),
+                }
+              );
+              if (!res.ok) {
+                throw new Error("Error uploading file to blob storage");
+              }
+            })
+          );
+        }
+
+        if (action === "delete") {
+          const deleteResp = await Promise.all(
+            garantia?.archivos.map(async (archivo) => {
+              return await deleteBlob(extractBlobName(archivo.url, "my-files"));
+            }) ?? []
+          );
+          if (deleteResp.includes(false)) {
+            throw new Error("Error deleting files from blob storage");
+          }
+        }
       } catch (error) {
         console.error(error);
         return {
@@ -122,7 +202,7 @@ const Form = ({
         onClose();
       }
     },
-    [garantia, refresh, action, onClose, setOptimisticData]
+    [garantia, files, refresh, action, onClose, setOptimisticData]
   );
 
   const [state, handleSubmit, isPending] = useActionState(
@@ -194,6 +274,19 @@ const Form = ({
                 />
               </GenericDiv>
             </GenericPairDiv>
+            {action === "add" && (
+              <GenericInput
+                type="file"
+                id="files"
+                multiple
+                ariaLabel="Archivos"
+                file={files?.length ? files[0] : undefined}
+                onChange={(event) =>
+                  setFiles((event.target as HTMLInputElement).files)
+                }
+                error={errors?.files}
+              />
+            )}
           </>
         ) : (
           <div className="text-center">

@@ -60,8 +60,8 @@ const GenericInput: React.FC<IGenericInput> = ({
       type === "checkbox" ? "cursor-pointer" : "w-full",
       className,
       error
-        ? "bg-[#F2AFAF] border-[#E38787] text-red-600 placeholder-red-500 focus:ring-[#E38787] focus:border-[#E38787] dark:bg-red-900 dark:bg-opacity-25 dark:text-red-400 dark:placeholder-red-500 dark:focus:ring-red-400 dark:focus:border-red-400"
-        : "bg-white dark:bg-neutral-light border-neutral-dark text-neutral-dark dark:text-primary-light placeholder-neutral dark:placeholder-primary-light focus:ring-accent focus:border-accent dark:focus:ring-primary-light dark:focus:border-primary-light"
+        ? "bg-[#F2AFAF] border-[#E38787] text-red-600 placeholder-red-500 focus:ring-[#E38787] focus:border-[#E38787]"
+        : "bg-white border-neutral-dark text-neutral-dark placeholder-neutral focus:ring-accent focus:border-accent"
     ),
   };
 
@@ -71,12 +71,12 @@ const GenericInput: React.FC<IGenericInput> = ({
         <label
           htmlFor={id}
           className={cn(
-            "flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer",
+            "flex flex-col items-center justify-center w-full h-64 border-2 border-black border-dashed rounded-lg cursor-pointer",
             error
-              ? "bg-red-50 dark:bg-red-700 dark:border-red-600 border-red-500"
+              ? "bg-red-50 border-red-500"
               : file
-              ? "bg-green-50 dark:bg-green-700 dark:border-green-600 border-green-500"
-              : "bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500"
+              ? "bg-green-50 border-green-500"
+              : "bg-gray-50 hover:bg-gray-100"
           )}
         >
           <div className="flex flex-col items-center justify-center p-5">
@@ -85,14 +85,14 @@ const GenericInput: React.FC<IGenericInput> = ({
               className={cn(
                 "mb-2 text-sm text-center",
                 error
-                  ? "text-red-500 dark:text-red-400"
+                  ? "text-red-500"
                   : file
-                  ? "text-green-500 dark:text-green-400"
-                  : "text-gray-500 dark:text-gray-400"
+                  ? "text-green-500"
+                  : "text-gray-500"
               )}
             >
               <span className="font-semibold">Click para subir</span>
-              <br />o arrastra el archivo aquí
+              <br />o arrastra los archivos aquí
             </p>
           </div>
           <input
@@ -134,9 +134,7 @@ const GenericInput: React.FC<IGenericInput> = ({
           )}
         </>
       )}
-      {error && (
-        <small className="text-red-600 dark:text-red-300">{error}</small>
-      )}
+      {error && <small className="text-red-600">{error}</small>}
     </>
   );
 };

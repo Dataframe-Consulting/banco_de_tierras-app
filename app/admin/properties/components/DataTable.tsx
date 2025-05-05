@@ -33,6 +33,7 @@ import type {
   IPropietario,
   IProcesoLegal,
 } from "@/app/shared/interfaces";
+import { ArchivoForm, ArchivosDataTable } from "../../components/Archivos";
 
 interface State {
   open: boolean;
@@ -146,7 +147,7 @@ const PropertiesDataTable = ({
           </button>
           <button
             onClick={() => handleAction(row, "delete")}
-            className="px-4 py- text-white bg-red-400 rounded-md"
+            className="px-4 py-2 text-white bg-red-400 rounded-md"
           >
             <TrashIcon />
           </button>
@@ -239,6 +240,7 @@ const PropertiesDataTable = ({
       | "ubicaciones"
       | "garantias"
       | "procesos_legales"
+      | "archivos"
     >("rentas");
 
     return (
@@ -296,7 +298,7 @@ const PropertiesDataTable = ({
               Garantías
             </button>
           </li>
-          <div>
+          <li>
             <button
               onClick={() => setTab("procesos_legales")}
               className={cn(
@@ -308,7 +310,20 @@ const PropertiesDataTable = ({
             >
               Procesos Legales
             </button>
-          </div>
+          </li>
+          <li>
+            <button
+              onClick={() => setTab("archivos")}
+              className={cn(
+                "px-4 py-2 rounded-md",
+                tab === "archivos"
+                  ? "bg-[#C23B2E] text-white"
+                  : "bg-gray-200 text-gray-700"
+              )}
+            >
+              Archivos
+            </button>
+          </li>
         </ul>
         {tab === "rentas" && <RentsDataTable rents={data.rentas} />}
         {tab === "propietarios" && (
@@ -338,6 +353,9 @@ const PropertiesDataTable = ({
             procesosLegales={data.procesos_legales}
             refresh={refresh}
           />
+        )}
+        {tab === "archivos" && (
+          <ArchivosDataTable refresh={refresh} archivos={data.archivos} />
         )}
       </div>
     );
@@ -442,12 +460,16 @@ const AddMenu = ({
   refresh,
 }: IAddMenu) => {
   const [tab, setTab] = useState<
-    "propietarios" | "ubicaciones" | "garantias" | "procesos_legales"
+    | "propietarios"
+    | "ubicaciones"
+    | "garantias"
+    | "procesos_legales"
+    | "archivos"
   >("propietarios");
 
   return (
-    <div className="py-4 overflow-x-auto">
-      <ul className="flex flex-row gap-4 mb-4">
+    <div className="py-4">
+      <ul className="flex flex-row gap-4 mb-4 overflow-x-auto">
         <li>
           <button
             onClick={() => setTab("propietarios")}
@@ -487,7 +509,7 @@ const AddMenu = ({
             Garantías
           </button>
         </li>
-        <div>
+        <li>
           <button
             onClick={() => setTab("procesos_legales")}
             className={cn(
@@ -499,7 +521,20 @@ const AddMenu = ({
           >
             Procesos Legales
           </button>
-        </div>
+        </li>
+        <li>
+          <button
+            onClick={() => setTab("archivos")}
+            className={cn(
+              "px-4 py-2 rounded-md",
+              tab === "archivos"
+                ? "bg-[#C23B2E] text-white"
+                : "bg-gray-200 text-gray-700"
+            )}
+          >
+            Archivos
+          </button>
+        </li>
       </ul>
       {tab === "propietarios" && (
         <PropiedadPropietarioSociedadForm
@@ -551,6 +586,13 @@ const AddMenu = ({
           )}
           onCloseForm={onClose}
           refresh={refresh}
+        />
+      )}
+      {tab === "archivos" && (
+        <ArchivoForm
+          tabla="propiedad"
+          refresh={refresh}
+          tablaId={propiedad.id}
         />
       )}
     </div>

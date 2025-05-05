@@ -56,12 +56,17 @@ export interface IProyecto {
   vocacion_especifica: IVocacionEspecifica;
 
   propiedades: IPropiedad[];
+
+  archivos: IArchivo[];
 }
 
 export interface IPropietario {
   id: number;
   nombre: string;
   rfc: string;
+
+  archivos: IArchivo[];
+
   created_at: Date;
   updated_at: Date;
 }
@@ -79,6 +84,9 @@ export interface IGarantia {
   monto: number;
   fecha_inicio: Date;
   fecha_fin: Date;
+
+  archivos: IArchivo[];
+
   created_at: Date;
   updated_at: Date;
 }
@@ -89,6 +97,9 @@ export interface IProcesoLegal {
   tipo_proceso: string;
   estatus: string;
   comentarios?: string;
+
+  archivos: IArchivo[];
+
   created_at: Date;
   updated_at: Date;
 }
@@ -115,6 +126,8 @@ export interface IPropiedad {
   garantias: IGarantia[];
   procesos_legales: IProcesoLegal[];
   rentas: IRenta[];
+
+  archivos: IArchivo[];
 }
 
 export interface IPropietarioSociedad {
@@ -184,5 +197,16 @@ export interface IAuditoria {
   usuario_username: string;
   valores_anteriores: object | null;
   valores_nuevos: object | null;
+  created_at: Date;
+}
+
+export interface IArchivo {
+  id: number;
+  url: string;
+  proyecto_id?: number;
+  propiedad_id?: number;
+  propietario_id?: number;
+  garantia_id?: number;
+  proceso_legal_id?: number;
   created_at: Date;
 }

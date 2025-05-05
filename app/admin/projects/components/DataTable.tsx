@@ -19,6 +19,9 @@ import type {
   IVocacionEspecifica,
 } from "@/app/shared/interfaces";
 import formatCurrency from "@/app/shared/utils/format-currency";
+import { ArchivoForm, ArchivosDataTable } from "../../components/Archivos";
+import cn from "@/app/shared/utils/cn";
+import { useModal } from "@/app/shared/hooks";
 
 interface State {
   open: boolean;
@@ -67,12 +70,16 @@ const ProjectsDataTable = ({
   vocacionesEspecificas,
   refresh,
 }: IProjectsDataTable) => {
+  const { isOpen, onClose, onOpen } = useModal();
   const [isClient, setIsClient] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
     open: false,
     action: "add",
     selectedData: null,
   });
+  const [proyectoSelected, setProyectoSelected] = useState<IProyecto | null>(
+    null
+  );
 
   const handleAction = (
     data: IProyecto | null,
@@ -98,7 +105,7 @@ const ProjectsDataTable = ({
   const columns = [
     {
       name: "Acciones",
-      width: "200px",
+      width: "265px",
       cell: (row: IProyecto) => (
         <div className="flex justify-center gap-2">
           <button
@@ -106,6 +113,15 @@ const ProjectsDataTable = ({
             className="px-4 py-2 text-white bg-gray-400 rounded-md"
           >
             <EyeIcon />
+          </button>
+          <button
+            onClick={() => {
+              setProyectoSelected(row);
+              onOpen();
+            }}
+            className="px-4 py-2 text-white bg-green-400 rounded-md"
+          >
+            <PlusCircle />
           </button>
           <button
             onClick={() => handleAction(row, "edit")}
@@ -188,10 +204,48 @@ const ProjectsDataTable = ({
   const ExpandedComponent: React.FC<ExpanderComponentProps<IProyecto>> = ({
     data,
   }) => {
+    const [tab, setTab] = useState<"propiedades" | "archivos">("propiedades");
+
     return (
+      // <div className="pl-12 py-4">
+      //   <h2 className="text-lg font-bold">Propiedades</h2>
+      //   <PropertiesDataTable propiedades={data.propiedades} />
+      // </div>
       <div className="pl-12 py-4">
-        <h2 className="text-lg font-bold">Propiedades</h2>
-        <PropertiesDataTable propiedades={data.propiedades} />
+        <ul className="flex flex-row gap-4">
+          <li>
+            <button
+              onClick={() => setTab("propiedades")}
+              className={cn(
+                "px-4 py-2 rounded-md",
+                tab === "propiedades"
+                  ? "bg-[#C23B2E] text-white"
+                  : "bg-gray-200 text-gray-700"
+              )}
+            >
+              Propiedades
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => setTab("archivos")}
+              className={cn(
+                "px-4 py-2 rounded-md",
+                tab === "archivos"
+                  ? "bg-[#C23B2E] text-white"
+                  : "bg-gray-200 text-gray-700"
+              )}
+            >
+              Archivos
+            </button>
+          </li>
+        </ul>
+        {tab === "propiedades" && (
+          <PropertiesDataTable propiedades={data.propiedades} />
+        )}
+        {tab === "archivos" && (
+          <ArchivosDataTable refresh={refresh} archivos={data.archivos} />
+        )}
       </div>
     );
   };
@@ -202,6 +256,16 @@ const ProjectsDataTable = ({
 
   return (
     <>
+      {isOpen && proyectoSelected && (
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <p className="text-lg font-bold text-center mb-4">Agregar archivos</p>
+          <ArchivoForm
+            tabla="proyecto"
+            refresh={refresh}
+            tablaId={proyectoSelected.id}
+          />
+        </Modal>
+      )}
       {state.open && (
         <Modal
           isOpen={state.open}
