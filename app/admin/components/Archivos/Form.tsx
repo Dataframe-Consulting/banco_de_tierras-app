@@ -6,6 +6,7 @@ import { extractBlobName } from "@/app/shared/utils/extractBlobName";
 import { GenericInput, SubmitButton } from "@/app/shared/components";
 import { deleteBlob, generateSignedUploadUrl } from "@/app/shared/utils/azure";
 import type { IArchivo } from "@/app/shared/interfaces";
+import { validateRequiredFiles } from "@/app/shared/utils/file-validation";
 
 interface IFormState {
   message?: string;
@@ -67,35 +68,30 @@ const ArchivoForm = ({
             };
           }
         } else {
-          if (
-            !files ||
-            files.length === 0 ||
-            Array.from(files).some((file) => file.size === 0)
-          ) {
+          const fileValidationError = validateRequiredFiles("add", files);
+          if (fileValidationError) {
             return {
-              errors: {
-                files: "No se han seleccionado archivos",
-              },
+              errors: fileValidationError,
             };
           }
 
-          const fileKeys = Array.from(files).map((file) =>
+          const fileKeys = Array.from(files!).map((file) =>
             generateFileKey(file)
           );
           const uploadResults = await Promise.all(
             fileKeys.map(async (fileKey, index) => {
               const { url, publicUrl } = await generateSignedUploadUrl(
                 fileKey,
-                files[index].type
+                files![index].type
               );
 
               const res = await fetch(url, {
                 method: "PUT",
                 headers: {
                   "x-ms-blob-type": "BlockBlob",
-                  "Content-Type": files[index].type,
+                  "Content-Type": files![index].type,
                 },
-                body: files[index],
+                body: files![index],
               });
 
               if (!res.ok) {

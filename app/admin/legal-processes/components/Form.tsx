@@ -7,6 +7,7 @@ import type { IProcesoLegal } from "@/app/shared/interfaces";
 import { deleteBlob, generateSignedUploadUrl } from "@/app/shared/utils/azure";
 import { extractBlobName } from "@/app/shared/utils/extractBlobName";
 import { generateFileKey } from "@/app/shared/utils/generateFileKey";
+import { validateRequiredFiles } from "@/app/shared/utils/file-validation";
 
 interface IRentaState {
   message?: string;
@@ -69,16 +70,10 @@ const Form = ({
           };
         }
 
-        if (
-          action === "add" &&
-          (!files ||
-            files.length === 0 ||
-            Array.from(files).some((file) => file.size === 0))
-        ) {
+        const fileValidationError = validateRequiredFiles(action, files);
+        if (fileValidationError) {
           return {
-            errors: {
-              files: "No se han seleccionado archivos",
-            },
+            errors: fileValidationError,
             data: dataToValidate,
           };
         }
