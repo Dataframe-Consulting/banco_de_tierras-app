@@ -1,38 +1,117 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Banco de Tierras - Web App
 
-## Getting Started
+Aplicación web integral diseñada para la gestión completa de un banco de tierras institucional. Permite administrar:
 
-First, run the development server:
+- **🏘️ Proyectos inmobiliarios** y su cartera de propiedades.
+- **🏠 Propiedades** con información detallada (superficie, valor, datos catastrales).
+- **👥 Propietarios** y estructura de sociedades.
+- **📄 Contratos de renta** con términos detallados.
+- **⚖️ Procesos legales** y garantías financieras.
+- **📍 Ubicaciones geográficas** y clasificaciones de uso de suelo.
+- **📁 Documentación** asociada a cada entidad.
+- **📊 Auditoría completa** de todas las operaciones.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🏗️ **Arquitectura**
+
+### **Frontend - Next.js (React)**
+```
+📂 app/
+├── 🔐 (auth)/login/           # Autenticación
+├── 🏢 admin/                  # Panel administrativo
+│   ├── properties/            # Gestión de propiedades
+│   ├── projects/              # Gestión de proyectos
+│   ├── owners/                # Gestión de propietarios
+│   ├── rents/                 # Gestión de rentas
+│   ├── guarantees/            # Gestión de garantías
+│   ├── legal-processes/       # Procesos legales
+│   ├── locations/             # Ubicaciones
+│   ├── vocations/             # Vocaciones de uso
+│   └── audit/                 # Auditoría
+├── 🔧 shared/                 # Componentes reutilizables
+│   ├── components/            # UI Components
+│   ├── hooks/                 # React Hooks
+│   ├── interfaces/            # TypeScript interfaces
+│   └── utils/                 # Utilidades
+└── 🎨 styles/                 # Estilos globales
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### **Backend - Python/FastAPI**
+- **API RESTful** hospedada en Azure Web Apps.
+- **Autenticación** con sesiones y cookies.
+- **Endpoints** para cada entidad del sistema.
+- **Validación** de datos con Pydantic.
+- **ORM** SQLAlchemy para interacción con PostgreSQL.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### **Base de Datos - PostgreSQL**
+- **Hospedada en Azure Database for PostgreSQL**.
+- **18 tablas** interrelacionadas.
+- **Integridad referencial** con claves foráneas.
+- **Auditoría automática** de cambios.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### **Almacenamiento - Azure Blob Storage**
+- **URLs firmadas** para subida segura.
+- **Integración directa** desde el frontend.
 
-## Learn More
+## 💾 **Modelo de datos**
 
-To learn more about Next.js, take a look at the following resources:
+Ver el [📊 Diagrama Entidad-Relación completo](./DIAGRAMA-ER.md)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### **Entidades principales:**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+#### 🏗️ **PROYECTO**
+Centro del sistema. Representa un desarrollo o conjunto de propiedades.
+- Superficie total, estado activo, comentarios.
+- Clasificación por vocación de uso y situación física.
 
-## Deploy on Vercel
+#### 🏠 **PROPIEDAD** 
+Unidad básica del inventario.
+- Datos físicos: superficie, valor comercial, año de valuación.
+- Datos fiscales: clave catastral, base predial, adeudos.
+- Asociada a un proyecto específico.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+#### 👥 **PROPIETARIO**
+Personas físicas o morales dueñas de propiedades.
+- Información básica: nombre, RFC.
+- Relación con propiedades incluye % de participación y tipo de sociedad.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+#### 📄 **RENTA**
+Contratos de arrendamiento.
+- Datos comerciales: nombre comercial, razón social.
+- Términos financieros: monto, depósitos, meses de gracia.
+- Vigencias y notas de incremento.
 
-testing
+#### ⚖️ **PROCESO_LEGAL**
+Gestión de aspectos legales.
+- Información del abogado, tipo de proceso, estatus.
+- Asociable a múltiples propiedades.
+
+#### 💰 **GARANTIA**
+Garantías financieras.
+- Beneficiario, monto, fechas de vigencia.
+- Asociable a múltiples propiedades.
+
+### **Sistemas de soporte:**
+
+#### 📁 **ARCHIVO**
+Gestión documental integrada.
+- URLs de Azure Storage.
+- Asociable a cualquier entidad principal.
+
+#### 📊 **AUDITORIA**
+Trazabilidad completa.
+- Registro de operaciones (CREATE, UPDATE, DELETE).
+- Valores anteriores y nuevos en formato JSON.
+- Usuario responsable y timestamp.
+
+### **Validación de archivos adjuntos**
+
+> [!CAUTION]
+> Aunque la API no fuerza adjuntar archivos a las entidades se ha implementado un script temporal para activar/desactivar dicha validación por parte del frontend.
+
+```bash
+# Desactivar validaciones temporalmente
+node toggle-file-validation.mjs false
+
+# Reactivar validaciones
+node toggle-file-validation.mjs true
+```
