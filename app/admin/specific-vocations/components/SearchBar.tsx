@@ -9,8 +9,8 @@ const SearchBar = () => {
   const { filters, handleSearch } = useSearchFilter(defaultFilters);
 
   return (
-    <search className="max-w-lg mx-auto mt-6 mb-4">
-      <div className="flex flex-col md:flex-row gap-2 items-end">
+    <search className="max-w-2xl mx-auto py-2">
+      <div className="flex gap-2 items-end">
         <GenericSearchInput
           type="text"
           inputClassName="h-full"

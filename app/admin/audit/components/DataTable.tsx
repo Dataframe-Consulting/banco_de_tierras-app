@@ -114,7 +114,7 @@ const AuditsDataTable = ({ audits }: IAuditsDataTable) => {
   }, []);
 
   return (
-    <>
+    <div className="h-full">
       {audits.length > 0 ? (
         <>
           {isClient ? (
@@ -125,11 +125,11 @@ const AuditsDataTable = ({ audits }: IAuditsDataTable) => {
         </>
       ) : (
         <Card404
-          title="No se encontraron auditorias."
-          description="No se encontraron auditorias en la base de datos."
+          title="No se encontraron auditorías."
+          description="No se encontraron auditorías en la base de datos."
         />
       )}
-    </>
+    </div>
   );
 };
 

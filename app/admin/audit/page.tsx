@@ -1,74 +1,56 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
-import { AuditsDataTable, SearchBar } from "./components";
-import { DatatableSkeleton } from "@/app/shared/components";
+import { useSearchParams } from "next/navigation";
+import { SearchBar, AuditsDataTable } from "./components";
+import { DatatableSkeleton, PageLayout } from "@/app/shared/components";
 import type { IAuditoria } from "@/app/shared/interfaces";
 
-const AuditsContent = () => {
+const AuditContent = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [audits, setAudits] = useState<IAuditoria[]>([]);
 
   const searchParams = useSearchParams();
-  const operacion = searchParams.get("operacion") || "";
-  const tabla_afectada = searchParams.get("tabla_afectada") || "";
-  const usuario_username = searchParams.get("usuario_username") || "";
-  const registrado_desde = searchParams.get("registrado_desde") || "";
-  const registrado_hasta = searchParams.get("registrado_hasta") || "";
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+      const searchParamsObj = Object.fromEntries(searchParams.entries());
+      const params = new URLSearchParams(searchParamsObj);
+
       try {
-        setLoading(true);
-
-        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/auditoria/`);
-        const params = new URLSearchParams();
-
-        if (operacion) params.append("operacion", operacion);
-        if (tabla_afectada) params.append("tabla_afectada", tabla_afectada);
-        if (usuario_username)
-          params.append("usuario_username", usuario_username);
-        if (registrado_desde)
-          params.append("registrado_desde", registrado_desde);
-        if (registrado_hasta)
-          params.append("registrado_hasta", registrado_hasta);
-
-        const response = await fetch(`${url}?${params.toString()}`, {
-          credentials: "include",
-        });
-        const auditsData = await response.json();
-        setAudits(auditsData);
+        const response = await fetch(`/api/auditoria?${params.toString()}`);
+        if (response.ok) {
+          const result = await response.json();
+          setAudits(result.data || []);
+        }
       } catch (error) {
-        console.error("Error fetching data", error);
+        console.error("Error fetching audit data:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [
-    operacion,
-    tabla_afectada,
-    usuario_username,
-    registrado_desde,
-    registrado_hasta,
-  ]);
+  }, [searchParams]);
 
   return (
-    <>
-      <SearchBar />
-      {loading ? <DatatableSkeleton /> : <AuditsDataTable audits={audits} />}
-    </>
+    <PageLayout searchBar={<SearchBar />}>
+      {loading ? (
+        <DatatableSkeleton />
+      ) : (
+        <AuditsDataTable audits={audits} />
+      )}
+    </PageLayout>
   );
 };
 
-const AuditsPage = () => {
+const AuditPage = () => {
   return (
     <Suspense fallback={<DatatableSkeleton />}>
-      <AuditsContent />
+      <AuditContent />
     </Suspense>
   );
 };
 
-export default AuditsPage;
+export default AuditPage;

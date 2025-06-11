@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import cn from "@/app/shared/utils/cn";
 import { usePathname } from "next/navigation";
 import { DownChevron } from "@/app/shared/icons";
@@ -34,7 +35,21 @@ const SideBar = () => {
 
   return (
     <aside className="fixed z-20 top-0 w-48 h-screen transition-transform -translate-x-full sm:translate-x-0">
-      <div className="h-full pt-[5rem] px-4 pb-4 overflow-y-auto bg-[#C23B2E]">
+      <div className="h-full px-4 py-4 overflow-y-auto bg-[#C23B2E]">
+        {/* Logotipo de la empresa */}
+        <div className="mb-6 flex justify-center">
+          <div className="w-36 h-12">
+            <Image
+              priority
+              width={100}
+              height={100}
+              alt="Logo de Banco de Tierras"
+              className="object-contain size-full"
+              src="/assets/images/main-logo.webp"
+            />
+          </div>
+        </div>
+
         <ul className="flex flex-col gap-2 font-medium">
           <li>
             <LinkComp

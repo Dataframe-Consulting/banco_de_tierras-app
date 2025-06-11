@@ -3,8 +3,8 @@
 import Form from "./Form";
 import formatCurrency from "@/app/shared/utils/format-currency";
 import { ExpanderComponentProps } from "react-data-table-component";
-import { PencilIcon, PlusCircle, TrashIcon } from "@/app/shared/icons";
-import { useEffect, useOptimistic, useReducer, useState } from "react";
+import { PencilIcon, TrashIcon } from "@/app/shared/icons";
+import { useCallback, useEffect, useOptimistic, useReducer, useState } from "react";
 import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
 import { PropiedadesDataTable, RentsPropertiesForm } from "./Propiedades";
 import {
@@ -48,9 +48,10 @@ interface IRentsDataTable {
   rents: IRenta[];
   propiedades: IPropiedad[];
   refresh: () => void;
+  onAction?: (renta: IRenta | null, action: "add" | "edit" | "delete") => void;
 }
 
-const RentsDataTable = ({ rents, propiedades, refresh }: IRentsDataTable) => {
+const RentsDataTable = ({ rents, propiedades, refresh, onAction }: IRentsDataTable) => {
   const [isClient, setIsClient] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
     open: false,
@@ -58,12 +59,16 @@ const RentsDataTable = ({ rents, propiedades, refresh }: IRentsDataTable) => {
     selectedRenta: null,
   });
 
-  const handleAction = (
+  const handleAction = useCallback((
     renta: IRenta | null,
     action: "add" | "edit" | "delete"
   ) => {
-    dispatch({ type: "OPEN_MODAL", payload: { action, renta } });
-  };
+    if (onAction) {
+      onAction(renta, action);
+    } else {
+      dispatch({ type: "OPEN_MODAL", payload: { action, renta } });
+    }
+  }, [onAction]);
 
   const [optimisticData, setOptimisticData] = useOptimistic(
     rents,
@@ -332,7 +337,7 @@ const RentsDataTable = ({ rents, propiedades, refresh }: IRentsDataTable) => {
 
   return (
     <>
-      {state.open && (
+      {!onAction && state.open && (
         <Modal
           isOpen={state.open}
           onClose={() => dispatch({ type: "CLOSE_MODAL" })}
@@ -347,20 +352,22 @@ const RentsDataTable = ({ rents, propiedades, refresh }: IRentsDataTable) => {
           />
         </Modal>
       )}
-      <div className="w-full text-right">
-        <button
-          onClick={() => handleAction(null, "add")}
-          className="px-4 py-2 text-white bg-green-400 rounded-md"
-        >
-          <PlusCircle />
-        </button>
-      </div>
+      {!onAction && (
+        <div className="w-full text-right mb-4">
+          <button
+            onClick={() => handleAction(null, "add")}
+            className="px-4 py-2 text-white bg-green-400 rounded-md"
+          >
+            +
+          </button>
+        </div>
+      )}
       {rents.length > 0 ? (
         <>
           {isClient ? (
             <Datatable
               columns={columns}
-              data={optimisticData}
+              data={onAction ? rents : optimisticData}
               isExpandable
               expandableRowsComponent={(props) => (
                 <ExpandedComponent {...props} />

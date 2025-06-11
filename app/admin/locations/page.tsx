@@ -1,55 +1,130 @@
 "use client";
 
+import { useState, useEffect, Suspense, useReducer, useOptimistic } from "react";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
 import { SearchBar, LocationsDataTable } from "./components";
-import { DatatableSkeleton } from "@/app/shared/components";
+import { DatatableSkeleton, PageLayout, AddButton, Modal } from "@/app/shared/components";
+import Form from "./components/Form";
 import type { IUbicacion } from "@/app/shared/interfaces";
 
-const LocationsPageContent = () => {
+interface State {
+  open: boolean;
+  action: "add" | "edit" | "delete";
+  selectedData: IUbicacion | null;
+}
+
+type Action =
+  | {
+      type: "OPEN_MODAL";
+      payload: { action: "add" | "edit" | "delete"; data: IUbicacion | null };
+    }
+  | { type: "CLOSE_MODAL" };
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case "OPEN_MODAL":
+      return {
+        ...state,
+        open: true,
+        action: action.payload.action,
+        selectedData: action.payload.data,
+      };
+    case "CLOSE_MODAL":
+      return { ...state, open: false };
+    default:
+      return state;
+  }
+};
+
+const LocationsContent = () => {
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [locations, setLocations] = useState<IUbicacion[]>([]);
+  const [state, dispatch] = useReducer(reducer, {
+    open: false,
+    action: "add",
+    selectedData: null,
+  });
+
+  const handleAction = (
+    data: IUbicacion | null,
+    action: "add" | "edit" | "delete"
+  ) => {
+    dispatch({ type: "OPEN_MODAL", payload: { action, data } });
+  };
+
+  const [optimisticData, setOptimisticData] = useOptimistic(
+    locations,
+    (currentData, data: IUbicacion | null) => {
+      if (state.action === "add") return [...currentData, data] as IUbicacion[];
+      if (state.action === "edit")
+        return currentData.map((i) =>
+          i.id === data?.id ? data : i
+        ) as IUbicacion[];
+      if (state.action === "delete")
+        return currentData.filter((i) => i.id !== data?.id) as IUbicacion[];
+      return currentData;
+    }
+  );
 
   const searchParams = useSearchParams();
-  const q = searchParams.get("q") || "";
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+      const searchParamsObj = Object.fromEntries(searchParams.entries());
+      const params = new URLSearchParams(searchParamsObj);
+
       try {
-        setLoading(true);
-
-        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/ubicacion/`);
-        const params = new URLSearchParams();
-
-        if (q) params.append("q", q);
-
-        const response = await fetch(`${url}?${params.toString()}`, {
-          credentials: "include",
-        });
-        const locationsData = await response.json();
-        setLocations(locationsData);
+        const response = await fetch(`/api/ubicaciones?${params.toString()}`);
+        if (response.ok) {
+          const result = await response.json();
+          setLocations(result.data || []);
+        }
       } catch (error) {
-        console.error("Error fetching data", error);
+        console.error("Error fetching locations:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [q, refresh]);
+  }, [searchParams, refresh]);
 
   return (
     <>
-      <SearchBar />
-      {loading ? (
-        <DatatableSkeleton />
-      ) : (
-        <LocationsDataTable
-          locations={locations}
-          refresh={() => setRefresh((prev) => !prev)}
-        />
+      {state.open && (
+        <Modal
+          isOpen={state.open}
+          onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+        >
+          <Form
+            action={state.action}
+            ubicacion={state.selectedData}
+            refresh={() => setRefresh((prev) => !prev)}
+            setOptimisticData={setOptimisticData}
+            onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+          />
+        </Modal>
       )}
+      <PageLayout 
+        searchBar={<SearchBar />}
+        addButton={
+          <AddButton
+            label="Añadir Ubicación"
+            onClick={() => handleAction(null, "add")}
+          />
+        }
+      >
+        {loading ? (
+          <DatatableSkeleton />
+        ) : (
+          <LocationsDataTable
+            locations={optimisticData}
+            onAction={handleAction}
+          />
+        )}
+      </PageLayout>
     </>
   );
 };
@@ -57,7 +132,7 @@ const LocationsPageContent = () => {
 const LocationsPage = () => {
   return (
     <Suspense fallback={<DatatableSkeleton />}>
-      <LocationsPageContent />
+      <LocationsContent />
     </Suspense>
   );
 };
