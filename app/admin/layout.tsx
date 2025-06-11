@@ -1,12 +1,11 @@
 import React from "react";
-import { Header, SideBar } from "./components";
+import { SideBar } from "./components";
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
-      <Header />
       <SideBar />
-      <main className="sm:ml-48 pt-[5rem] px-4 pb-4 min-h-screen">
+      <main className="sm:ml-48">
         {children}
       </main>
     </>
