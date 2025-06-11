@@ -35,7 +35,7 @@ const GenericSearchInput: React.FC<IGenericSearchInputProps> = ({
     id,
     value,
     className: cn(
-      "w-full p-2.5 bg-gray-50 border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500",
+      "w-full p-1.5 text-sm bg-gray-50 border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500",
       inputClassName
     ),
   };
@@ -46,7 +46,7 @@ const GenericSearchInput: React.FC<IGenericSearchInputProps> = ({
         <label
           htmlFor={id}
           className={cn(
-            "w-full mx-2 text-gray-900 font-medium",
+            "w-full mx-1 text-xs text-gray-900 font-medium",
             labelClassName
           )}
         >

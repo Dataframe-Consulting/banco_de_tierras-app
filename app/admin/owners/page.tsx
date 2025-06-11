@@ -1,59 +1,130 @@
 "use client";
 
+import { useState, useEffect, Suspense, useReducer, useOptimistic } from "react";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
 import { SearchBar, OwnersDataTable } from "./components";
-import { DatatableSkeleton } from "@/app/shared/components";
+import { DatatableSkeleton, PageLayout, AddButton, Modal } from "@/app/shared/components";
+import Form from "./components/Form";
 import type { IPropietario } from "@/app/shared/interfaces";
 
-const OwnersPageContent = () => {
+interface State {
+  open: boolean;
+  action: "add" | "edit" | "delete";
+  selectedData: IPropietario | null;
+}
+
+type Action =
+  | {
+      type: "OPEN_MODAL";
+      payload: { action: "add" | "edit" | "delete"; data: IPropietario | null };
+    }
+  | { type: "CLOSE_MODAL" };
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case "OPEN_MODAL":
+      return {
+        ...state,
+        open: true,
+        action: action.payload.action,
+        selectedData: action.payload.data,
+      };
+    case "CLOSE_MODAL":
+      return { ...state, open: false };
+    default:
+      return state;
+  }
+};
+
+const OwnersContent = () => {
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
-  const [propietarios, setPropietarios] = useState<IPropietario[]>([]);
+  const [owners, setOwners] = useState<IPropietario[]>([]);
+  const [state, dispatch] = useReducer(reducer, {
+    open: false,
+    action: "add",
+    selectedData: null,
+  });
+
+  const handleAction = (
+    data: IPropietario | null,
+    action: "add" | "edit" | "delete"
+  ) => {
+    dispatch({ type: "OPEN_MODAL", payload: { action, data } });
+  };
+
+  const [optimisticData, setOptimisticData] = useOptimistic(
+    owners,
+    (currentData, data: IPropietario | null) => {
+      if (state.action === "add") return [...currentData, data] as IPropietario[];
+      if (state.action === "edit")
+        return currentData.map((i) =>
+          i.id === data?.id ? data : i
+        ) as IPropietario[];
+      if (state.action === "delete")
+        return currentData.filter((i) => i.id !== data?.id) as IPropietario[];
+      return currentData;
+    }
+  );
 
   const searchParams = useSearchParams();
-  const q = searchParams.get("q") || "";
-  const socio_id = searchParams.get("socio_id") || "";
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+      const searchParamsObj = Object.fromEntries(searchParams.entries());
+      const params = new URLSearchParams(searchParamsObj);
+
       try {
-        setLoading(true);
-
-        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/propietario/`);
-        const params = new URLSearchParams();
-
-        if (q) params.append("q", q);
-
-        const propietariosResponse = await fetch(
-          `${url}?${params.toString()}`,
-          {
-            credentials: "include",
-          }
-        );
-        const propietariosData = await propietariosResponse.json();
-        setPropietarios(propietariosData);
+        const response = await fetch(`/api/propietarios?${params.toString()}`);
+        if (response.ok) {
+          const result = await response.json();
+          setOwners(result.data || []);
+        }
       } catch (error) {
-        console.error("Error fetching data", error);
+        console.error("Error fetching owners:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [q, socio_id, refresh]);
+  }, [searchParams, refresh]);
 
   return (
     <>
-      <SearchBar />
-      {loading ? (
-        <DatatableSkeleton />
-      ) : (
-        <OwnersDataTable
-          propietarios={propietarios}
-          refresh={() => setRefresh((prev) => !prev)}
-        />
+      {state.open && (
+        <Modal
+          isOpen={state.open}
+          onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+        >
+          <Form
+            action={state.action}
+            propietario={state.selectedData}
+            refresh={() => setRefresh((prev) => !prev)}
+            setOptimisticData={setOptimisticData}
+            onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+          />
+        </Modal>
       )}
+      <PageLayout 
+        searchBar={<SearchBar />}
+        addButton={
+          <AddButton
+            label="Añadir Propietario"
+            onClick={() => handleAction(null, "add")}
+          />
+        }
+      >
+        {loading ? (
+          <DatatableSkeleton />
+        ) : (
+          <OwnersDataTable
+            owners={optimisticData}
+            onAction={handleAction}
+          />
+        )}
+      </PageLayout>
     </>
   );
 };
@@ -61,7 +132,7 @@ const OwnersPageContent = () => {
 const OwnersPage = () => {
   return (
     <Suspense fallback={<DatatableSkeleton />}>
-      <OwnersPageContent />;
+      <OwnersContent />
     </Suspense>
   );
 };

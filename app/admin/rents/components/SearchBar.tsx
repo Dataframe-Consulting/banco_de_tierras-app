@@ -16,15 +16,19 @@ const SearchBar = ({
   const { filters, handleSearch } = useSearchFilter(defaultFilters);
 
   return (
-    <search className="max-w-lg mx-auto mt-6 mb-4">
-      <div className="flex flex-col md:flex-row gap-2 items-end">
-        <GenericSearchInput
-          type="text"
-          inputClassName="h-full"
-          value={filters.q}
-          onChange={(value: string) => handleSearch("q", value)}
-          placeholder="Busca por nombre comercial o razon social..."
-        />
+    <search className="max-w-4xl mx-auto py-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 items-end">
+        <div>
+          <GenericSearchInput
+            type="text"
+            id="q"
+            ariaLabel="Búsqueda"
+            inputClassName="h-full"
+            value={filters.q}
+            onChange={(value: string) => handleSearch("q", value)}
+            placeholder="Busca por nombre comercial o razon social..."
+          />
+        </div>
         <div>
           <GenericSearchInput
             type="select"

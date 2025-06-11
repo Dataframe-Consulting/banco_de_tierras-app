@@ -1,51 +1,130 @@
 "use client";
 
+import { useState, useEffect, Suspense, useReducer, useOptimistic } from "react";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
-import { DatatableSkeleton } from "@/app/shared/components";
 import { SearchBar, GuaranteesDataTable } from "./components";
+import { DatatableSkeleton, PageLayout, AddButton, Modal } from "@/app/shared/components";
+import Form from "./components/Form";
 import type { IGarantia } from "@/app/shared/interfaces";
 
-const GuaranteesPageContent = () => {
+interface State {
+  open: boolean;
+  action: "add" | "edit" | "delete";
+  selectedData: IGarantia | null;
+}
+
+type Action =
+  | {
+      type: "OPEN_MODAL";
+      payload: { action: "add" | "edit" | "delete"; data: IGarantia | null };
+    }
+  | { type: "CLOSE_MODAL" };
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case "OPEN_MODAL":
+      return {
+        ...state,
+        open: true,
+        action: action.payload.action,
+        selectedData: action.payload.data,
+      };
+    case "CLOSE_MODAL":
+      return { ...state, open: false };
+    default:
+      return state;
+  }
+};
+
+const GuaranteesContent = () => {
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [guarantees, setGuarantees] = useState<IGarantia[]>([]);
+  const [state, dispatch] = useReducer(reducer, {
+    open: false,
+    action: "add",
+    selectedData: null,
+  });
+
+  const handleAction = (
+    data: IGarantia | null,
+    action: "add" | "edit" | "delete"
+  ) => {
+    dispatch({ type: "OPEN_MODAL", payload: { action, data } });
+  };
+
+  const [optimisticData, setOptimisticData] = useOptimistic(
+    guarantees,
+    (currentData, data: IGarantia | null) => {
+      if (state.action === "add") return [...currentData, data] as IGarantia[];
+      if (state.action === "edit")
+        return currentData.map((i) =>
+          i.id === data?.id ? data : i
+        ) as IGarantia[];
+      if (state.action === "delete")
+        return currentData.filter((i) => i.id !== data?.id) as IGarantia[];
+      return currentData;
+    }
+  );
+
   const searchParams = useSearchParams();
-  const q = searchParams.get("q") || "";
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        setLoading(true);
-        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/garantia/`);
-        if (q) url.searchParams.append("q", q);
+      setLoading(true);
+      const searchParamsObj = Object.fromEntries(searchParams.entries());
+      const params = new URLSearchParams(searchParamsObj);
 
-        const response = await fetch(url.toString(), {
-          credentials: "include",
-        });
-        const data = await response.json();
-        setGuarantees(data);
+      try {
+        const response = await fetch(`/api/garantias?${params.toString()}`);
+        if (response.ok) {
+          const result = await response.json();
+          setGuarantees(result.data || []);
+        }
       } catch (error) {
-        console.error("Error fetching guarantees", error);
+        console.error("Error fetching guarantees:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [q, refresh]);
+  }, [searchParams, refresh]);
 
   return (
     <>
-      <SearchBar />
-      {loading ? (
-        <DatatableSkeleton />
-      ) : (
-        <GuaranteesDataTable
-          guarantees={guarantees}
-          refresh={() => setRefresh((prev) => !prev)}
-        />
+      {state.open && (
+        <Modal
+          isOpen={state.open}
+          onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+        >
+          <Form
+            action={state.action}
+            garantia={state.selectedData}
+            refresh={() => setRefresh((prev) => !prev)}
+            setOptimisticData={setOptimisticData}
+            onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+          />
+        </Modal>
       )}
+      <PageLayout 
+        searchBar={<SearchBar />}
+        addButton={
+          <AddButton
+            label="Añadir Garantía"
+            onClick={() => handleAction(null, "add")}
+          />
+        }
+      >
+        {loading ? (
+          <DatatableSkeleton />
+        ) : (
+          <GuaranteesDataTable
+            guarantees={optimisticData}
+            onAction={handleAction}
+          />
+        )}
+      </PageLayout>
     </>
   );
 };
@@ -53,7 +132,7 @@ const GuaranteesPageContent = () => {
 const GuaranteesPage = () => {
   return (
     <Suspense fallback={<DatatableSkeleton />}>
-      <GuaranteesPageContent />
+      <GuaranteesContent />
     </Suspense>
   );
 };
