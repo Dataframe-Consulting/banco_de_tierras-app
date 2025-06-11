@@ -1,0 +1,16 @@
+# Scripts utilitarios de base de datos
+create-user.js
+backup-database.js
+clean-users.js
+test-db-connection.js
+get-database-schema.js
+check-azure-files.js
+
+# Archivos de configuración y datos
+database-schema.json
+*.json
+
+# Directorios
+backups/
+node_modules/
+.next/ 

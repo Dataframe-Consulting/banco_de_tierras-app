@@ -37,8 +37,8 @@ const SearchBar = ({
   const { filters, handleSearch } = useSearchFilter(defaultFilters);
 
   return (
-    <search className="max-w-lg mx-auto mt-6 mb-4">
-      <div className="flex flex-col md:flex-row gap-2 items-end">
+    <search className="max-w-6xl mx-auto mt-6 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 items-end">
         <div>
           <GenericSearchInput
             type="select"
