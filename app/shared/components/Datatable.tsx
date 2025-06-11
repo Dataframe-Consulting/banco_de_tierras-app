@@ -90,31 +90,25 @@ const Datatable = <T extends object>({
     setIsClient(true);
   }, []);
 
-  const paginationComponentOptions = {
-    selectAllRowsItem: true,
-    rangeSeparatorText: "de",
-    selectAllRowsItemText: "Todo",
-    rowsPerPageText: "Filas por página:",
-  };
+
 
   if (!isClient) return <DatatableSkeleton />;
 
   return (
-    <DataTable
-      pagination
-      fixedHeader
-      data={data}
-      columns={columns}
-      paginationPerPage={50}
-      expandableRows={isExpandable}
-      customStyles={customStyles(theme)}
-      onSelectedRowsChange={onSelectedRowsChange}
-      paginationRowsPerPageOptions={[50, 100, 200]}
-      expandableRowsComponent={expandableRowsComponent}
-      conditionalRowStyles={resolvedConditionalRowStyles}
-      selectableRows={onSelectedRowsChange ? true : false}
-      paginationComponentOptions={paginationComponentOptions}
-    />
+    <div className="h-full flex flex-col">
+      <DataTable
+        fixedHeader
+        fixedHeaderScrollHeight="100%"
+        data={data}
+        columns={columns}
+        expandableRows={isExpandable}
+        customStyles={customStyles(theme)}
+        onSelectedRowsChange={onSelectedRowsChange}
+        expandableRowsComponent={expandableRowsComponent}
+        conditionalRowStyles={resolvedConditionalRowStyles}
+        selectableRows={onSelectedRowsChange ? true : false}
+      />
+    </div>
   );
 };
 
