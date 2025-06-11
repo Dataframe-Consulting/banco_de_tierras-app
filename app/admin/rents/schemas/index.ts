@@ -33,8 +33,8 @@ const baseSchema = z.object({
     .number({
       message: "El número de meses de depósito de garantía es requerido",
     })
-    .min(1, {
-      message: "El número de meses de depósito de garantía es requerido",
+    .min(0, {
+      message: "El número de meses de depósito de garantía debe ser mayor o igual a 0",
     })
     .max(10, {
       message:
@@ -42,27 +42,27 @@ const baseSchema = z.object({
     }),
   meses_gracia: z
     .number({
-      message: "El número de meses de depósito de garantía es requerido",
+      message: "El número de meses de gracia es requerido",
     })
-    .min(1, {
-      message: "El número de meses de depósito de garantía es requerido",
+    .min(0, {
+      message: "El número de meses de gracia debe ser mayor o igual a 0",
     })
     .max(10, {
       message:
-        "El número de meses de depósito de garantía no puede ser mayor a 10",
+        "El número de meses de gracia no puede ser mayor a 10",
     }),
   meses_gracia_fecha_inicio: z.date().nullable().optional(),
   meses_gracia_fecha_fin: z.date().nullable().optional(),
   meses_renta_anticipada: z
     .number({
-      message: "El número de meses de depósito de garantía es requerido",
+      message: "El número de meses de renta anticipada es requerido",
     })
-    .min(1, {
-      message: "El número de meses de depósito de garantía es requerido",
+    .min(0, {
+      message: "El número de meses de renta anticipada debe ser mayor o igual a 0",
     })
     .max(10, {
       message:
-        "El número de meses de depósito de garantía no puede ser mayor a 10",
+        "El número de meses de renta anticipada no puede ser mayor a 10",
     }),
   renta_anticipada_fecha_inicio: z.date().nullable().optional(),
   renta_anticipada_fecha_fin: z.date().nullable().optional(),
