@@ -348,9 +348,9 @@ const Form = ({
                       ariaLabel="Meses depósito de Garantía"
                       placeholder="Selecciona un número de meses"
                       defaultValue={data?.meses_deposito_garantia?.toString()}
-                      options={Array.from({ length: 10 }, (_, i) => ({
-                        value: (i + 1).toString(),
-                        label: (i + 1).toString(),
+                      options={Array.from({ length: 11 }, (_, i) => ({
+                        value: i.toString(),
+                        label: i.toString(),
                       }))}
                       error={errors?.meses_deposito_garantia}
                     />
@@ -364,9 +364,9 @@ const Form = ({
                       ariaLabel="Meses de Gracia"
                       placeholder="Selecciona un número de meses"
                       defaultValue={data?.meses_gracia?.toString()}
-                      options={Array.from({ length: 10 }, (_, i) => ({
-                        value: (i + 1).toString(),
-                        label: (i + 1).toString(),
+                      options={Array.from({ length: 11 }, (_, i) => ({
+                        value: i.toString(),
+                        label: i.toString(),
                       }))}
                       error={errors?.meses_gracia}
                     />
@@ -412,9 +412,9 @@ const Form = ({
                       ariaLabel="Meses Renta Anticipada"
                       placeholder="Selecciona un número de meses"
                       defaultValue={data?.meses_renta_anticipada?.toString()}
-                      options={Array.from({ length: 10 }, (_, i) => ({
-                        value: (i + 1).toString(),
-                        label: (i + 1).toString(),
+                      options={Array.from({ length: 11 }, (_, i) => ({
+                        value: i.toString(),
+                        label: i.toString(),
                       }))}
                       error={errors?.meses_renta_anticipada}
                     />
