@@ -33,7 +33,7 @@ const UbicacionesDataTable = ({
   const columns = [
     {
       name: "Acciones",
-      width: "90px",
+      width: "60px",
       cell: (row: IUbicacion) => (
         <div className="flex justify-center gap-2">
           <button
@@ -41,7 +41,7 @@ const UbicacionesDataTable = ({
               setUbicacionSelected(row);
               onOpen();
             }}
-            className="px-4 py-2 text-white bg-red-400 rounded-md"
+            className="p-2 text-white bg-red-400 rounded-md"
           >
             <TrashIcon />
           </button>

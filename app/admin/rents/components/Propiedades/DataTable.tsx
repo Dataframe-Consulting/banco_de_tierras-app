@@ -23,7 +23,7 @@ const PropiedadesDataTable = ({
   const columns = [
     {
       name: "Acciones",
-      width: "90px",
+      width: "60px",
       cell: (row: IPropiedad) => (
         <div className="flex justify-center gap-2">
           <RentsPropertiesForm

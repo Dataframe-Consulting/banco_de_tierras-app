@@ -87,7 +87,7 @@ const RentsDataTable = ({ rents, propiedades, refresh, onAction }: IRentsDataTab
   const columns = [
     {
       name: "Acciones",
-      width: "220px",
+      width: "150px",
       cell: (row: IRenta) => (
         <div className="flex justify-center gap-2">
           <RentsPropertiesForm
@@ -101,13 +101,13 @@ const RentsDataTable = ({ rents, propiedades, refresh, onAction }: IRentsDataTab
           />
           <button
             onClick={() => handleAction(row, "edit")}
-            className="px-4 py-2 text-white bg-blue-400 rounded-md"
+            className="p-2 text-white bg-blue-400 rounded-md"
           >
             <PencilIcon />
           </button>
           <button
             onClick={() => handleAction(row, "delete")}
-            className="px-4 py-2 text-white bg-red-400 rounded-md"
+            className="p-2 text-white bg-red-400 rounded-md"
           >
             <TrashIcon />
           </button>
@@ -350,7 +350,7 @@ const RentsDataTable = ({ rents, propiedades, refresh, onAction }: IRentsDataTab
         <div className="w-full text-right mb-4">
           <button
             onClick={() => handleAction(null, "add")}
-            className="px-4 py-2 text-white bg-green-400 rounded-md"
+            className="p-2 text-white bg-green-500 hover:bg-green-600 rounded-md transition-colors"
           >
             +
           </button>
