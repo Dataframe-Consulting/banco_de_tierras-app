@@ -33,6 +33,9 @@ interface IPropertiesState {
     anios_pend_predial?: number;
     comentarios?: string;
     proyecto_id?: number;
+    clasificacion?: string;
+    latitud?: number;
+    longitud?: number;
   } | null;
   errors?: {
     [key: string]: string;
@@ -104,6 +107,15 @@ const Form = ({
           : undefined,
         proyecto_id: formData.get("proyecto_id")
           ? parseInt(formData.get("proyecto_id") as string)
+          : undefined,
+        clasificacion: formData.get("clasificacion")
+          ? (formData.get("clasificacion") as string)
+          : undefined,
+        latitud: formData.get("latitud")
+          ? parseFloat(formData.get("latitud") as string)
+          : undefined,
+        longitud: formData.get("longitud")
+          ? parseFloat(formData.get("longitud") as string)
           : undefined,
       };
 
@@ -611,6 +623,48 @@ const Form = ({
                 />
               </GenericDiv>
             </GenericPairDiv>
+            <GenericPairDiv>
+              <GenericDiv>
+                <GenericInput
+                  type="select"
+                  id="clasificacion"
+                  ariaLabel="Clasificación"
+                  error={errors?.clasificacion}
+                  placeholder="Selecciona el tipo de propiedad..."
+                  defaultValue={data?.clasificacion ?? ""}
+                  options={[
+                    { value: "Terreno", label: "Terreno" },
+                    { value: "Local", label: "Local" },
+                    { value: "Casa", label: "Casa" },
+                    { value: "Departamento", label: "Departamento" },
+                    { value: "Rancho", label: "Rancho" },
+                    { value: "Otro", label: "Otro" },
+                  ]}
+                />
+              </GenericDiv>
+              <GenericDiv>
+                <GenericInput
+                  type="number"
+                  step="0.00000001"
+                  id="latitud"
+                  ariaLabel="Latitud"
+                  placeholder="19.4326"
+                  defaultValue={data?.latitud?.toString() ?? ""}
+                  error={errors?.latitud}
+                />
+              </GenericDiv>
+              <GenericDiv>
+                <GenericInput
+                  type="number"
+                  step="0.00000001"
+                  id="longitud"
+                  ariaLabel="Longitud"
+                  placeholder="-99.1332"
+                  defaultValue={data?.longitud?.toString() ?? ""}
+                  error={errors?.longitud}
+                />
+              </GenericDiv>
+            </GenericPairDiv>
             <div className="flex flex-col gap-2 w-full">
               <GenericInput
                 type="textarea"
@@ -628,13 +682,12 @@ const Form = ({
                   renderForm={(index, items, onSelect) => (
                     <div
                       key={index}
-                      className="flex flex-col md:flex-row gap-2"
+                      className="flex flex-col md:flex-row gap-2 items-start"
                     >
                       <div className="w-full md:w-2/3">
                         <AutocompleteInput
                           id="propietario_socio"
                           ariaLabel="Propietario/Socio"
-                          customClassName="mt-2"
                           error={errors?.propietario_socio}
                           placeholder="Busca un propietario/socio..."
                           additionOnChange={(e) =>
@@ -650,9 +703,10 @@ const Form = ({
                           type="checkbox"
                           ariaLabel="¿Es socio?"
                           labelClassName="mr-2"
+                          className="mt-2"
                         />
                       </div>
-                      <div className=" w-full md:w-1/3">
+                      <div className="w-full md:w-1/3">
                         <GenericInput
                           id="sociedad"
                           type="number"

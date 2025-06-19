@@ -74,6 +74,23 @@ const PropertiesDataTable = ({ propiedades, onAction }: IPropertiesDataTable) =>
       sortable: true,
     },
     {
+      name: "Clasificación",
+      selector: (row: { clasificacion?: string }) => row.clasificacion || "N/A",
+      sortable: true,
+    },
+    {
+      name: "Latitud",
+      selector: (row: { latitud?: number }) => row.latitud?.toString() || "N/A",
+      sortable: true,
+      format: (row: { latitud?: number }) => row.latitud ? row.latitud.toFixed(6) : "N/A",
+    },
+    {
+      name: "Longitud",
+      selector: (row: { longitud?: number }) => row.longitud?.toString() || "N/A",
+      sortable: true,
+      format: (row: { longitud?: number }) => row.longitud ? row.longitud.toFixed(6) : "N/A",
+    },
+    {
       name: "Creado en",
       selector: (row: { created_at: Date }) => row.created_at.toString(),
       sortable: true,

@@ -589,7 +589,7 @@ const GenericPairDiv = ({ children }: { children: React.ReactNode }) => {
 
 const GenericDiv = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex flex-col gap-2 w-full sm:w-1/2 justify-end">
+    <div className="flex flex-col gap-2 w-full sm:w-1/2">
       {children}
     </div>
   );

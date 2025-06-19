@@ -116,6 +116,9 @@ export interface IPropiedad {
   anios_pend_predial?: number;
   comentarios?: string;
   proyecto_id: number;
+  clasificacion?: string;
+  latitud?: number;
+  longitud?: number;
   created_at: Date;
   updated_at: Date;
 
