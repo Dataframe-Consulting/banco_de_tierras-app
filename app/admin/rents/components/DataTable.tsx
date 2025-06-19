@@ -5,7 +5,7 @@ import formatCurrency from "@/app/shared/utils/format-currency";
 import { ExpanderComponentProps } from "react-data-table-component";
 import { PencilIcon, TrashIcon } from "@/app/shared/icons";
 import { useCallback, useEffect, useOptimistic, useReducer, useState } from "react";
-import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
+import formatDateSimple from "@/app/shared/utils/formatdate-simple";
 import { PropiedadesDataTable, RentsPropertiesForm } from "./Propiedades";
 import {
   Modal,
@@ -121,12 +121,6 @@ const RentsDataTable = ({ rents, propiedades, refresh, onAction }: IRentsDataTab
       sortable: true,
     },
     {
-      name: "m2 rentados",
-      selector: (row: { metros_cuadrados_rentados?: number }) =>
-        row.metros_cuadrados_rentados || "Es local",
-      sortable: true,
-    },
-    {
       name: "Nombre Comercial",
       maxwidth: "200px",
       selector: (row: { nombre_comercial?: string }) =>
@@ -186,7 +180,7 @@ const RentsDataTable = ({ rents, propiedades, refresh, onAction }: IRentsDataTab
       sortable: true,
       format: (row: { meses_gracia_fecha_inicio?: Date }) =>
         row.meses_gracia_fecha_inicio
-          ? formatDateLatinAmerican(row.meses_gracia_fecha_inicio)
+          ? formatDateSimple(row.meses_gracia_fecha_inicio)
           : "Sin meses de gracia",
     },
     {
@@ -196,7 +190,7 @@ const RentsDataTable = ({ rents, propiedades, refresh, onAction }: IRentsDataTab
       sortable: true,
       format: (row: { meses_gracia_fecha_fin?: Date }) =>
         row.meses_gracia_fecha_fin
-          ? formatDateLatinAmerican(row.meses_gracia_fecha_fin)
+          ? formatDateSimple(row.meses_gracia_fecha_fin)
           : "Sin meses de gracia",
     },
     {
@@ -212,7 +206,7 @@ const RentsDataTable = ({ rents, propiedades, refresh, onAction }: IRentsDataTab
       sortable: true,
       format: (row: { renta_anticipada_fecha_inicio?: Date }) =>
         row.renta_anticipada_fecha_inicio
-          ? formatDateLatinAmerican(row.renta_anticipada_fecha_inicio)
+          ? formatDateSimple(row.renta_anticipada_fecha_inicio)
           : "Sin renta anticipada",
     },
     {
@@ -222,7 +216,7 @@ const RentsDataTable = ({ rents, propiedades, refresh, onAction }: IRentsDataTab
       sortable: true,
       format: (row: { renta_anticipada_fecha_fin?: Date }) =>
         row.renta_anticipada_fecha_fin
-          ? formatDateLatinAmerican(row.renta_anticipada_fecha_fin)
+          ? formatDateSimple(row.renta_anticipada_fecha_fin)
           : "Sin renta anticipada",
     },
     {
@@ -267,7 +261,7 @@ const RentsDataTable = ({ rents, propiedades, refresh, onAction }: IRentsDataTab
       sortable: true,
       format: (row: { inicio_vigencia?: Date }) =>
         row.inicio_vigencia
-          ? formatDateLatinAmerican(row.inicio_vigencia)
+          ? formatDateSimple(row.inicio_vigencia)
           : "Aún sin asignar",
     },
     {
@@ -279,7 +273,7 @@ const RentsDataTable = ({ rents, propiedades, refresh, onAction }: IRentsDataTab
       sortable: true,
       format: (row: { fin_vigencia_forzosa?: Date }) =>
         row.fin_vigencia_forzosa
-          ? formatDateLatinAmerican(row.fin_vigencia_forzosa)
+          ? formatDateSimple(row.fin_vigencia_forzosa)
           : "Aún sin asignar",
     },
     {
@@ -289,7 +283,7 @@ const RentsDataTable = ({ rents, propiedades, refresh, onAction }: IRentsDataTab
       sortable: true,
       format: (row: { fin_vigencia_no_forzosa?: Date }) =>
         row.fin_vigencia_no_forzosa
-          ? formatDateLatinAmerican(row.fin_vigencia_no_forzosa)
+          ? formatDateSimple(row.fin_vigencia_no_forzosa)
           : "Sin fin de vigencia no forzosa",
     },
     {
@@ -303,14 +297,14 @@ const RentsDataTable = ({ rents, propiedades, refresh, onAction }: IRentsDataTab
       selector: (row: { created_at: Date }) => row.created_at.toString(),
       sortable: true,
       format: (row: { created_at: Date }) =>
-        formatDateLatinAmerican(row.created_at),
+        formatDateSimple(row.created_at),
     },
     {
       name: "Actualizado en",
       selector: (row: { updated_at: Date }) => row.updated_at.toString(),
       sortable: true,
       format: (row: { updated_at: Date }) =>
-        formatDateLatinAmerican(row.updated_at),
+        formatDateSimple(row.updated_at),
     },
   ];
 

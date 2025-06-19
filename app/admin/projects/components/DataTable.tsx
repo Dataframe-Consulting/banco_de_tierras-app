@@ -2,7 +2,7 @@
 
 import { PencilIcon, TrashIcon } from "@/app/shared/icons";
 import { useEffect, useState } from "react";
-import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
+import formatDateSimple from "@/app/shared/utils/formatdate-simple";
 import {
   Card404,
   Datatable,
@@ -76,7 +76,7 @@ const ProjectsDataTable = ({ projects, onAction }: IProjectsDataTable) => {
       selector: (row: { created_at: Date }) => row.created_at.toString(),
       sortable: true,
       format: (row: { created_at: Date }) =>
-        formatDateLatinAmerican(row.created_at),
+        formatDateSimple(row.created_at),
     },
   ];
 
