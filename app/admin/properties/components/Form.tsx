@@ -679,10 +679,10 @@ const Form = ({
                     <AutocompleteInput
                       key={index}
                       id="garantia"
-                      ariaLabel="Garantía"
+                      ariaLabel="Garantía (Opcional)"
                       customClassName="mt-2"
                       error={errors?.garantia}
-                      placeholder="Busca una garantía..."
+                      placeholder="Busca una garantía... (Opcional)"
                       additionOnChange={(e) => onSelect(index, e.target.value)}
                       suggestions={items.map((i) => ({
                         value: i.key,
@@ -697,10 +697,10 @@ const Form = ({
                     <AutocompleteInput
                       key={index}
                       id="proceso_legal"
-                      ariaLabel="Proceso Legal"
+                      ariaLabel="Proceso Legal (Opcional)"
                       customClassName="mt-2"
                       error={errors?.proceso_legal}
-                      placeholder="Busca un proceso legal..."
+                      placeholder="Busca un proceso legal... (Opcional)"
                       additionOnChange={(e) => onSelect(index, e.target.value)}
                       suggestions={items.map((i) => ({
                         value: i.key,
