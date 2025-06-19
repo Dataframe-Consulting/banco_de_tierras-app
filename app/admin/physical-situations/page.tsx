@@ -102,7 +102,7 @@ const PhysicalSituationsContent = () => {
         >
           <Form
             action={state.action}
-            situacionFisica={state.selectedData}
+            physicalSituation={state.selectedData}
             refresh={() => setRefresh((prev) => !prev)}
             setOptimisticData={setOptimisticData}
             onClose={() => dispatch({ type: "CLOSE_MODAL" })}

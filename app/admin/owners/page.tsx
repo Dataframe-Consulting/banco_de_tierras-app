@@ -120,7 +120,7 @@ const OwnersContent = () => {
           <DatatableSkeleton />
         ) : (
           <OwnersDataTable
-            owners={optimisticData}
+            propietarios={optimisticData}
             onAction={handleAction}
           />
         )}

@@ -102,7 +102,7 @@ const SpecificVocationsContent = () => {
         >
           <Form
             action={state.action}
-            vocacionEspecifica={state.selectedData}
+            specificVocation={state.selectedData}
             refresh={() => setRefresh((prev) => !prev)}
             setOptimisticData={setOptimisticData}
             onClose={() => dispatch({ type: "CLOSE_MODAL" })}
