@@ -3,7 +3,7 @@
 import RentsPropertiesForm from "./Form";
 import { useEffect, useState } from "react";
 import formatCurrency from "@/app/shared/utils/format-currency";
-import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
+import formatDateSimple from "@/app/shared/utils/formatdate-simple";
 import { Card404, Datatable, DatatableSkeleton } from "@/app/shared/components";
 import type { IPropiedad } from "@/app/shared/interfaces";
 
@@ -23,7 +23,7 @@ const PropiedadesDataTable = ({
   const columns = [
     {
       name: "Acciones",
-      width: "90px",
+      width: "60px",
       cell: (row: IPropiedad) => (
         <div className="flex justify-center gap-2">
           <RentsPropertiesForm
@@ -96,14 +96,14 @@ const PropiedadesDataTable = ({
       selector: (row: { created_at: Date }) => row.created_at.toString(),
       sortable: true,
       format: (row: { created_at: Date }) =>
-        formatDateLatinAmerican(row.created_at),
+        formatDateSimple(row.created_at),
     },
     {
       name: "Actualizado en",
       selector: (row: { updated_at: Date }) => row.updated_at.toString(),
       sortable: true,
       format: (row: { updated_at: Date }) =>
-        formatDateLatinAmerican(row.updated_at),
+        formatDateSimple(row.updated_at),
     },
   ];
 

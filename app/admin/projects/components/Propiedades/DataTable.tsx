@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import formatCurrency from "@/app/shared/utils/format-currency";
 import { Card404, Datatable, DatatableSkeleton } from "@/app/shared/components";
-import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
+import formatDateSimple from "@/app/shared/utils/formatdate-simple";
 import type { IPropiedad } from "@/app/shared/interfaces";
 
 interface IPropertiesDataTable {
@@ -75,14 +75,14 @@ const PropertiesDataTable = ({ propiedades }: IPropertiesDataTable) => {
       selector: (row: { created_at: Date }) => row.created_at.toString(),
       sortable: true,
       format: (row: { created_at: Date }) =>
-        formatDateLatinAmerican(row.created_at),
+        formatDateSimple(row.created_at),
     },
     {
       name: "Actualizado en",
       selector: (row: { updated_at: Date }) => row.updated_at.toString(),
       sortable: true,
       format: (row: { updated_at: Date }) =>
-        formatDateLatinAmerican(row.updated_at),
+        formatDateSimple(row.updated_at),
     },
   ];
 

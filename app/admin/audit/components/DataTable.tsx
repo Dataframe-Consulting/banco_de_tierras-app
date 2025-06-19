@@ -1,7 +1,7 @@
 "use client";
 
 import { JSX, useEffect, useState } from "react";
-import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
+import formatDateSimple from "@/app/shared/utils/formatdate-simple";
 import { Card404, Datatable, DatatableSkeleton } from "@/app/shared/components";
 import type { IAuditoria } from "@/app/shared/interfaces";
 import cn from "@/app/shared/utils/cn";
@@ -105,7 +105,7 @@ const AuditsDataTable = ({ audits }: IAuditsDataTable) => {
       selector: (row: { created_at: Date }) => row.created_at.toString(),
       sortable: true,
       format: (row: { created_at: Date }) =>
-        formatDateLatinAmerican(row.created_at),
+        formatDateSimple(row.created_at),
     },
   ];
 

@@ -5,7 +5,7 @@ import PropertiesGuaranteesForm from "./Form";
 import { useModal } from "@/app/shared/hooks";
 import { TrashIcon } from "@/app/shared/icons";
 import formatCurrency from "@/app/shared/utils/format-currency";
-import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
+import formatDateSimple from "@/app/shared/utils/formatdate-simple";
 import {
   Modal,
   Card404,
@@ -34,7 +34,7 @@ const GarantiasDatatable = ({
   const columns = [
     {
       name: "Acciones",
-      width: "90px",
+      width: "60px",
       cell: (row: IGarantia) => (
         <div className="flex justify-center gap-2">
           <button
@@ -42,7 +42,7 @@ const GarantiasDatatable = ({
               setGarantiaSelected(row);
               onOpen();
             }}
-            className="px-4 py-2 text-white bg-red-400 rounded-md"
+            className="p-2 text-white bg-red-400 rounded-md"
           >
             <TrashIcon />
           </button>
@@ -65,28 +65,28 @@ const GarantiasDatatable = ({
       selector: (row: { fecha_inicio: Date }) => row.fecha_inicio.toString(),
       sortable: true,
       format: (row: { fecha_inicio: Date }) =>
-        formatDateLatinAmerican(row.fecha_inicio),
+        formatDateSimple(row.fecha_inicio),
     },
     {
       name: "Fecha de Fin",
       selector: (row: { fecha_fin: Date }) => row.fecha_fin.toString(),
       sortable: true,
       format: (row: { fecha_fin: Date }) =>
-        formatDateLatinAmerican(row.fecha_fin),
+        formatDateSimple(row.fecha_fin),
     },
     {
       name: "Creado en",
       selector: (row: { created_at: Date }) => row.created_at.toString(),
       sortable: true,
       format: (row: { created_at: Date }) =>
-        formatDateLatinAmerican(row.created_at),
+        formatDateSimple(row.created_at),
     },
     {
       name: "Actualizado en",
       selector: (row: { updated_at: Date }) => row.updated_at.toString(),
       sortable: true,
       format: (row: { updated_at: Date }) =>
-        formatDateLatinAmerican(row.updated_at),
+        formatDateSimple(row.updated_at),
     },
   ];
 

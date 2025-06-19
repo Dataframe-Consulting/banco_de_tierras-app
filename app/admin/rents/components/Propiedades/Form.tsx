@@ -43,7 +43,7 @@ const RentsPropertiesForm = ({
         type="button"
         onClick={onOpen}
         className={cn(
-          "px-4 py-2 text-white rounded-md",
+          "p-2 text-white rounded-md",
           action === "add" ? "bg-green-400" : "bg-red-400"
         )}
       >

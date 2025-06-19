@@ -2,7 +2,7 @@
 
 import { PencilIcon, TrashIcon } from "@/app/shared/icons";
 import { useEffect, useState } from "react";
-import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
+import formatDateSimple from "@/app/shared/utils/formatdate-simple";
 import {
   Card404,
   Datatable,
@@ -21,18 +21,18 @@ const PhysicalSituationsDataTable = ({ physicalSituations, onAction }: IPhysical
   const columns = [
     {
       name: "Acciones",
-      width: "150px",
+      width: "100px",
       cell: (row: ISituacionFisica) => (
         <div className="flex justify-center gap-2">
           <button
             onClick={() => onAction(row, "edit")}
-            className="px-4 py-2 text-white bg-blue-400 rounded-md"
+            className="p-2 text-white bg-blue-400 rounded-md"
           >
             <PencilIcon />
           </button>
           <button
             onClick={() => onAction(row, "delete")}
-            className="px-4 py-2 text-white bg-red-400 rounded-md"
+            className="p-2 text-white bg-red-400 rounded-md"
           >
             <TrashIcon />
           </button>
@@ -49,14 +49,14 @@ const PhysicalSituationsDataTable = ({ physicalSituations, onAction }: IPhysical
       selector: (row: { created_at: Date }) => row.created_at.toString(),
       sortable: true,
       format: (row: { created_at: Date }) =>
-        formatDateLatinAmerican(row.created_at),
+        formatDateSimple(row.created_at),
     },
     {
       name: "Actualizado en",
       selector: (row: { updated_at: Date }) => row.updated_at.toString(),
       sortable: true,
       format: (row: { updated_at: Date }) =>
-        formatDateLatinAmerican(row.updated_at),
+        formatDateSimple(row.updated_at),
     },
   ];
 

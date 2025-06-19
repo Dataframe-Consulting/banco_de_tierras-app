@@ -2,7 +2,7 @@
 
 import { PencilIcon, TrashIcon } from "@/app/shared/icons";
 import { useEffect, useState } from "react";
-import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
+import formatDateSimple from "@/app/shared/utils/formatdate-simple";
 import formatCurrency from "@/app/shared/utils/format-currency";
 import {
   Card404,
@@ -22,18 +22,18 @@ const PropertiesDataTable = ({ propiedades, onAction }: IPropertiesDataTable) =>
   const columns = [
     {
       name: "Acciones",
-      width: "150px",
+      width: "100px",
       cell: (row: IPropiedad) => (
         <div className="flex justify-center gap-2">
           <button
             onClick={() => onAction(row, "edit")}
-            className="px-4 py-2 text-white bg-blue-400 rounded-md"
+            className="p-2 text-white bg-blue-400 rounded-md"
           >
             <PencilIcon />
           </button>
           <button
             onClick={() => onAction(row, "delete")}
-            className="px-4 py-2 text-white bg-red-400 rounded-md"
+            className="p-2 text-white bg-red-400 rounded-md"
           >
             <TrashIcon />
           </button>
@@ -74,11 +74,28 @@ const PropertiesDataTable = ({ propiedades, onAction }: IPropertiesDataTable) =>
       sortable: true,
     },
     {
+      name: "Clasificación",
+      selector: (row: { clasificacion?: string }) => row.clasificacion || "N/A",
+      sortable: true,
+    },
+    {
+      name: "Latitud",
+      selector: (row: { latitud?: number }) => row.latitud?.toString() || "N/A",
+      sortable: true,
+      format: (row: { latitud?: number }) => row.latitud ? row.latitud.toFixed(6) : "N/A",
+    },
+    {
+      name: "Longitud",
+      selector: (row: { longitud?: number }) => row.longitud?.toString() || "N/A",
+      sortable: true,
+      format: (row: { longitud?: number }) => row.longitud ? row.longitud.toFixed(6) : "N/A",
+    },
+    {
       name: "Creado en",
       selector: (row: { created_at: Date }) => row.created_at.toString(),
       sortable: true,
       format: (row: { created_at: Date }) =>
-        formatDateLatinAmerican(row.created_at),
+        formatDateSimple(row.created_at),
     },
   ];
 

@@ -2,7 +2,7 @@
 
 import { PencilIcon, TrashIcon } from "@/app/shared/icons";
 import { useEffect, useState } from "react";
-import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
+import formatDateSimple from "@/app/shared/utils/formatdate-simple";
 import {
   Card404,
   Datatable,
@@ -21,18 +21,18 @@ const GuaranteesDataTable = ({ guarantees, onAction }: IGuaranteesDataTable) => 
   const columns = [
     {
       name: "Acciones",
-      width: "150px",
+      width: "100px",
       cell: (row: IGarantia) => (
         <div className="flex justify-center gap-2">
           <button
             onClick={() => onAction(row, "edit")}
-            className="px-4 py-2 text-white bg-blue-400 rounded-md"
+            className="p-2 text-white bg-blue-400 rounded-md"
           >
             <PencilIcon />
           </button>
           <button
             onClick={() => onAction(row, "delete")}
-            className="px-4 py-2 text-white bg-red-400 rounded-md"
+            className="p-2 text-white bg-red-400 rounded-md"
           >
             <TrashIcon />
           </button>
@@ -55,21 +55,21 @@ const GuaranteesDataTable = ({ guarantees, onAction }: IGuaranteesDataTable) => 
       selector: (row: { fecha_inicio: Date }) => row.fecha_inicio.toString(),
       sortable: true,
       format: (row: { fecha_inicio: Date }) =>
-        formatDateLatinAmerican(row.fecha_inicio),
+        formatDateSimple(row.fecha_inicio),
     },
     {
       name: "Fecha Fin",
       selector: (row: { fecha_fin: Date }) => row.fecha_fin.toString(),
       sortable: true,
       format: (row: { fecha_fin: Date }) =>
-        formatDateLatinAmerican(row.fecha_fin),
+        formatDateSimple(row.fecha_fin),
     },
     {
       name: "Creado en",
       selector: (row: { created_at: Date }) => row.created_at.toString(),
       sortable: true,
       format: (row: { created_at: Date }) =>
-        formatDateLatinAmerican(row.created_at),
+        formatDateSimple(row.created_at),
     },
   ];
 

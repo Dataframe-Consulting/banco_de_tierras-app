@@ -2,7 +2,7 @@
 
 import { PencilIcon, TrashIcon } from "@/app/shared/icons";
 import { useEffect, useState } from "react";
-import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
+import formatDateSimple from "@/app/shared/utils/formatdate-simple";
 import {
   Card404,
   Datatable,
@@ -21,18 +21,18 @@ const ProjectsDataTable = ({ projects, onAction }: IProjectsDataTable) => {
   const columns = [
     {
       name: "Acciones",
-      width: "150px",
+      width: "100px",
       cell: (row: IProyecto) => (
         <div className="flex justify-center gap-2">
           <button
             onClick={() => onAction(row, "edit")}
-            className="px-4 py-2 text-white bg-blue-400 rounded-md"
+            className="p-2 text-white bg-blue-400 rounded-md"
           >
             <PencilIcon />
           </button>
           <button
             onClick={() => onAction(row, "delete")}
-            className="px-4 py-2 text-white bg-red-400 rounded-md"
+            className="p-2 text-white bg-red-400 rounded-md"
           >
             <TrashIcon />
           </button>
@@ -76,7 +76,7 @@ const ProjectsDataTable = ({ projects, onAction }: IProjectsDataTable) => {
       selector: (row: { created_at: Date }) => row.created_at.toString(),
       sortable: true,
       format: (row: { created_at: Date }) =>
-        formatDateLatinAmerican(row.created_at),
+        formatDateSimple(row.created_at),
     },
   ];
 

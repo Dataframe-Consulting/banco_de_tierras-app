@@ -34,6 +34,9 @@ interface IPropertiesState {
     anios_pend_predial?: number;
     comentarios?: string;
     proyecto_id?: number;
+    clasificacion?: string;
+    latitud?: number;
+    longitud?: number;
   } | null;
   errors?: {
     [key: string]: string;
@@ -105,6 +108,15 @@ const Form = ({
           : undefined,
         proyecto_id: formData.get("proyecto_id")
           ? parseInt(formData.get("proyecto_id") as string)
+          : undefined,
+        clasificacion: formData.get("clasificacion")
+          ? (formData.get("clasificacion") as string)
+          : undefined,
+        latitud: formData.get("latitud")
+          ? parseFloat(formData.get("latitud") as string)
+          : undefined,
+        longitud: formData.get("longitud")
+          ? parseFloat(formData.get("longitud") as string)
           : undefined,
       };
 
@@ -544,10 +556,16 @@ const Form = ({
                 <GenericInput
                   type="number"
                   id="anio_valor_comercial"
+                  min="0"
                   ariaLabel="Año Valor Comercial"
                   placeholder="2023"
                   defaultValue={data?.anio_valor_comercial?.toString() ?? ""}
                   error={errors?.anio_valor_comercial}
+                  onKeyDown={(e) => {
+                    if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '.') {
+                      e.preventDefault();
+                    }
+                  }}
                 />
               </GenericDiv>
               <GenericDiv>
@@ -588,10 +606,58 @@ const Form = ({
                 <GenericInput
                   type="number"
                   id="anios_pend_predial"
+                  min="0"
                   ariaLabel="Años Pend. Predial"
                   placeholder="2"
                   defaultValue={data?.anios_pend_predial?.toString() ?? ""}
                   error={errors?.anios_pend_predial}
+                  onKeyDown={(e) => {
+                    if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '.') {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </GenericDiv>
+            </GenericPairDiv>
+            <GenericPairDiv>
+              <GenericDiv>
+                <GenericInput
+                  type="select"
+                  id="clasificacion"
+                  ariaLabel="Clasificación"
+                  error={errors?.clasificacion}
+                  placeholder="Selecciona el tipo de propiedad..."
+                  defaultValue={data?.clasificacion ?? ""}
+                  options={[
+                    { value: "Terreno", label: "Terreno" },
+                    { value: "Local", label: "Local" },
+                    { value: "Casa", label: "Casa" },
+                    { value: "Departamento", label: "Departamento" },
+                    { value: "Rancho", label: "Rancho" },
+                    { value: "Otro", label: "Otro" },
+                  ]}
+                />
+              </GenericDiv>
+              <GenericDiv>
+                <GenericInput
+                  type="number"
+                  step="0.00000001"
+                  id="latitud"
+                  ariaLabel="Latitud"
+                  placeholder="19.4326"
+                  defaultValue={data?.latitud?.toString() ?? ""}
+                  error={errors?.latitud}
+                />
+              </GenericDiv>
+              <GenericDiv>
+                <GenericInput
+                  type="number"
+                  step="0.00000001"
+                  id="longitud"
+                  ariaLabel="Longitud"
+                  placeholder="-99.1332"
+                  defaultValue={data?.longitud?.toString() ?? ""}
+                  error={errors?.longitud}
                 />
               </GenericDiv>
             </GenericPairDiv>
@@ -612,13 +678,12 @@ const Form = ({
                   renderForm={(index, items, onSelect) => (
                     <div
                       key={index}
-                      className="flex flex-col md:flex-row gap-2"
+                      className="flex flex-col md:flex-row gap-2 items-start"
                     >
                       <div className="w-full md:w-2/3">
                         <AutocompleteInput
                           id="propietario_socio"
                           ariaLabel="Propietario/Socio"
-                          customClassName="mt-2"
                           error={errors?.propietario_socio}
                           placeholder="Busca un propietario/socio..."
                           additionOnChange={(e) =>
@@ -634,9 +699,10 @@ const Form = ({
                           type="checkbox"
                           ariaLabel="¿Es socio?"
                           labelClassName="mr-2"
+                          className="mt-2"
                         />
                       </div>
-                      <div className=" w-full md:w-1/3">
+                      <div className="w-full md:w-1/3">
                         <GenericInput
                           id="sociedad"
                           type="number"
@@ -675,10 +741,10 @@ const Form = ({
                     <AutocompleteInput
                       key={index}
                       id="garantia"
-                      ariaLabel="Garantía"
+                      ariaLabel="Garantía (Opcional)"
                       customClassName="mt-2"
                       error={errors?.garantia}
-                      placeholder="Busca una garantía..."
+                      placeholder="Busca una garantía... (Opcional)"
                       additionOnChange={(e) => onSelect(index, e.target.value)}
                       suggestions={items.map((i) => ({
                         value: i.key,
@@ -693,10 +759,10 @@ const Form = ({
                     <AutocompleteInput
                       key={index}
                       id="proceso_legal"
-                      ariaLabel="Proceso Legal"
+                      ariaLabel="Proceso Legal (Opcional)"
                       customClassName="mt-2"
                       error={errors?.proceso_legal}
-                      placeholder="Busca un proceso legal..."
+                      placeholder="Busca un proceso legal... (Opcional)"
                       additionOnChange={(e) => onSelect(index, e.target.value)}
                       suggestions={items.map((i) => ({
                         value: i.key,

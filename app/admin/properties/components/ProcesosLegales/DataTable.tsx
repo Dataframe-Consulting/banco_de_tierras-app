@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { IProcesoLegal } from "@/app/shared/interfaces";
-import formatDateLatinAmerican from "@/app/shared/utils/formatdate-latin";
+import formatDateSimple from "@/app/shared/utils/formatdate-simple";
 import {
   Modal,
   Card404,
@@ -32,7 +32,7 @@ const ProcesosLegalesDataTable = ({
   const columns = [
     {
       name: "Acciones",
-      width: "90px",
+      width: "60px",
       cell: (row: IProcesoLegal) => (
         <div className="flex justify-center gap-2">
           <button
@@ -40,7 +40,7 @@ const ProcesosLegalesDataTable = ({
               setProcesoLegalSelected(row);
               onOpen();
             }}
-            className="px-4 py-2 text-white bg-red-400 rounded-md"
+            className="p-2 text-white bg-red-400 rounded-md"
           >
             <TrashIcon />
           </button>
@@ -74,14 +74,14 @@ const ProcesosLegalesDataTable = ({
       selector: (row: { created_at: Date }) => row.created_at.toString(),
       sortable: true,
       format: (row: { created_at: Date }) =>
-        formatDateLatinAmerican(row.created_at),
+        formatDateSimple(row.created_at),
     },
     {
       name: "Actualizado en",
       selector: (row: { updated_at: Date }) => row.updated_at.toString(),
       sortable: true,
       format: (row: { updated_at: Date }) =>
-        formatDateLatinAmerican(row.updated_at),
+        formatDateSimple(row.updated_at),
     },
   ];
 

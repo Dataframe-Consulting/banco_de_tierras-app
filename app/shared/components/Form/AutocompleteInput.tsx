@@ -36,6 +36,7 @@ const AutocompleteInput: React.FC<IAutocompleteInput> = ({
   const [filteredSuggestions, setFilteredSuggestions] = useState<ISuggestion[]>(
     []
   );
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
@@ -49,6 +50,7 @@ const AutocompleteInput: React.FC<IAutocompleteInput> = ({
           setInputValue("");
         }
         setFilteredSuggestions([]);
+        setIsOpen(false);
       }
     };
 
@@ -63,16 +65,34 @@ const AutocompleteInput: React.FC<IAutocompleteInput> = ({
   ) => {
     const value = e.target.value;
     setInputValue(value);
+    setIsOpen(true);
 
-    const filtered = suggestions.filter((suggestion) =>
-      suggestion.label.toLowerCase().includes(value.toLowerCase())
-    );
-    setFilteredSuggestions(filtered);
+    if (value === "") {
+      setFilteredSuggestions(suggestions);
+    } else {
+      const filtered = suggestions.filter((suggestion) =>
+        suggestion.label.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredSuggestions(filtered);
+    }
+  };
+
+  const handleFocus = () => {
+    setIsOpen(true);
+    if (inputValue === "") {
+      setFilteredSuggestions(suggestions);
+    } else {
+      const filtered = suggestions.filter((suggestion) =>
+        suggestion.label.toLowerCase().includes(inputValue.toLowerCase())
+      );
+      setFilteredSuggestions(filtered);
+    }
   };
 
   const handleSelect = (suggestion: ISuggestion) => {
     setInputValue(suggestion.value);
     setFilteredSuggestions([]);
+    setIsOpen(false);
     if (additionOnChange) {
       const event = {
         target: {
@@ -95,6 +115,7 @@ const AutocompleteInput: React.FC<IAutocompleteInput> = ({
         value={inputValue}
         aria-label={ariaLabel}
         onChange={handleChange}
+        onFocus={handleFocus}
         placeholder={placeholder}
         defaultValue={defaultValue}
         className={cn(
@@ -105,7 +126,7 @@ const AutocompleteInput: React.FC<IAutocompleteInput> = ({
             : "bg-white dark:bg-neutral-light border-neutral-dark text-neutral-dark dark:text-primary-light placeholder-neutral dark:placeholder-primary-light focus:ring-accent focus:border-accent dark:focus:ring-primary-light dark:focus:border-primary-light"
         )}
       />
-      {filteredSuggestions.length > 0 && (
+      {isOpen && filteredSuggestions.length > 0 && (
         <ul className="absolute z-10 w-full mt-1 max-h-40 overflow-y-auto bg-white border border-neutral-dark rounded-lg shadow-lg dark:bg-neutral-light dark:border-primary-light">
           {filteredSuggestions.map((suggestion) => (
             <li

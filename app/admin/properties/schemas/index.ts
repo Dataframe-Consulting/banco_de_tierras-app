@@ -74,6 +74,30 @@ const baseSchema = z.object({
     .min(1, {
       message: "El proyecto es requerido",
     }),
+  clasificacion: z
+    .string()
+    .max(50, {
+      message: "La clasificación no puede tener más de 50 caracteres",
+    })
+    .optional(),
+  latitud: z
+    .number()
+    .min(-90, {
+      message: "La latitud debe estar entre -90 y 90",
+    })
+    .max(90, {
+      message: "La latitud debe estar entre -90 y 90",
+    })
+    .optional(),
+  longitud: z
+    .number()
+    .min(-180, {
+      message: "La longitud debe estar entre -180 y 180",
+    })
+    .max(180, {
+      message: "La longitud debe estar entre -180 y 180",
+    })
+    .optional(),
 });
 
 const createSchema = baseSchema.extend({});
