@@ -100,7 +100,7 @@ const LocationsContent = () => {
         >
           <Form
             action={state.action}
-            ubicacion={state.selectedData}
+            location={state.selectedData}
             refresh={() => setRefresh((prev) => !prev)}
             setOptimisticData={setOptimisticData}
             onClose={() => dispatch({ type: "CLOSE_MODAL" })}
