@@ -548,10 +548,16 @@ const Form = ({
                 <GenericInput
                   type="number"
                   id="anio_valor_comercial"
+                  min="0"
                   ariaLabel="Año Valor Comercial"
                   placeholder="2023"
                   defaultValue={data?.anio_valor_comercial?.toString() ?? ""}
                   error={errors?.anio_valor_comercial}
+                  onKeyDown={(e) => {
+                    if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '.') {
+                      e.preventDefault();
+                    }
+                  }}
                 />
               </GenericDiv>
               <GenericDiv>
@@ -592,10 +598,16 @@ const Form = ({
                 <GenericInput
                   type="number"
                   id="anios_pend_predial"
+                  min="0"
                   ariaLabel="Años Pend. Predial"
                   placeholder="2"
                   defaultValue={data?.anios_pend_predial?.toString() ?? ""}
                   error={errors?.anios_pend_predial}
+                  onKeyDown={(e) => {
+                    if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '.') {
+                      e.preventDefault();
+                    }
+                  }}
                 />
               </GenericDiv>
             </GenericPairDiv>

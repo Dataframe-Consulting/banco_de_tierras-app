@@ -25,6 +25,7 @@ interface IGenericInput {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 const GenericInput: React.FC<IGenericInput> = ({
@@ -47,6 +48,7 @@ const GenericInput: React.FC<IGenericInput> = ({
   labelClassName = "",
   error,
   onChange,
+  onKeyDown,
 }) => {
   const commonProps = {
     id,
@@ -129,6 +131,7 @@ const GenericInput: React.FC<IGenericInput> = ({
               min={min}
               max={max}
               defaultChecked={defaultChecked}
+              onKeyDown={onKeyDown}
               {...commonProps}
             />
           )}
