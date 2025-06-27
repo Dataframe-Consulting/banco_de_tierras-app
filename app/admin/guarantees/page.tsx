@@ -76,7 +76,7 @@ const GuaranteesContent = () => {
       const params = new URLSearchParams(searchParamsObj);
 
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/garantia?${params.toString()}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/garantia/?${params.toString()}`, {
           credentials: "include"
         });
         if (response.ok) {

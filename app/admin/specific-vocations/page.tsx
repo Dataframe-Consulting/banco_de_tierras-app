@@ -77,7 +77,7 @@ const SpecificVocationsContent = () => {
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/vocacion_especifica?${params.toString()}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/vocacion_especifica/?${params.toString()}`,
           { credentials: "include" }
         );
         if (response.ok) {

@@ -77,7 +77,7 @@ const PhysicalSituationsContent = () => {
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/situacion_fisica?${params.toString()}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/situacion_fisica/?${params.toString()}`,
           { credentials: "include" }
         );
         if (response.ok) {

@@ -76,7 +76,7 @@ const OwnersContent = () => {
       const params = new URLSearchParams(searchParamsObj);
 
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/propietario?${params.toString()}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/propietario/?${params.toString()}`, {
           credentials: "include"
         });
         if (response.ok) {

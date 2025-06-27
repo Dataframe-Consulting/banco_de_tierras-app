@@ -86,16 +86,16 @@ const ProjectsContent = () => {
 
       try {
         const [projectsRes, situacionesRes, vocacionesRes, vocacionesEspRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/proyecto?${params.toString()}`, {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/proyecto/?${params.toString()}`, {
             credentials: "include"
           }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/situacion_fisica`, {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/situacion_fisica/`, {
             credentials: "include"
           }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/vocacion`, {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/vocacion/`, {
             credentials: "include"
           }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/vocacion_especifica`, {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/vocacion_especifica/`, {
             credentials: "include"
           })
         ]);
