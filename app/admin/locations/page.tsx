@@ -76,10 +76,12 @@ const LocationsContent = () => {
       const params = new URLSearchParams(searchParamsObj);
 
       try {
-        const response = await fetch(`/api/ubicaciones?${params.toString()}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ubicacion?${params.toString()}`, {
+          credentials: "include"
+        });
         if (response.ok) {
           const result = await response.json();
-          setLocations(result.data || []);
+          setLocations(Array.isArray(result) ? result : (result.data || []));
         }
       } catch (error) {
         console.error("Error fetching locations:", error);

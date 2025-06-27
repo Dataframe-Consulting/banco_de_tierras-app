@@ -19,10 +19,12 @@ const AuditContent = () => {
       const params = new URLSearchParams(searchParamsObj);
 
       try {
-        const response = await fetch(`/api/auditoria?${params.toString()}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auditoria?${params.toString()}`, {
+          credentials: "include"
+        });
         if (response.ok) {
           const result = await response.json();
-          setAudits(result.data || []);
+          setAudits(Array.isArray(result) ? result : (result.data || []));
         }
       } catch (error) {
         console.error("Error fetching audit data:", error);

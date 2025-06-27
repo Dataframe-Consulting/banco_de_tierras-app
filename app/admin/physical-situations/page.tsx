@@ -77,11 +77,12 @@ const PhysicalSituationsContent = () => {
 
       try {
         const response = await fetch(
-          `/api/situaciones-fisicas?${params.toString()}`
+          `${process.env.NEXT_PUBLIC_API_URL}/situacion_fisica?${params.toString()}`,
+          { credentials: "include" }
         );
         if (response.ok) {
           const result = await response.json();
-          setPhysicalSituations(result.data || []);
+          setPhysicalSituations(Array.isArray(result) ? result : (result.data || []));
         }
       } catch (error) {
         console.error("Error fetching physical situations:", error);

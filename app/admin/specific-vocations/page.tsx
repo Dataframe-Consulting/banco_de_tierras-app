@@ -77,11 +77,12 @@ const SpecificVocationsContent = () => {
 
       try {
         const response = await fetch(
-          `/api/vocaciones-especificas?${params.toString()}`
+          `${process.env.NEXT_PUBLIC_API_URL}/vocacion_especifica?${params.toString()}`,
+          { credentials: "include" }
         );
         if (response.ok) {
           const result = await response.json();
-          setSpecificVocations(result.data || []);
+          setSpecificVocations(Array.isArray(result) ? result : (result.data || []));
         }
       } catch (error) {
         console.error("Error fetching specific vocations:", error);

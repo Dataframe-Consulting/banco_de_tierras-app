@@ -86,30 +86,38 @@ const ProjectsContent = () => {
 
       try {
         const [projectsRes, situacionesRes, vocacionesRes, vocacionesEspRes] = await Promise.all([
-          fetch(`/api/proyectos?${params.toString()}`),
-          fetch(`/api/situaciones-fisicas`),
-          fetch(`/api/vocaciones`),
-          fetch(`/api/vocaciones-especificas`)
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/proyecto?${params.toString()}`, {
+            credentials: "include"
+          }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/situacion_fisica`, {
+            credentials: "include"
+          }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/vocacion`, {
+            credentials: "include"
+          }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/vocacion_especifica`, {
+            credentials: "include"
+          })
         ]);
 
         if (projectsRes.ok) {
           const result = await projectsRes.json();
-          setProjects(result.data || []);
+          setProjects(Array.isArray(result) ? result : (result.data || []));
         }
 
         if (situacionesRes.ok) {
           const result = await situacionesRes.json();
-          setSituacionesFisicas(result.data || []);
+          setSituacionesFisicas(Array.isArray(result) ? result : (result.data || []));
         }
 
         if (vocacionesRes.ok) {
           const result = await vocacionesRes.json();
-          setVocaciones(result.data || []);
+          setVocaciones(Array.isArray(result) ? result : (result.data || []));
         }
 
         if (vocacionesEspRes.ok) {
           const result = await vocacionesEspRes.json();
-          setVocacionesEspecificas(result.data || []);
+          setVocacionesEspecificas(Array.isArray(result) ? result : (result.data || []));
         }
       } catch (error) {
         console.error("Error fetching data:", error);

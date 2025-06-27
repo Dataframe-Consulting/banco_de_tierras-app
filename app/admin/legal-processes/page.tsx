@@ -76,10 +76,12 @@ const LegalProcessesContent = () => {
       const params = new URLSearchParams(searchParamsObj);
 
       try {
-        const response = await fetch(`/api/procesos-legales?${params.toString()}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/proceso_legal?${params.toString()}`, {
+          credentials: "include"
+        });
         if (response.ok) {
           const result = await response.json();
-          setLegalProcesses(result.data || []);
+          setLegalProcesses(Array.isArray(result) ? result : (result.data || []));
         }
       } catch (error) {
         console.error("Error fetching legal processes:", error);

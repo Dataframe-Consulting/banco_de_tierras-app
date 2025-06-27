@@ -76,10 +76,13 @@ const GuaranteesContent = () => {
       const params = new URLSearchParams(searchParamsObj);
 
       try {
-        const response = await fetch(`/api/garantias?${params.toString()}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/garantia?${params.toString()}`, {
+          credentials: "include"
+        });
         if (response.ok) {
           const result = await response.json();
-          setGuarantees(result.data || []);
+          // Manejar tanto el formato { data: [...] } como el array directo
+          setGuarantees(Array.isArray(result) ? result : (result.data || []));
         }
       } catch (error) {
         console.error("Error fetching guarantees:", error);
